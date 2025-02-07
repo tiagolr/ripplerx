@@ -23,7 +23,6 @@ set(SourceFiles
 
 set(plugin_formats
     VST3
-    Standalone
 )
 if(APPLE)
     list(APPEND plugin_formats AU)
