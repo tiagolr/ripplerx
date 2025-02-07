@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-windows:
-    runs-on: windows-2019
+    runs-on: windows-2022
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -78,7 +78,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt update
-          sudo apt install -y libasound2-dev libx11-dev libxinerama-dev libxext-dev libfreetype6-dev libwebkit2gtk-4.0-dev libglu1-mesa-dev ccache xvfb libjack-dev
+          sudo apt-get install libx11-dev libfreetype-dev libasound2-dev libxrandr-dev libxinerama-dev libxcursor-dev
         # sudo apt install -y g++ cmake
 
       - name: Generate Build Files
