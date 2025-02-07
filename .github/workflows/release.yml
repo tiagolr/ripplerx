@@ -1,0 +1,146 @@
+name: Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-windows:
+    runs-on: windows-2019
+    steps:
+      - name: Checkout Repository
+      - uses: actions/checkout@v4
+        with:
+         submodules: recursive
+
+      - name: Generate Build Files
+        run: |
+          cmake -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=Release -S . -B ./build
+
+      - name: Build Project
+        run: |
+         cmake --build ./build --config Release
+
+      - name: List errors
+        run: cat "./build/CMakeFiles/CMakeError.log" || true
+
+      - name: upload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ripplerx-win
+          path: |
+            ./build/RipplerX_artefacts/Release/VST3
+            !./build/RipplerX_artefacts/Release/VST3/*.exp
+            !./build/RipplerX_artefacts/Release/VST3/*.lib
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Repository
+      - uses: actions/checkout@v4
+        with:
+         submodules: recursive
+
+      - name: Install Dependencies
+        run: brew install cmake ninja
+
+      - name: Generate Build Files
+        run: |
+          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" -S . -B ./build
+
+      - name: Build Project
+        run: |
+         cmake --build ./build --config Release
+
+      - name: List errors
+        run: cat "./build/CMakeFiles/CMakeError.log" || true
+
+      - name: upload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ripplerx-macos
+          path: |
+            ./build/RipplerX_artefacts/Release/AU
+            ./build/RipplerX_artefacts/Release/VST3
+            !./build/RipplerX_artefacts/Release/VST3/*.exp
+            !./build/RipplerX_artefacts/Release/VST3/*.lib
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+      - uses: actions/checkout@v4
+        with:
+         submodules: recursive
+
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y libasound2-dev libx11-dev libxinerama-dev libxext-dev libfreetype6-dev libwebkit2gtk-4.0-dev libglu1-mesa-dev ccache xvfb libjack-dev
+        # sudo apt install -y g++ cmake
+
+      - name: Generate Build Files
+        run: |
+          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -S . -B ./build
+
+      - name: Build Project
+        run: |
+         cmake --build ./build --config Release
+
+      - name: List errors
+        run: cat "./build/CMakeFiles/CMakeError.log" || true
+
+      - name: upload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ripplerx-linux
+          path: |
+            ./build/RipplerX_artefacts/Release/LV2
+            ./build/RipplerX_artefacts/Release/VST3
+            !./build/RipplerX_artefacts/Release/VST3/*.exp
+            !./build/RipplerX_artefacts/Release/VST3/*.lib
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [build-windows, build-macos, build-linux]
+    steps:
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ripplerx-win
+          path: artifacts/ripplerx-win
+
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ripplerx-macos
+          path: artifacts/ripplerx-macos
+
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ripplerx-linux
+          path: artifacts/ripplerx-linux
+
+      - name: Append tag to artifacts
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}  # Extracts the tag name, e.g., v1.0.0
+
+          # Zip each platform's artifacts with the tag in the name
+          cd artifacts
+          zip -r ripplerx-win-${TAG_NAME}.zip ripplerx-win
+          zip -r ripplerx-macos-${TAG_NAME}.zip ripplerx-macos
+          zip -r ripplerx-linux-${TAG_NAME}.zip ripplerx-linux
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: |
+            artifacts/ripplerx-win-*.zip
+            artifacts/ripplerx-macos-*.zip
+            artifacts/ripplerx-linux-*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
