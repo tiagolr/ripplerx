@@ -23,6 +23,11 @@ jobs:
         run: |
          cmake --build ./build --config Release
 
+      - name: List errors
+        run: |
+          if exist .\build\CMakeFiles\CMakeError.log type .\build\CMakeFiles\CMakeError.log
+        shell: cmd
+
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
