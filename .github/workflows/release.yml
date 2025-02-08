@@ -142,7 +142,7 @@ jobs:
           tag_name: ${{ github.ref_name }}
           files: |
             artifacts/ripplerx-win-*.zip
-            artifacts/ripplerx-mac-*.zip
+            artifacts/ripplerx-macos-*.zip
             artifacts/ripplerx-linux-*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
