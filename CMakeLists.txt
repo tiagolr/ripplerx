@@ -26,7 +26,7 @@ set(SourceFiles
 )
 
 set(plugin_formats
-    Standalone
+    # Standalone
     VST3
 )
 if(APPLE)
