@@ -8,27 +8,27 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-#include "Constants.h"
+#include "Globals.h"
 
 //==============================================================================
 RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p), keyboardComponent(audioProcessor.keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard)
 {
-    // Make sure that before the constructor has finished, you've set the
-    // editor's size to whatever you need it to be.
     setSize (650, 300);
     auto bounds = getLocalBounds();
+    setScaleFactor(audioProcessor.scale);
 
     addAndMakeVisible(sizeMenu);
     sizeMenu.addItem("100%", 1);
     sizeMenu.addItem("150%", 2);
     sizeMenu.addItem("200%", 3);
-    sizeMenu.setSelectedId(1);
+    sizeMenu.setSelectedId(audioProcessor.scale == 1.0f ? 1 : audioProcessor.scale == 1.5f ? 2 : 3);
     sizeMenu.onChange = [this]()
     {
         const int value = sizeMenu.getSelectedId();
         scale = value == 1 ? 1.0f : value == 2 ? 1.5f : 2.0f;
-        setScaleFactor(scale);
+        audioProcessor.setScale(scale);
+        setScaleFactor(audioProcessor.scale);
     };
     sizeMenu.setBounds(10,10,80,25);
 
@@ -51,6 +51,8 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     keyboardComponent.setBounds(bounds.withTop(bounds.getHeight() - 60));
     keyboardComponent.setLowestVisibleKey(24);
     keyboardComponent.setScrollButtonsVisible(false);
+    keyboardComponent.setColour(juce::MidiKeyboardComponent::keyDownOverlayColourId, Colour(globals::COLOR_ACTIVE));
+    keyboardComponent.setColour(juce::MidiKeyboardComponent::mouseOverKeyOverlayColourId, Colour(globals::COLOR_ACTIVE));
 }
 
 RipplerXAudioProcessorEditor::~RipplerXAudioProcessorEditor()
@@ -60,9 +62,9 @@ RipplerXAudioProcessorEditor::~RipplerXAudioProcessorEditor()
 //==============================================================================
 void RipplerXAudioProcessorEditor::paint (Graphics& g)
 {
-    g.fillAll(Colour(constants::COLOR_BACKGROUND));
+    g.fillAll(Colour(globals::COLOR_BACKGROUND));
 
-    g.setColour(Colour(constants::COLOR_NEUTRAL));
+    g.setColour(Colour(globals::COLOR_NEUTRAL));
     g.setFont(FontOptions (16.0f));
     g.drawFittedText("Hello World!", getLocalBounds(), Justification::centred, 1);
 }

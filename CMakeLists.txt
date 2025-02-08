@@ -53,7 +53,7 @@ source_group(Source
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/PluginEditor.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/StateManager.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/StateManager.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/Source/Constants.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/Globals.h
 )
 
 source_group(Source\\ui

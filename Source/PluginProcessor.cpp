@@ -20,12 +20,50 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
                        )
+    , settings{}
 #endif
 {
+    juce::PropertiesFile::Options options{};
+    options.applicationName = ProjectInfo::projectName;
+    options.filenameSuffix = ".settings";
+    options.osxLibrarySubFolder = "Application Support";
+    options.storageFormat = PropertiesFile::storeAsXML;
+    settings.setStorageParameters(options);
+
+    loadSettings();
 }
 
 RipplerXAudioProcessor::~RipplerXAudioProcessor()
 {
+}
+
+void RipplerXAudioProcessor::loadSettings () 
+{
+    if (auto* file = settings.getUserSettings()) {
+        scale = (float)file->getDoubleValue("scale", 1.0f);
+        polyphony = file->getIntValue("polyphony", 8);
+    }
+}
+
+void RipplerXAudioProcessor::saveSettings ()
+{
+    if (auto* file = settings.getUserSettings()) {
+        file->setValue("scale", scale);
+        file->setValue("polyphony", polyphony);
+    }
+    settings.saveIfNeeded();
+}
+
+void RipplerXAudioProcessor::setPolyphony(float value)
+{
+    polyphony = value;
+    saveSettings();
+}
+
+void RipplerXAudioProcessor::setScale(float value)
+{
+    scale = value;
+    saveSettings();
 }
 
 //==============================================================================
@@ -68,8 +106,7 @@ double RipplerXAudioProcessor::getTailLengthSeconds() const
 
 int RipplerXAudioProcessor::getNumPrograms()
 {
-    return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
-                // so this should be at least 1, even if you're not really implementing programs.
+    return 3;
 }
 
 int RipplerXAudioProcessor::getCurrentProgram()
@@ -79,11 +116,14 @@ int RipplerXAudioProcessor::getCurrentProgram()
 
 void RipplerXAudioProcessor::setCurrentProgram (int index)
 {
+    DBG("SET CURRENT PROGRAM");
 }
 
 const juce::String RipplerXAudioProcessor::getProgramName (int index)
 {
-    return {};
+    return index == 0 ? "Init"
+        : index == 1 ? "Test"
+        : "Other";
 }
 
 void RipplerXAudioProcessor::changeProgramName (int index, const juce::String& newName)

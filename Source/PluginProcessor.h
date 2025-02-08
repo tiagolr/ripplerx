@@ -16,6 +16,9 @@
 class RipplerXAudioProcessor  : public juce::AudioProcessor
 {
 public:
+    float scale = 1.0f;
+    int polyphony = 8;
+
     //==============================================================================
     RipplerXAudioProcessor();
     ~RipplerXAudioProcessor() override;
@@ -53,8 +56,15 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    void loadSettings();
+    void saveSettings();
+    void setPolyphony(float value);
+    void setScale(float value);
+
     juce::MidiKeyboardState keyboardState;
+
 private:
+    juce::ApplicationProperties settings;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RipplerXAudioProcessor)
 };
