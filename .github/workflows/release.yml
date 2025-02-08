@@ -80,8 +80,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt update
-          sudo apt-get install libx11-dev libfreetype-dev libasound2-dev libxrandr-dev libxinerama-dev libxcursor-dev libfreetype-dev libfreetype6 libfreetype6-dev
-        # sudo apt install -y g++ cmake
+          sudo apt-get install libx11-dev libfreetype-dev libfontconfig1-dev libasound2-dev libxrandr-dev libxinerama-dev libxcursor-dev
 
       - name: Generate Build Files
         run: |
@@ -143,7 +142,7 @@ jobs:
           tag_name: ${{ github.ref_name }}
           files: |
             artifacts/ripplerx-win-*.zip
-            artifacts/ripplerx-macos-*.zip
+            artifacts/ripplerx-mac-*.zip
             artifacts/ripplerx-linux-*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
