@@ -80,7 +80,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt update
-          sudo apt-get install libx11-dev libfreetype-dev libasound2-dev libxrandr-dev libxinerama-dev libxcursor-dev
+          sudo apt-get install libx11-dev libfreetype-dev libasound2-dev libxrandr-dev libxinerama-dev libxcursor-dev libfreetype-dev libfreetype6 libfreetype6-dev
         # sudo apt install -y g++ cmake
 
       - name: Generate Build Files

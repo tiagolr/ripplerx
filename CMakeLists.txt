@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.22.1)
 
 # Change to your project name
 project(RipplerX VERSION 1.0.0)
