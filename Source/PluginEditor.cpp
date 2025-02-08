@@ -8,6 +8,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "Constants.h"
 
 //==============================================================================
 RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcessor& p)
@@ -59,9 +60,9 @@ RipplerXAudioProcessorEditor::~RipplerXAudioProcessorEditor()
 //==============================================================================
 void RipplerXAudioProcessorEditor::paint (Graphics& g)
 {
-    g.fillAll(Colour(0xffeeeeee));
+    g.fillAll(Colour(constants::COLOR_BACKGROUND));
 
-    g.setColour(Colour(0xff666666));
+    g.setColour(Colour(constants::COLOR_NEUTRAL));
     g.setFont(FontOptions (16.0f));
     g.drawFittedText("Hello World!", getLocalBounds(), Justification::centred, 1);
 }

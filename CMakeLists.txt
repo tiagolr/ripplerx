@@ -13,18 +13,6 @@ endif()
 
 add_subdirectory(libs/JUCE)
 
-set(SourceFiles
-        Source/Constants.h
-        Source/PluginEditor.h
-        Source/PluginEditor.cpp
-        Source/PluginProcessor.h
-        Source/PluginProcessor.cpp
-        Source/StateManager.h
-        Source/StateManager.cpp
-        Source/UI_Slider.h
-        Source/UI_Slider.cpp
-)
-
 set(plugin_formats
     # Standalone
     VST3
@@ -52,11 +40,30 @@ juce_add_plugin(${PROJECT_NAME}
         LV2URI "https://github.com/tiagolr/ripplerx"
 )
 
-# How we want our SourceFiles to appear in our IDE
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SourceFiles})
+file(GLOB_RECURSE src
+    "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.cpp"
+)
+
+source_group(Source
+    FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/PluginProcessor.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/PluginProcessor.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/PluginEditor.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/PluginEditor.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/StateManager.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/StateManager.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/Constants.h
+)
+
+source_group(Source\\ui
+    FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/ui/Slider.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/ui/Slider.cpp
+)
 
 # Make the SourceFiles buildable
-target_sources(${PROJECT_NAME} PRIVATE ${SourceFiles})
+target_sources(${PROJECT_NAME} PRIVATE ${src})
 
 # These are some toggleable options from the JUCE CMake API
 target_compile_definitions(${PROJECT_NAME}
@@ -88,7 +95,6 @@ target_link_libraries(${PROJECT_NAME}
 # juce_add_binary_data(${PROJECT_NAME} SOURCES
 #                         resources/YOUR_IMAGE_HERE.png
 # )
-
 
 if(APPLE)
     target_compile_definitions(${PROJECT_NAME} PUBLIC JUCE_AU=1)
