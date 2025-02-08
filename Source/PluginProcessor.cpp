@@ -135,6 +135,16 @@ void RipplerXAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
+    // Process MIDI
+    keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), true);
+    for (const auto metadata : midiMessages)
+    {
+        juce::MidiMessage message = metadata.getMessage();
+        if (message.isNoteOn()) {
+            DBG("NOTE!!!");
+        }
+    }
+
     // In case we have more outputs than inputs, this code clears any output
     // channels that didn't contain input data, (because these aren't
     // guaranteed to be empty - they may contain garbage).

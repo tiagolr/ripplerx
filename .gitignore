@@ -1,6 +1,9 @@
 # Prerequisites
 *.d
 
+# Reaper project test
+*.rpp
+
 # Compiled Object files
 *.slo
 *.lo
@@ -39,6 +42,7 @@ Builds/
 builds/
 
 .vs/
+.vscode/
 *.exe
 
 JuceLibraryCode/

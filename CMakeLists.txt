@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
 # Change to your project name
-project(RipplerX)
+project(RipplerX VERSION 1.0.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_XCODE_GENERATE_SCHEME OFF)
@@ -11,17 +11,22 @@ if(MSVC)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STRING "Runtime Library")
 endif()
 
-add_subdirectory(libs/JUCE) # this is however you load juce
+add_subdirectory(libs/JUCE)
 
-# Make sure you include any new source files here
 set(SourceFiles
-        Source/PluginEditor.cpp
+        Source/Constants.h
         Source/PluginEditor.h
-        Source/PluginProcessor.cpp
+        Source/PluginEditor.cpp
         Source/PluginProcessor.h
+        Source/PluginProcessor.cpp
+        Source/StateManager.h
+        Source/StateManager.cpp
+        Source/UI_Slider.h
+        Source/UI_Slider.cpp
 )
 
 set(plugin_formats
+    Standalone
     VST3
 )
 if(APPLE)
@@ -31,7 +36,6 @@ elseif(UNIX AND NOT APPLE)
 endif()
 
 juce_add_plugin(${PROJECT_NAME}
-        VERSION "1.0.0"
         COMPANY_NAME Tilr
         IS_SYNTH TRUE
         NEEDS_MIDI_INPUT TRUE
@@ -60,23 +64,18 @@ target_compile_definitions(${PROJECT_NAME}
         JUCE_WEB_BROWSER=0
         JUCE_USE_CURL=0
         JUCE_VST3_CAN_REPLACE_VST2=0
-        #JUCE_DISPLAY_SPLASH_SCREEN=0
+        NEEDS_SIDECHAIN=0
 )
 
 # JUCE libraries to bring into our project
 juce_generate_juce_header(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME}
-        PUBLIC
-        juce::juce_analytics
-        juce::juce_audio_basics
-        juce::juce_audio_devices
+    PRIVATE
         juce::juce_core
-        juce::juce_data_structures
         juce::juce_graphics
         juce::juce_gui_basics
-        juce::juce_gui_extra
         juce::juce_audio_utils
-        juce::juce_dsp
+    PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags
@@ -85,6 +84,11 @@ target_link_libraries(${PROJECT_NAME}
 #file(GLOB_RECURSE res "${CMAKE_CURRENT_SOURCE_DIR}/Resources/*.*")
 #juce_add_binary_data(${PROJECT_NAME}_res SOURCES ${res})
 #target_link_libraries(${PROJECT_NAME} PUBLIC ${PROJECT_NAME}_res)
+
+# juce_add_binary_data(${PROJECT_NAME} SOURCES
+#                         resources/YOUR_IMAGE_HERE.png
+# )
+
 
 if(APPLE)
     target_compile_definitions(${PROJECT_NAME} PUBLIC JUCE_AU=1)
