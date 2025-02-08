@@ -71,7 +71,6 @@ target_compile_definitions(${PROJECT_NAME}
         JUCE_WEB_BROWSER=0
         JUCE_USE_CURL=0
         JUCE_VST3_CAN_REPLACE_VST2=0
-        NEEDS_SIDECHAIN=0
 )
 
 # JUCE libraries to bring into our project
