@@ -62,6 +62,8 @@ public:
     void setScale(float value);
 
     juce::MidiKeyboardState keyboardState;
+    juce::AudioProcessorValueTreeState params;
+    juce::UndoManager undoManager;
 
 private:
     juce::ApplicationProperties settings;

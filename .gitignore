@@ -3,6 +3,7 @@
 
 # Reaper project test
 *.rpp
+*.rpp-bak
 
 # Compiled Object files
 *.slo

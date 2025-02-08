@@ -21,6 +21,11 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
                      #endif
                        )
     , settings{}
+    , params(*this, &undoManager, "PARAMETERS", {
+        std::make_unique<juce::AudioParameterFloat>("mallet_mix", "Mallet Mix", 0.0f, 1.0f, 0.0f),
+        std::make_unique<juce::AudioParameterFloat>("mallet_res", "Mallet Resonance", 0.0f, 1.0f, .8f),
+        std::make_unique<juce::AudioParameterFloat>("mallet_stiff", "Mallet Stifness",juce::NormalisableRange<float>(400.0f, 5000.0f, 0.5f, 1.0f) , 1500.0f),
+    })
 #endif
 {
     juce::PropertiesFile::Options options{};
@@ -222,15 +227,17 @@ juce::AudioProcessorEditor* RipplerXAudioProcessor::createEditor()
 //==============================================================================
 void RipplerXAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+    auto state = params.copyState();
+    std::unique_ptr<juce::XmlElement>xml(state.createXml());
+    copyXmlToBinary(*xml, destData);
 }
 
 void RipplerXAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
+    std::unique_ptr<juce::XmlElement>xmlState (getXmlFromBinary (data, sizeInBytes));
+    if (xmlState.get() != nullptr)
+        if (xmlState->hasTagName(params.state.getType()))
+            params.replaceState(juce::ValueTree::fromXml (*xmlState));
 }
 
 //==============================================================================
