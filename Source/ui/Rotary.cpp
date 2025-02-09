@@ -36,23 +36,20 @@ void Rotary::paint(juce::Graphics& g) {
     g.fillAll(Colour(globals::COLOR_BACKGROUND));
 
     auto param = audioProcessor.params.getParameter(paramId);
-    auto cur_val = param->getValue();
-    auto normed_val = param->convertTo0to1(cur_val);
+    auto normValue = param->getValue();
+    auto value = param->convertFrom0to1(normValue);
 
-    DBG("SLIDER VALUE " << param->convertFrom0to1(cur_val) << " NORM VAL " << cur_val);
-
-    draw_rotary_slider(g, normed_val);
+    draw_rotary_slider(g, normValue);
     
-    auto vel_norm = -1.0f;
+    auto velNorm = -1.0f;
     if (!velId.isEmpty()) {
-        auto vel_param = audioProcessor.params.getParameter(velId);
-        auto vel_value = vel_param->getValue();
-        vel_norm = param->convertTo0to1(vel_value);
-        draw_vel_arc(g, normed_val, vel_norm);
+        auto velParam = audioProcessor.params.getParameter(velId);
+        velNorm = velParam->getValue();
+        draw_vel_arc(g, normValue, velNorm);
     }
 
     
-    draw_label(g, cur_val, vel_norm);
+    draw_label(g, value, velNorm);
 }
 
 void Rotary::draw_label(juce::Graphics& g, float slider_val, float vel_val)
@@ -63,7 +60,14 @@ void Rotary::draw_label(juce::Graphics& g, float slider_val, float vel_val)
             text = std::to_string((int)std::round((vel_val * 100))) + " %";
         }
         else {
-            text = std::to_string((int)std::round((slider_val * 100))) + " %";
+            if (format == LabelFormat::Percent) text = std::to_string((int)std::round((slider_val * 100))) + " %";
+            else if (format == LabelFormat::millis) text = std::to_string((int)slider_val) + " ms";
+            else if (format == LabelFormat::Hz) text = std::to_string((int)slider_val) + " Hz";
+            else if (format == LabelFormat::float1) {
+                std::stringstream ss;
+                ss << std::fixed << std::setprecision(1) << slider_val;
+                text = ss.str();
+            }
         }
     }
 
@@ -80,7 +84,7 @@ void Rotary::mouseDown(const juce::MouseEvent& e)
     mouse_down_shift = e.mods.isShiftDown();
     auto param = audioProcessor.params.getParameter(mouse_down_shift && velId.isNotEmpty() ? velId : paramId);
     auto cur_val = param->getValue();
-    cur_normed_value = param->convertTo0to1(cur_val);
+    cur_normed_value = cur_val;
     last_mouse_position = e.getPosition();
     setMouseCursor(MouseCursor::NoCursor);
     start_mouse_pos = Desktop::getInstance().getMousePosition();

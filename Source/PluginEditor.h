@@ -35,6 +35,7 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> noiseFilterAttachment;
     Label noiseLabel;
     Label envelopeLabel;
+    Label malletLabel;
 
     std::unique_ptr<Rotary> noiseMix;
     std::unique_ptr<Rotary> noiseRes;
@@ -44,6 +45,10 @@ private:
     std::unique_ptr<Rotary> noiseD;
     std::unique_ptr<Rotary> noiseS;
     std::unique_ptr<Rotary> noiseR;
+
+    std::unique_ptr<Rotary> malletMix;
+    std::unique_ptr<Rotary> malletRes;
+    std::unique_ptr<Rotary> malletStiff;
 
     TooltipWindow tooltipWindow;
     juce::MidiKeyboardComponent keyboardComponent;

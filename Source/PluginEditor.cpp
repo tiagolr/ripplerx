@@ -18,7 +18,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
 {
     setLookAndFeel(&customLookAndFeel);
 
-    setSize (650, 450);
+    setSize (650, 485);
     auto bounds = getLocalBounds();
     setScaleFactor(audioProcessor.scale);
     auto col = 10;
@@ -39,21 +39,23 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     sizeMenu.setBounds(row,col,80,25);
 
     // NOISE SLIDERS
-    col = 10; row += 30;
+    col = 10; row += 35;
+
     noiseLabel.setColour(juce::Label::ColourIds::textColourId, Colour(globals::COLOR_NEUTRAL_LIGHT));
     noiseLabel.setFont(FontOptions(16.0f));
     addAndMakeVisible(noiseLabel);
     noiseLabel.setText("NOISE", NotificationType::dontSendNotification);
-    noiseLabel.setBounds(col, row, 70, 20);
+    noiseLabel.setBounds(col, row, 70, 25);
     noiseLabel.setJustificationType(Justification::centred);
 
     addAndMakeVisible(noiseFilterMenu);
     noiseFilterMenu.addItem("LP", 1);
     noiseFilterMenu.addItem("BP", 2);
     noiseFilterMenu.addItem("HP", 3);
+    noiseFilterMenu.setTooltip("Noise filter mode");
     noiseFilterAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.params, "noise_filter_mode", noiseFilterMenu);
-    noiseFilterMenu.setBounds(col+70, row, 70, 20);
-    row += 20;
+    noiseFilterMenu.setBounds(col+75, row, 60, 25);
+    row += 25;
 
     noiseMix = std::make_unique<Rotary>(p, "noise_mix", "Mix", LabelFormat::Percent);
     addAndMakeVisible(*noiseMix);
@@ -71,31 +73,53 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     addAndMakeVisible(*noiseQ);
     noiseQ->setBounds(col+70,row+75,70,75);
 
-    row += 160;
+    row += 165;
     envelopeLabel.setColour(juce::Label::ColourIds::textColourId, Colour(globals::COLOR_NEUTRAL_LIGHT));
     envelopeLabel.setFont(FontOptions(16.0f));
     addAndMakeVisible(envelopeLabel);
-    envelopeLabel.setText("ENVELOPE", NotificationType::dontSendNotification);
-    envelopeLabel.setBounds(col, row, 100, 20);
-    envelopeLabel.setJustificationType(Justification::centred);
-    row += 20;
+    envelopeLabel.setText("ADSR", NotificationType::dontSendNotification);
+    envelopeLabel.setBounds(col+10, row, 60, 25);
+    row += 25;
 
     noiseA = std::make_unique<Rotary>(p, "noise_att", "Attack", LabelFormat::millis);
     addAndMakeVisible(*noiseA);
     noiseA->setBounds(col,row,70,75);
 
+    noiseS = std::make_unique<Rotary>(p, "noise_sus", "Sus", LabelFormat::Percent);
+    addAndMakeVisible(*noiseS);
+    noiseS->setBounds(col,row+75,70,75);
+
     noiseD = std::make_unique<Rotary>(p, "noise_dec", "Decay", LabelFormat::millis);
     addAndMakeVisible(*noiseD);
-    noiseD->setBounds(col,row+75,70,75);
-
-    noiseS = std::make_unique<Rotary>(p, "noise_sus", "Sus", LabelFormat::Hz);
-    addAndMakeVisible(*noiseS);
-    noiseS->setBounds(col+70,row,70,75);
+    noiseD->setBounds(col+70,row,70,75);
 
     noiseR = std::make_unique<Rotary>(p, "noise_rel", "Release", LabelFormat::millis);
     addAndMakeVisible(*noiseR);
     noiseR->setBounds(col+70,row+75,70,75);
 
+    // MALLET
+    col += 160;
+    row = 35 + 10;
+
+    malletLabel.setColour(juce::Label::ColourIds::textColourId, Colour(globals::COLOR_NEUTRAL_LIGHT));
+    malletLabel.setFont(FontOptions(16.0f));
+    addAndMakeVisible(malletLabel);
+    malletLabel.setText("MALLET", NotificationType::dontSendNotification);
+    malletLabel.setBounds(col, row, 70, 25);
+
+    row += 25;
+
+    malletMix = std::make_unique<Rotary>(p, "mallet_mix", "Mix", LabelFormat::Percent);
+    addAndMakeVisible(*malletMix);
+    malletMix->setBounds(col,row,70,75);
+
+    malletRes = std::make_unique<Rotary>(p, "mallet_res", "Res", LabelFormat::Percent);
+    addAndMakeVisible(*malletRes);
+    malletRes->setBounds(col,row+75,70,75);
+
+    malletStiff = std::make_unique<Rotary>(p, "mallet_stiff", "Stiff", LabelFormat::Hz);
+    addAndMakeVisible(*malletStiff);
+    malletStiff->setBounds(col,row+75+75,70,75);
     //
 
     addAndMakeVisible(keyboardComponent);
@@ -117,10 +141,9 @@ RipplerXAudioProcessorEditor::~RipplerXAudioProcessorEditor()
 void RipplerXAudioProcessorEditor::paint (Graphics& g)
 {
     g.fillAll(Colour(globals::COLOR_BACKGROUND));
-
-    g.setColour(Colour(globals::COLOR_NEUTRAL));
-    //g.setFont(FontOptions (14.0f));
-    //g.drawFittedText("Hello World!", getLocalBounds(), Justification::centred, 1);
+    g.setColour(Colour(globals::COLOR_NEUTRAL_LIGHT));
+    g.drawVerticalLine(20+70+70, 100.0f, 380.0f); // noise div
+    g.drawVerticalLine(20+70+70+20+70, 100.0f, 380.0f); // mallet div
 }
 
 void RipplerXAudioProcessorEditor::resized()
