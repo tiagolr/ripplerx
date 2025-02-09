@@ -58,7 +58,7 @@ public:
 
     void loadSettings();
     void saveSettings();
-    void setPolyphony(float value);
+    void setPolyphony(int value);
     void setScale(float value);
 
     juce::MidiKeyboardState keyboardState;

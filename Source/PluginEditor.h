@@ -10,11 +10,12 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "ui/Slider.h"
 
 //==============================================================================
 /**
 */
-class RipplerXAudioProcessorEditor  : public juce::AudioProcessorEditor
+class RipplerXAudioProcessorEditor : public juce::AudioProcessorEditor
 {
 public:
     RipplerXAudioProcessorEditor (RipplerXAudioProcessor&);
@@ -31,6 +32,8 @@ private:
     ComboBox sizeMenu;
     Slider slider;
     Label label;
+    std::unique_ptr<Rotary> r1;
+    std::unique_ptr<Rotary> r2;
 
     juce::MidiKeyboardComponent keyboardComponent;
 

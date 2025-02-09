@@ -23,7 +23,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
     , settings{}
     , params(*this, &undoManager, "PARAMETERS", {
         std::make_unique<juce::AudioParameterFloat>("mallet_mix", "Mallet Mix", 0.0f, 1.0f, 0.0f),
-        std::make_unique<juce::AudioParameterFloat>("mallet_res", "Mallet Resonance", 0.0f, 1.0f, .8f),
+        std::make_unique<juce::AudioParameterFloat>("mallet_res", "Mallet Resonance", 0.0f, 1.0f, 0.8f),
         std::make_unique<juce::AudioParameterFloat>("mallet_stiff", "Mallet Stifness",juce::NormalisableRange<float>(400.0f, 5000.0f, 0.5f, 1.0f) , 1500.0f),
     })
 #endif
@@ -59,7 +59,7 @@ void RipplerXAudioProcessor::saveSettings ()
     settings.saveIfNeeded();
 }
 
-void RipplerXAudioProcessor::setPolyphony(float value)
+void RipplerXAudioProcessor::setPolyphony(int value)
 {
     polyphony = value;
     saveSettings();

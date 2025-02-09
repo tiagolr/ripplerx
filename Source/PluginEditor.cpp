@@ -12,11 +12,21 @@
 
 //==============================================================================
 RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p), keyboardComponent(audioProcessor.keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard)
+    : AudioProcessorEditor (&p)
+    , audioProcessor (p)
+    , keyboardComponent(audioProcessor.keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard)
 {
     setSize (650, 300);
     auto bounds = getLocalBounds();
     setScaleFactor(audioProcessor.scale);
+
+    r1 = std::make_unique<Rotary>(p, "mallet_mix", "MIX");
+    addAndMakeVisible(*r1);
+    r1->setBounds(250,100,70,80);
+
+    r2 = std::make_unique<Rotary>(p, "mallet_res", "RES");
+    addAndMakeVisible(*r2);
+    r2->setBounds(250+70,100,70,80);
 
     addAndMakeVisible(sizeMenu);
     sizeMenu.addItem("100%", 1);
@@ -48,8 +58,8 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
 
     addAndMakeVisible(keyboardComponent);
     keyboardComponent.setMidiChannel(1);
-    keyboardComponent.setBounds(bounds.withTop(bounds.getHeight() - 60));
-    keyboardComponent.setLowestVisibleKey(24);
+    keyboardComponent.setBounds(bounds.withTop(bounds.getHeight() - 60).withLeft(10).withWidth(bounds.getWidth()-20));
+    keyboardComponent.setAvailableRange(24, 100);
     keyboardComponent.setScrollButtonsVisible(false);
     keyboardComponent.setColour(juce::MidiKeyboardComponent::keyDownOverlayColourId, Colour(globals::COLOR_ACTIVE));
     keyboardComponent.setColour(juce::MidiKeyboardComponent::mouseOverKeyOverlayColourId, Colour(globals::COLOR_ACTIVE).withAlpha(0.5f));
@@ -60,13 +70,14 @@ RipplerXAudioProcessorEditor::~RipplerXAudioProcessorEditor()
 }
 
 //==============================================================================
+
 void RipplerXAudioProcessorEditor::paint (Graphics& g)
 {
     g.fillAll(Colour(globals::COLOR_BACKGROUND));
 
     g.setColour(Colour(globals::COLOR_NEUTRAL));
-    g.setFont(FontOptions (16.0f));
-    g.drawFittedText("Hello World!", getLocalBounds(), Justification::centred, 1);
+    g.setFont(FontOptions (14.0f));
+    //g.drawFittedText("Hello World!", getLocalBounds(), Justification::centred, 1);
 }
 
 void RipplerXAudioProcessorEditor::resized()
