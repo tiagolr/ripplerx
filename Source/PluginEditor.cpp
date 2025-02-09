@@ -16,17 +16,19 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     , audioProcessor (p)
     , keyboardComponent(audioProcessor.keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard)
 {
+    setLookAndFeel(&customLookAndFeel);
+
     setSize (650, 300);
     auto bounds = getLocalBounds();
     setScaleFactor(audioProcessor.scale);
 
-    r1 = std::make_unique<Rotary>(p, "mallet_mix", "MIX", LabelFormat::Percent);
+    r1 = std::make_unique<Rotary>(p, "mallet_mix", "Mix", LabelFormat::Percent);
     addAndMakeVisible(*r1);
-    r1->setBounds(250,100,70,80);
+    r1->setBounds(250,50,70,75);
 
-    r2 = std::make_unique<Rotary>(p, "mallet_res", "RES", LabelFormat::Percent, "vel_mallet_res");
+    r2 = std::make_unique<Rotary>(p, "mallet_res", "Res", LabelFormat::Percent, "vel_mallet_res");
     addAndMakeVisible(*r2);
-    r2->setBounds(250+70,100,70,80);
+    r2->setBounds(250,50+75,70,75);
 
     addAndMakeVisible(sizeMenu);
     sizeMenu.addItem("100%", 1);
@@ -36,25 +38,11 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     sizeMenu.onChange = [this]()
     {
         const int value = sizeMenu.getSelectedId();
-        scale = value == 1 ? 1.0f : value == 2 ? 1.5f : 2.0f;
+        auto scale = value == 1 ? 1.0f : value == 2 ? 1.5f : 2.0f;
         audioProcessor.setScale(scale);
         setScaleFactor(audioProcessor.scale);
     };
     sizeMenu.setBounds(10,10,80,25);
-
-    addAndMakeVisible(slider);
-    slider.setSliderStyle(Slider::SliderStyle::RotaryHorizontalVerticalDrag);
-    slider.setTooltip("This is some tooltip");
-    slider.setTextValueSuffix(" dB");
-    slider.setRange(0.0f, 1.0f, 0.01f);
-    slider.setPopupDisplayEnabled(true, false, this);
-    slider.setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
-    slider.setBounds(50,150,80,80);
-
-    addAndMakeVisible(label);
-    label.setText("Slider Label", dontSendNotification);
-    label.setColour(Label::ColourIds::textColourId, Colour(0xFF666666));
-    label.attachToComponent(&slider, false);
 
     addAndMakeVisible(keyboardComponent);
     keyboardComponent.setMidiChannel(1);
@@ -67,6 +55,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
 
 RipplerXAudioProcessorEditor::~RipplerXAudioProcessorEditor()
 {
+    setLookAndFeel(nullptr);
 }
 
 //==============================================================================
@@ -76,7 +65,7 @@ void RipplerXAudioProcessorEditor::paint (Graphics& g)
     g.fillAll(Colour(globals::COLOR_BACKGROUND));
 
     g.setColour(Colour(globals::COLOR_NEUTRAL));
-    g.setFont(FontOptions (14.0f));
+    //g.setFont(FontOptions (14.0f));
     //g.drawFittedText("Hello World!", getLocalBounds(), Justification::centred, 1);
 }
 

@@ -50,7 +50,7 @@ void Rotary::paint(juce::Graphics& g) {
     }
 
     
-    draw_label(g, normed_val, vel_norm);
+    draw_label(g, cur_val, vel_norm);
 }
 
 void Rotary::draw_label(juce::Graphics& g, float slider_val, float vel_val)
@@ -66,8 +66,9 @@ void Rotary::draw_label(juce::Graphics& g, float slider_val, float vel_val)
     }
 
     g.setColour(juce::Colour(globals::COLOR_NEUTRAL));
-    g.drawText(text, 0, proportionOfHeight(0.75f), getWidth(), proportionOfHeight(0.25f), juce::Justification::centred, true);
-    g.drawRect(getLocalBounds());
+    g.setFont(16);
+    g.drawText(text, 0, getHeight() - 16, getWidth(), 16, juce::Justification::centred, true);
+    //g.drawRect(getLocalBounds());
 }
 
 void Rotary::mouseDown(const juce::MouseEvent& e) 
@@ -124,12 +125,12 @@ void Rotary::draw_rotary_slider(juce::Graphics& g, float slider_pos) const {
     if (slider_pos) {
         juce::Path arc;
         arc.addCentredArc(bounds.getWidth() / 2.0f, bounds.getHeight() / 2.0f, radius + 4.0f, radius + 4.0f, 0, -deg130, angle, true);
-        g.strokePath(arc, PathStrokeType(4.0, PathStrokeType::JointStyle::curved, PathStrokeType::rounded));
+        g.strokePath(arc, PathStrokeType(3.0, PathStrokeType::JointStyle::curved, PathStrokeType::rounded));
     }
 
     juce::Path p;
     p.addLineSegment (juce::Line<float>(0.0f, -5.0f, 0.0f, -radius + 5.0f), 0.1f);
-    juce::PathStrokeType(4.0f, PathStrokeType::JointStyle::curved, PathStrokeType::rounded).createStrokedPath(p, p);
+    juce::PathStrokeType(3.0f, PathStrokeType::JointStyle::curved, PathStrokeType::rounded).createStrokedPath(p, p);
     g.fillPath (p, juce::AffineTransform::rotation (angle).translated(bounds.getWidth() / 2.0f, bounds.getHeight() / 2.0f));
 }
 

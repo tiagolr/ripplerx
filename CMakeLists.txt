@@ -56,6 +56,8 @@ source_group(Source
 
 source_group(Source\\ui
     FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/ui/CustomLookAndFeel.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/ui/CustomLookAndFeel.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/ui/Rotary.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/ui/Rotary.cpp
 )
@@ -85,13 +87,11 @@ target_link_libraries(${PROJECT_NAME}
         juce::juce_recommended_warning_flags
 )
 
-#file(GLOB_RECURSE res "${CMAKE_CURRENT_SOURCE_DIR}/Resources/*.*")
-#juce_add_binary_data(${PROJECT_NAME}_res SOURCES ${res})
-#target_link_libraries(${PROJECT_NAME} PUBLIC ${PROJECT_NAME}_res)
+file(GLOB_RECURSE res "${CMAKE_CURRENT_SOURCE_DIR}/Resources/*.*")
+juce_add_binary_data(${PROJECT_NAME}_res SOURCES ${res})
+target_link_libraries(${PROJECT_NAME} PUBLIC ${PROJECT_NAME}_res)
 
-# juce_add_binary_data(${PROJECT_NAME} SOURCES
-#                         resources/YOUR_IMAGE_HERE.png
-# )
+message(STATUS "Resources found: ${res}")
 
 if(APPLE)
     target_compile_definitions(${PROJECT_NAME} PUBLIC JUCE_AU=1)

@@ -11,6 +11,7 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "ui/Rotary.h"
+#include "ui/CustomLookAndFeel.h"
 
 //==============================================================================
 /**
@@ -28,10 +29,8 @@ public:
 private:
     RipplerXAudioProcessor& audioProcessor;
 
-    float scale = 1;
+    CustomLookAndFeel customLookAndFeel;
     ComboBox sizeMenu;
-    Slider slider;
-    Label label;
     std::unique_ptr<Rotary> r1;
     std::unique_ptr<Rotary> r2;
 
