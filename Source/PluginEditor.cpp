@@ -20,11 +20,11 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     auto bounds = getLocalBounds();
     setScaleFactor(audioProcessor.scale);
 
-    r1 = std::make_unique<Rotary>(p, "mallet_mix", "MIX");
+    r1 = std::make_unique<Rotary>(p, "mallet_mix", "MIX", LabelFormat::Percent);
     addAndMakeVisible(*r1);
     r1->setBounds(250,100,70,80);
 
-    r2 = std::make_unique<Rotary>(p, "mallet_res", "RES", "vel_mallet_res");
+    r2 = std::make_unique<Rotary>(p, "mallet_res", "RES", LabelFormat::Percent, "vel_mallet_res");
     addAndMakeVisible(*r2);
     r2->setBounds(250+70,100,70,80);
 
