@@ -28,12 +28,24 @@ public:
 
 private:
     RipplerXAudioProcessor& audioProcessor;
-
     CustomLookAndFeel customLookAndFeel;
-    ComboBox sizeMenu;
-    std::unique_ptr<Rotary> r1;
-    std::unique_ptr<Rotary> r2;
 
+    ComboBox sizeMenu;
+    ComboBox noiseFilterMenu;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> noiseFilterAttachment;
+    Label noiseLabel;
+    Label envelopeLabel;
+
+    std::unique_ptr<Rotary> noiseMix;
+    std::unique_ptr<Rotary> noiseRes;
+    std::unique_ptr<Rotary> noiseFreq;
+    std::unique_ptr<Rotary> noiseQ;
+    std::unique_ptr<Rotary> noiseA;
+    std::unique_ptr<Rotary> noiseD;
+    std::unique_ptr<Rotary> noiseS;
+    std::unique_ptr<Rotary> noiseR;
+
+    TooltipWindow tooltipWindow;
     juce::MidiKeyboardComponent keyboardComponent;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RipplerXAudioProcessorEditor)

@@ -18,17 +18,11 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
 {
     setLookAndFeel(&customLookAndFeel);
 
-    setSize (650, 300);
+    setSize (650, 450);
     auto bounds = getLocalBounds();
     setScaleFactor(audioProcessor.scale);
-
-    r1 = std::make_unique<Rotary>(p, "mallet_mix", "Mix", LabelFormat::Percent);
-    addAndMakeVisible(*r1);
-    r1->setBounds(250,50,70,75);
-
-    r2 = std::make_unique<Rotary>(p, "mallet_res", "Res", LabelFormat::Percent, "vel_mallet_res");
-    addAndMakeVisible(*r2);
-    r2->setBounds(250,50+75,70,75);
+    auto col = 10;
+    auto row = 10; 
 
     addAndMakeVisible(sizeMenu);
     sizeMenu.addItem("100%", 1);
@@ -36,13 +30,73 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     sizeMenu.addItem("200%", 3);
     sizeMenu.setSelectedId(audioProcessor.scale == 1.0f ? 1 : audioProcessor.scale == 1.5f ? 2 : 3);
     sizeMenu.onChange = [this]()
-    {
-        const int value = sizeMenu.getSelectedId();
-        auto scale = value == 1 ? 1.0f : value == 2 ? 1.5f : 2.0f;
-        audioProcessor.setScale(scale);
-        setScaleFactor(audioProcessor.scale);
-    };
-    sizeMenu.setBounds(10,10,80,25);
+        {
+            const int value = sizeMenu.getSelectedId();
+            auto scale = value == 1 ? 1.0f : value == 2 ? 1.5f : 2.0f;
+            audioProcessor.setScale(scale);
+            setScaleFactor(audioProcessor.scale);
+        };
+    sizeMenu.setBounds(row,col,80,25);
+
+    // NOISE SLIDERS
+    col = 10; row += 30;
+    noiseLabel.setColour(juce::Label::ColourIds::textColourId, Colour(globals::COLOR_NEUTRAL_LIGHT));
+    noiseLabel.setFont(FontOptions(16.0f));
+    addAndMakeVisible(noiseLabel);
+    noiseLabel.setText("NOISE", NotificationType::dontSendNotification);
+    noiseLabel.setBounds(col, row, 70, 20);
+    noiseLabel.setJustificationType(Justification::centred);
+
+    addAndMakeVisible(noiseFilterMenu);
+    noiseFilterMenu.addItem("LP", 1);
+    noiseFilterMenu.addItem("BP", 2);
+    noiseFilterMenu.addItem("HP", 3);
+    noiseFilterAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.params, "noise_filter_mode", noiseFilterMenu);
+    noiseFilterMenu.setBounds(col+70, row, 70, 20);
+    row += 20;
+
+    noiseMix = std::make_unique<Rotary>(p, "noise_mix", "Mix", LabelFormat::Percent);
+    addAndMakeVisible(*noiseMix);
+    noiseMix->setBounds(col,row,70,75);
+
+    noiseRes = std::make_unique<Rotary>(p, "noise_res", "Res", LabelFormat::Percent, "vel_noise_res");
+    addAndMakeVisible(*noiseRes);
+    noiseRes->setBounds(col,row+75,70,75);
+
+    noiseFreq = std::make_unique<Rotary>(p, "noise_filter_freq", "Freq", LabelFormat::Hz);
+    addAndMakeVisible(*noiseFreq);
+    noiseFreq->setBounds(col+70,row,70,75);
+
+    noiseQ = std::make_unique<Rotary>(p, "noise_filter_q", "Q", LabelFormat::float1);
+    addAndMakeVisible(*noiseQ);
+    noiseQ->setBounds(col+70,row+75,70,75);
+
+    row += 160;
+    envelopeLabel.setColour(juce::Label::ColourIds::textColourId, Colour(globals::COLOR_NEUTRAL_LIGHT));
+    envelopeLabel.setFont(FontOptions(16.0f));
+    addAndMakeVisible(envelopeLabel);
+    envelopeLabel.setText("ENVELOPE", NotificationType::dontSendNotification);
+    envelopeLabel.setBounds(col, row, 100, 20);
+    envelopeLabel.setJustificationType(Justification::centred);
+    row += 20;
+
+    noiseA = std::make_unique<Rotary>(p, "noise_att", "Attack", LabelFormat::millis);
+    addAndMakeVisible(*noiseA);
+    noiseA->setBounds(col,row,70,75);
+
+    noiseD = std::make_unique<Rotary>(p, "noise_dec", "Decay", LabelFormat::millis);
+    addAndMakeVisible(*noiseD);
+    noiseD->setBounds(col,row+75,70,75);
+
+    noiseS = std::make_unique<Rotary>(p, "noise_sus", "Sus", LabelFormat::Hz);
+    addAndMakeVisible(*noiseS);
+    noiseS->setBounds(col+70,row,70,75);
+
+    noiseR = std::make_unique<Rotary>(p, "noise_rel", "Release", LabelFormat::millis);
+    addAndMakeVisible(*noiseR);
+    noiseR->setBounds(col+70,row+75,70,75);
+
+    //
 
     addAndMakeVisible(keyboardComponent);
     keyboardComponent.setMidiChannel(1);

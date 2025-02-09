@@ -11,6 +11,8 @@ enum LabelFormat {
     Percent,
     fPercent,
     f2Percent,
+    float1,
+    millis,
 };
 
 class Rotary : public juce::SettableTooltipClient, public juce::Component, private juce::AudioProcessorValueTreeState::Listener {

@@ -12,7 +12,7 @@ Rotary::Rotary(RipplerXAudioProcessor& p, juce::String paramId, juce::String nam
     , velId(velId)
 {
     setName(name);
-    setTooltip("Test1233");
+    //setTooltip("Test1233");
     audioProcessor.params.addParameterListener(paramId, this);
     if (velId.isNotEmpty()) {
         audioProcessor.params.addParameterListener(velId, this);
@@ -38,6 +38,8 @@ void Rotary::paint(juce::Graphics& g) {
     auto param = audioProcessor.params.getParameter(paramId);
     auto cur_val = param->getValue();
     auto normed_val = param->convertTo0to1(cur_val);
+
+    DBG("SLIDER VALUE " << param->convertFrom0to1(cur_val) << " NORM VAL " << cur_val);
 
     draw_rotary_slider(g, normed_val);
     
