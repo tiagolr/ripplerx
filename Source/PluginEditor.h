@@ -10,7 +10,7 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
-#include "ui/Slider.h"
+#include "ui/Rotary.h"
 
 //==============================================================================
 /**
@@ -20,7 +20,7 @@ class RipplerXAudioProcessorEditor : public juce::AudioProcessorEditor
 public:
     RipplerXAudioProcessorEditor (RipplerXAudioProcessor&);
     ~RipplerXAudioProcessorEditor() override;
-    
+
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;

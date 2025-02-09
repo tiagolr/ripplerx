@@ -24,7 +24,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     addAndMakeVisible(*r1);
     r1->setBounds(250,100,70,80);
 
-    r2 = std::make_unique<Rotary>(p, "mallet_res", "RES");
+    r2 = std::make_unique<Rotary>(p, "mallet_res", "RES", "vel_mallet_res");
     addAndMakeVisible(*r2);
     r2->setBounds(250+70,100,70,80);
 

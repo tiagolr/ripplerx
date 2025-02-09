@@ -25,6 +25,8 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("mallet_mix", "Mallet Mix", 0.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("mallet_res", "Mallet Resonance", 0.0f, 1.0f, 0.8f),
         std::make_unique<juce::AudioParameterFloat>("mallet_stiff", "Mallet Stifness",juce::NormalisableRange<float>(400.0f, 5000.0f, 0.5f, 1.0f) , 1500.0f),
+
+        std::make_unique<juce::AudioParameterFloat>("vel_mallet_res", "Vel Mallet Resonance", 0.0f, 1.0f, 0.0f),
     })
 #endif
 {

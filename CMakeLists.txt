@@ -51,15 +51,13 @@ source_group(Source
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/PluginProcessor.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/PluginEditor.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/PluginEditor.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/Source/StateManager.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/Source/StateManager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/Globals.h
 )
 
 source_group(Source\\ui
     FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/Source/ui/Slider.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/Source/ui/Slider.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/ui/Rotary.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/ui/Rotary.cpp
 )
 
 # Make the SourceFiles buildable
