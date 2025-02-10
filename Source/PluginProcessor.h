@@ -18,6 +18,7 @@ class RipplerXAudioProcessor  : public juce::AudioProcessor
 public:
     float scale = 1.0f;
     int polyphony = 8;
+    bool velMap = false; // config used by UI to set velocity edit mode
 
     //==============================================================================
     RipplerXAudioProcessor();

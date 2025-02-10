@@ -13,11 +13,13 @@ enum LabelFormat {
     f2Percent,
     float1,
     millis,
+    seconds2f,
+    ABMix,
 };
 
 class Rotary : public juce::SettableTooltipClient, public juce::Component, private juce::AudioProcessorValueTreeState::Listener {
 public:
-    Rotary(RipplerXAudioProcessor& p, juce::String paramId, juce::String name, LabelFormat format, juce::String velId = "");
+    Rotary(RipplerXAudioProcessor& p, juce::String paramId, juce::String name, LabelFormat format, juce::String velId = "", bool isSymmetric = false);
     ~Rotary() override;
     void paint(juce::Graphics& g) override;
 
@@ -36,8 +38,9 @@ protected:
     RipplerXAudioProcessor& audioProcessor;
 
 private:
+    bool isSymmetric;
     float deg130 = 130.0f * juce::MathConstants<float>::pi / 180.0f;
-    void draw_rotary_slider(juce::Graphics& g, float slider_pos) const;
+    void draw_rotary_slider(juce::Graphics& g, float slider_pos);
     void draw_vel_arc(juce::Graphics& g, float slider_pos, float vel_pos) const;
     void draw_label(juce::Graphics& g, float slider_val, float vel_val);
 

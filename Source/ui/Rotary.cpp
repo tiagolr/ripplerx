@@ -2,7 +2,7 @@
 #include "../PluginProcessor.h"
 #include "../Globals.h"
 
-Rotary::Rotary(RipplerXAudioProcessor& p, juce::String paramId, juce::String name, LabelFormat format, juce::String velId)
+Rotary::Rotary(RipplerXAudioProcessor& p, juce::String paramId, juce::String name, LabelFormat format, juce::String velId, bool isSymmetric)
     : juce::SettableTooltipClient()
     , juce::Component()
     , audioProcessor(p)
@@ -10,9 +10,9 @@ Rotary::Rotary(RipplerXAudioProcessor& p, juce::String paramId, juce::String nam
     , name(name)
     , format(format)
     , velId(velId)
+    , isSymmetric(isSymmetric)
 {
     setName(name);
-    //setTooltip("Test1233");
     audioProcessor.params.addParameterListener(paramId, this);
     if (velId.isNotEmpty()) {
         audioProcessor.params.addParameterListener(velId, this);
@@ -56,7 +56,7 @@ void Rotary::draw_label(juce::Graphics& g, float slider_val, float vel_val)
 {
     auto text = name;
     if (mouse_down) {
-        if (mouse_down_shift && vel_val > -1) {
+        if ((mouse_down_shift || audioProcessor.velMap) && vel_val > -1) {
             text = std::to_string((int)std::round((vel_val * 100))) + " %";
         }
         else {
@@ -68,6 +68,13 @@ void Rotary::draw_label(juce::Graphics& g, float slider_val, float vel_val)
                 ss << std::fixed << std::setprecision(1) << slider_val;
                 text = ss.str();
             }
+            else if (format == LabelFormat::seconds2f) {
+                std::stringstream ss;
+                ss << std::fixed << std::setprecision(2) << slider_val << " s";
+                text = ss.str();
+            }
+            else if (format == LabelFormat::ABMix) text = std::to_string((int)((1-slider_val) * 100)) + ":" + std::to_string((int)(slider_val * 100));
+            else if (format == LabelFormat::dB) text = std::to_string((int)slider_val) + " dB";
         }
     }
 
@@ -82,7 +89,7 @@ void Rotary::mouseDown(const juce::MouseEvent& e)
     e.source.enableUnboundedMouseMovement(true);
     mouse_down = true;
     mouse_down_shift = e.mods.isShiftDown();
-    auto param = audioProcessor.params.getParameter(mouse_down_shift && velId.isNotEmpty() ? velId : paramId);
+    auto param = audioProcessor.params.getParameter((mouse_down_shift || audioProcessor.velMap) && velId.isNotEmpty() ? velId : paramId);
     auto cur_val = param->getValue();
     cur_normed_value = cur_val;
     last_mouse_position = e.getPosition();
@@ -100,7 +107,7 @@ void Rotary::mouseUp(const juce::MouseEvent& e) {
 }
 
 void Rotary::mouseDoubleClick(const juce::MouseEvent& e) {
-    auto param = audioProcessor.params.getParameter(e.mods.isShiftDown() && velId.isNotEmpty() ? velId : paramId);
+    auto param = audioProcessor.params.getParameter((e.mods.isShiftDown() || audioProcessor.velMap) && velId.isNotEmpty() ? velId : paramId);
     param->beginChangeGesture();
     param->setValueNotifyingHost(param->getDefaultValue());
     param->endChangeGesture();
@@ -113,13 +120,13 @@ void Rotary::mouseDrag(const juce::MouseEvent& e) {
     auto speed = (e.mods.isCtrlDown() ? 20.0f : 1.0f) * pixels_per_percent;
     auto slider_change = float(change.getX() - change.getY()) / speed;
     cur_normed_value += slider_change;
-    auto param = audioProcessor.params.getParameter(mouse_down_shift && velId.isNotEmpty() ? velId : paramId);
+    auto param = audioProcessor.params.getParameter((mouse_down_shift || audioProcessor.velMap) && velId.isNotEmpty() ? velId : paramId);
     param->beginChangeGesture();
     param->setValueNotifyingHost(cur_normed_value);
     param->endChangeGesture();
 }
 
-void Rotary::draw_rotary_slider(juce::Graphics& g, float slider_pos) const {
+void Rotary::draw_rotary_slider(juce::Graphics& g, float slider_pos) {
     auto bounds = getBounds();
     const float radius = bounds.getHeight() / 2.0f - 20.0f;
     const float angle = -deg130 + slider_pos * (deg130 - -deg130);
@@ -128,9 +135,9 @@ void Rotary::draw_rotary_slider(juce::Graphics& g, float slider_pos) const {
     g.fillEllipse(bounds.getWidth()/2.0f-radius, bounds.getHeight()/2.0f-radius, radius*2.0f, radius*2.0f);
     g.setColour(Colour(globals::COLOR_ACTIVE));
 
-    if (slider_pos) {
+    if ((isSymmetric && slider_pos != 0.5f) || (!isSymmetric && slider_pos)) {
         juce::Path arc;
-        arc.addCentredArc(bounds.getWidth() / 2.0f, bounds.getHeight() / 2.0f, radius + 4.0f, radius + 4.0f, 0, -deg130, angle, true);
+        arc.addCentredArc(bounds.getWidth() / 2.0f, bounds.getHeight() / 2.0f, radius + 4.0f, radius + 4.0f, 0, isSymmetric ? 0 : -deg130, angle, true);
         g.strokePath(arc, PathStrokeType(3.0, PathStrokeType::JointStyle::curved, PathStrokeType::rounded));
     }
 
@@ -138,6 +145,11 @@ void Rotary::draw_rotary_slider(juce::Graphics& g, float slider_pos) const {
     p.addLineSegment (juce::Line<float>(0.0f, -5.0f, 0.0f, -radius + 5.0f), 0.1f);
     juce::PathStrokeType(3.0f, PathStrokeType::JointStyle::curved, PathStrokeType::rounded).createStrokedPath(p, p);
     g.fillPath (p, juce::AffineTransform::rotation (angle).translated(bounds.getWidth() / 2.0f, bounds.getHeight() / 2.0f));
+
+    if (velId.isNotEmpty() && audioProcessor.velMap) {
+        g.setColour(Colour(globals::COLOR_VEL).withAlpha(0.5f));
+        g.fillEllipse(bounds.getWidth()/2.0f-radius, bounds.getHeight()/2.0f-radius, radius*2.0f, radius*2.0f);
+    }
 }
 
 void Rotary::draw_vel_arc(juce::Graphics& g, float slider_pos, float vel_pos) const {
