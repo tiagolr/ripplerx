@@ -103,11 +103,15 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
 
 void RipplerXAudioProcessor::parameterValueChanged (int parameterIndex, float newValue)
 {
+    (void)parameterIndex; // suppress unused warnings
+    (void)newValue;
     paramChanged = true;
 }
 
 void RipplerXAudioProcessor::parameterGestureChanged (int parameterIndex, bool gestureIsStarting)
 {
+    (void)parameterIndex;
+    (void)gestureIsStarting;
 }
 
 RipplerXAudioProcessor::~RipplerXAudioProcessor()
@@ -194,6 +198,7 @@ int RipplerXAudioProcessor::getCurrentProgram()
 
 void RipplerXAudioProcessor::setCurrentProgram (int index)
 {
+    (void)index;
     DBG("SET CURRENT PROGRAM");
 }
 
@@ -206,11 +211,15 @@ const juce::String RipplerXAudioProcessor::getProgramName (int index)
 
 void RipplerXAudioProcessor::changeProgramName (int index, const juce::String& newName)
 {
+    (void)index;
+    (void)newName;
 }
 
 //==============================================================================
 void RipplerXAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+    (void)sampleRate;
+    (void)samplesPerBlock;
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
 }
@@ -288,6 +297,12 @@ void RipplerXAudioProcessor::onNote(MIDIMsg msg)
 
 void RipplerXAudioProcessor::offNote(MIDIMsg msg)
 {
+    for (int i = 0; i < polyphony; ++i) {
+        Voice& voice = voices[i];
+        if (voice.note == msg.note) {
+            voice.release();
+        }
+    }
     /*
     for (auto& note : notes) {
         if (note.note == msg.note) {
@@ -310,7 +325,7 @@ void RipplerXAudioProcessor::onSlider()
     auto noise_filter_q = (double)params.getRawParameterValue("noise_filter_q")->load();
     auto noise_att = (double)params.getRawParameterValue("noise_att")->load();
     auto noise_dec = (double)params.getRawParameterValue("noise_dec")->load();
-    auto noise_sus = normalizeVolSlider((double)params.getRawParameterValue("noise_att")->load());
+    auto noise_sus = (double)normalizeVolSlider(params.getRawParameterValue("noise_att")->load());
     auto noise_rel = (double)params.getRawParameterValue("noise_rel")->load();
 
     for (int i = 0; i < polyphony; i++) {
@@ -320,9 +335,24 @@ void RipplerXAudioProcessor::onSlider()
     }
 }
 
-void RipplerXAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+bool RipplerXAudioProcessor::supportsDoublePrecisionProcessing() const
 {
-    auto totalNumInputChannels  = getTotalNumInputChannels();
+    return true;
+}
+
+void RipplerXAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+{
+    processBlockByType(buffer, midiMessages);
+}
+
+void RipplerXAudioProcessor::processBlock(juce::AudioBuffer<double>& buffer, juce::MidiBuffer& midiMessages)
+{
+    processBlockByType(buffer, midiMessages);
+}
+
+template <typename FloatType>
+void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer, juce::MidiBuffer& midiMessages)
+{
     auto totalNumOutputChannels = getTotalNumOutputChannels();
     auto numSamples = buffer.getNumSamples();
 
@@ -374,7 +404,7 @@ void RipplerXAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
             msg.offset -= 1;
         }
 
-        double resOut[16] = {}; // output to resonators, per voice
+        //double resOut[16] = {}; // output to resonators, per voice
         double dirOut = 0.0; // direct output
 
         for (int i = 0; i < polyphony; ++i) {
@@ -412,7 +442,7 @@ void RipplerXAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 
         for (int channel = 0; channel < totalNumOutputChannels; ++channel)
         {
-            buffer.setSample(channel, sample, (float)dirOut);
+            buffer.setSample(channel, sample, static_cast<FloatType>(dirOut));
         }
     }
 }

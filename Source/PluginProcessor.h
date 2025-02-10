@@ -48,6 +48,7 @@ public:
     void releaseResources() override;
     void parameterValueChanged (int parameterIndex, float newValue) override;
     void parameterGestureChanged (int parameterIndex, bool gestureIsStarting) override;
+    bool supportsDoublePrecisionProcessing() const override;
 
    #ifndef JucePlugin_PreferredChannelConfigurations
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
@@ -57,7 +58,10 @@ public:
     void onNote (MIDIMsg msg);
     void offNote (MIDIMsg msg);
     void onSlider ();
+    void processBlock (juce::AudioBuffer<double>&, juce::MidiBuffer&) override;
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+    template <typename FloatType>
+    void processBlockByType(AudioBuffer<FloatType>& buffer, MidiBuffer& midiMessages);
     //==============================================================================
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override;
