@@ -62,6 +62,20 @@ source_group(Source\\ui
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/ui/Rotary.cpp
 )
 
+source_group(Source\\dsp
+    FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Envelope.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Envelope.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Filter.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Filter.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Modal.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Modal.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Noise.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Noise.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Voice.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Voice.cpp
+)
+
 # Make the SourceFiles buildable
 target_sources(${PROJECT_NAME} PRIVATE ${src})
 
@@ -89,9 +103,9 @@ target_link_libraries(${PROJECT_NAME}
 
 file(GLOB_RECURSE res "${CMAKE_CURRENT_SOURCE_DIR}/Resources/*.*")
 juce_add_binary_data(${PROJECT_NAME}_res SOURCES ${res})
-target_link_libraries(${PROJECT_NAME} PUBLIC ${PROJECT_NAME}_res)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_res)
 
-message(STATUS "Resources found: ${res}")
+# message(STATUS "Resources found: ${res}")
 
 if(APPLE)
     target_compile_definitions(${PROJECT_NAME} PUBLIC JUCE_AU=1)

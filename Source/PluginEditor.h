@@ -62,6 +62,7 @@ private:
 
     // Res A
     Label aLabel;
+    ImageButton aOn;
     ComboBox aModel;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> aModelAttachment;
     ComboBox aPartials;
@@ -78,6 +79,7 @@ private:
 
     // Res B
     Label bLabel;
+    ImageButton bOn;
     ComboBox bModel;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> bModelAttachment;
     ComboBox bPartials;

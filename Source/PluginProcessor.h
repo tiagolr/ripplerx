@@ -9,6 +9,24 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <vector>
+
+struct MIDIMsg {
+    int offset;
+    int isNoteon;
+    int note;
+    int vel;
+};
+
+struct PolyMsg {
+    int note;
+    int elapsed;
+    int nvoice;
+    bool release;
+    double vel;
+    double freq;
+    double impulse;
+};
 
 //==============================================================================
 /**
@@ -32,8 +50,11 @@ public:
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
    #endif
 
+    float normalizeVolSlider(float val);
+    double note2freq(int note);
+    void onNote (MIDIMsg msg);
+    void offNote (MIDIMsg msg);
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
-
     //==============================================================================
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override;
@@ -68,6 +89,9 @@ public:
 
 private:
     juce::ApplicationProperties settings;
+    std::vector<MIDIMsg> midi;
+    std::vector<PolyMsg> notes;
+    int nvoice; // next 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RipplerXAudioProcessor)
 };

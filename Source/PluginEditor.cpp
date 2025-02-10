@@ -25,7 +25,6 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     auto row = 10; 
 
     // TOP BAR
-
     juce::MemoryInputStream inputStream(BinaryData::logo_png, BinaryData::logo_pngSize, false);
     juce::Image image = juce::ImageFileFormat::loadFrom(inputStream);
     if (image.isValid())
@@ -78,7 +77,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     polyLabel.setColour(juce::Label::ColourIds::textColourId, Colour(globals::COLOR_NEUTRAL_LIGHT));
     polyLabel.setFont(FontOptions(16.0f));
     polyLabel.setText("Voices", NotificationType::dontSendNotification);
-    polyLabel.setBounds(col+115+80, row, 50, 25);
+    polyLabel.setBounds(col+115+80+5, row, 50, 25);
 
     addAndMakeVisible(polyMenu);
     polyMenu.addItem("4", 1);
@@ -90,9 +89,11 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
         {
             const int value = polyMenu.getSelectedId();
             auto poly = value == 1 ? 4 : value == 2 ? 8 : value == 3 ? 12 : 16;
-            audioProcessor.setPolyphony(poly);
+            MessageManager::callAsync([this, poly] {
+                audioProcessor.setPolyphony(poly);
+            });
         };
-    polyMenu.setBounds(col+115+80+50,row,55,25);
+    polyMenu.setBounds(col+115+80+50+5,row,55,25);
 
     // NOISE SLIDERS
     col = 10; row += 35;
@@ -187,6 +188,18 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     aLabel.setText("A RES", NotificationType::dontSendNotification);
     aLabel.setBounds(col, row, 50, 25);
 
+    addAndMakeVisible(aOn);
+    juce::MemoryInputStream ainputStream(BinaryData::on_png, BinaryData::on_pngSize, false);
+    juce::Image aimage = juce::ImageFileFormat::loadFrom(ainputStream);
+    if (aimage.isValid())
+    {
+        aOn.setImages(false, true, true, 
+            aimage, 1.0f, juce::Colours::transparentBlack, 
+            aimage, 1.0f, juce::Colours::transparentBlack, 
+            aimage, 1.0f, juce::Colours::transparentBlack);
+    }
+    aOn.setBounds(col+50+5, row+5, 16, 17);
+
     addAndMakeVisible(aModel);
     aModel.setColour(ComboBox::backgroundColourId, Colour(globals::COLOR_ACTIVE));
     aModel.setColour(ComboBox::arrowColourId, Colours::white);
@@ -201,7 +214,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     aModel.addItem("Open Tube", 8);
     aModel.addItem("Closed Tube", 9);
     aModelAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.params, "a_model", aModel);
-    aModel.setBounds(col+50+40, row, 100, 25);
+    aModel.setBounds(col+50+40-5, row, 100, 25);
 
     addAndMakeVisible(aPartials);
     aPartials.addItem("4", 1);
@@ -211,7 +224,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     aPartials.addItem("64", 5);
     aPartials.setTooltip("Number of partials");
     aPartialsAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.params, "a_partials", aPartials);
-    aPartials.setBounds(col+50+110+40, row, 60, 25);
+    aPartials.setBounds(col+50+110+40-5, row, 60, 25);
 
     row += 25;
 
@@ -258,6 +271,18 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     bLabel.setText("B RES", NotificationType::dontSendNotification);
     bLabel.setBounds(col, row, 50, 25);
 
+    addAndMakeVisible(bOn);
+    juce::MemoryInputStream binputStream(BinaryData::on_png, BinaryData::on_pngSize, false);
+    juce::Image bimage = juce::ImageFileFormat::loadFrom(binputStream);
+    if (bimage.isValid())
+    {
+        bOn.setImages(false, true, true, 
+            bimage, 1.0f, juce::Colours::transparentBlack, 
+            bimage, 1.0f, juce::Colours::transparentBlack, 
+            bimage, 1.0f, juce::Colours::transparentBlack);
+    }
+    bOn.setBounds(col+50+5, row+5, 16, 17);
+
     addAndMakeVisible(bModel);
     bModel.setColour(ComboBox::backgroundColourId, Colour(globals::COLOR_ACTIVE));
     bModel.setColour(ComboBox::arrowColourId, Colours::white);
@@ -272,7 +297,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     bModel.addItem("Open Tube", 8);
     bModel.addItem("Closed Tube", 9);
     bModelAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.params, "b_model", bModel);
-    bModel.setBounds(col+50+40, row, 100, 25);
+    bModel.setBounds(col+50+40-5, row, 100, 25);
 
     addAndMakeVisible(bPartials);
     bPartials.addItem("4", 1);
@@ -282,7 +307,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     bPartials.addItem("64", 5);
     bPartials.setTooltip("Number of partials");
     bPartialsAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.params, "b_partials", bPartials);
-    bPartials.setBounds(col+50+110+40, row, 60, 25);
+    bPartials.setBounds(col+50+110+40-5, row, 60, 25);
 
     row += 25;
 

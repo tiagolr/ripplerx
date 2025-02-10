@@ -115,6 +115,7 @@ void RipplerXAudioProcessor::saveSettings ()
 void RipplerXAudioProcessor::setPolyphony(int value)
 {
     polyphony = value;
+    // clear all voices
     saveSettings();
 }
 
@@ -227,42 +228,140 @@ bool RipplerXAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts)
 }
 #endif
 
+float RipplerXAudioProcessor::normalizeVolSlider(float val) 
+{ 
+    return val * 60.0f / 100.0f - 60.0f;
+}
+
+double RipplerXAudioProcessor::note2freq(int note) 
+{
+    return 440 * pow(2.0, (note - 69) / 12.0); 
+}
+
+void RipplerXAudioProcessor::onNote(MIDIMsg msg)
+{
+    PolyMsg note;
+    note.note = msg.note;
+    note.vel = msg.vel / 127.0;
+    note.freq = note2freq(msg.note) / getSampleRate();
+    note.impulse = 1.0;
+    note.elapsed = (int)(getSampleRate()/10.0); // countdown (100ms)
+    note.nvoice = nvoice;
+    note.release = false;
+    notes.push_back(note);
+
+    nvoice = (nvoice + 1) % polyphony;
+    /*
+    * click_f = min(5000, exp(log(click_freq) + vel / 127 * vel_click_freq * (log(5000) - log(40))));
+    printf("nstring == %d ? (\n", i-1);
+    printf("  s%02d.vel = ptr[1];\n", i); -> avoices[note.nvoice].vel = note.vel 
+    printf("  s%02d.string_init(freq, 0, 1);\n", i); -> avoices[note.nvoice].init()
+    printf("  s%02d.active = 1; s%02d.silence = 0;\n", i, i); -> avoices[note.nvoice].active = 1; avoices[note.nvoice].silence = 0;
+    printf("  click_filter%02d.rbj_bp(click_f, 0.707);\n",i); -> malletFilters[note.nvoice].bp(click_f, 0.707);
+    printf("  b_s%02d.string_init(freq, 0, 0);\n", i);
+    printf("  b_s%02d.active = 1; b_s%02d.silence = 0;\n", i, i);
+    printf("  noise_env%02d.env_a(1);\n", i); -> noiseEnvs[note.nstring].attack(1)
+    printf("  noise_env%02d.vel = ptr[1];\n", i); -> noiseEnvs[note.nstring].vel = note.vel
+    printf(");\n");
+    */
+}
+
+void RipplerXAudioProcessor::offNote(MIDIMsg msg)
+{
+    for (auto& note : notes) {
+        if (note.note == msg.note) {
+            //s%02d.string_init(s%02d.f0, 1, 1);  -> avoices[note.nstring].string_init()
+            //b_s%02d.string_init(b_s%02d.f0, 1, 0);\n", i-1, i, i, i, i); -> bvoices[note.nstring].string_init()
+            //noise_env%02d.env_r();\n", i-1, i); -> noiseEnvs[note.nstring].init()
+            note.release = true;
+            break;
+        }
+    }
+}
+
 void RipplerXAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
-    juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
+    auto numSamples = buffer.getNumSamples();
 
-    // Process MIDI
+    // remove midi messages that have been processed
+    midi.erase(std::remove_if(midi.begin(), midi.end(), [](const MIDIMsg& msg) {
+        return msg.offset < 0;
+    }), midi.end());
+
+    // remove notes that finish playing and are no longer pressed
+    notes.erase(std::remove_if(notes.begin(), notes.end(), [](const PolyMsg& note) {
+        return note.elapsed == 0 && note.release;
+    }), notes.end());
+
+    // Process new MIDI messages
     keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), true);
     for (const auto metadata : midiMessages)
     {
         juce::MidiMessage message = metadata.getMessage();
-        if (message.isNoteOn()) {
-            DBG("NOTE!!!");
+        if (message.isNoteOn() || message.isNoteOff()) {
+            midi.push_back({ // queue midi message
+                metadata.samplePosition, 
+                message.isNoteOn(),
+                message.getNoteNumber(),
+                message.getVelocity()
+            });
+        }
+        else if (message.isAllNotesOff()) {
+            notes.clear();
+        }
+        else if (message.isAllSoundOff()) {
+            notes.clear();
+            // TODO clear all voices
         }
     }
+    
+    for (int sample = 0; sample < numSamples; ++sample) {
+        // process queued midi
+        for (auto& msg : midi) {
+            if (msg.offset == 0) {
+                if (msg.isNoteon) {
+                    onNote(msg);
+                }
+                else {
+                    offNote(msg);
+                }
+            }
+            msg.offset -= 1;
+        }
 
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
+        double malletResOut[16] = {}; // mallet output to resonators
+        double malletDirOut = 0.0; // mallet direct output
+        // process notes being played
+        for (auto& note : notes) {
+            if (note.elapsed > 0) {
+                note.elapsed -= 1;
+                double noteOut = 0.0; // malletFilters[note.nvoice].df2(note.impulse) * 2.0;
+                //malletDirOut += noteOut * min(1, mallet_mix + vel_mallet_mix * note.vel);
+                //malletResOut[note.nvoice] = noteOut * min(1, mallet_res + vel_mallet_res * note.vel);
+            }
+        }
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
+        double aOut = 0.0; // resonator A out
+        double bOut = 0.0; // resonator B out
 
-        // ..do something to the data...
+        // process noise
+        // loop(i=1;npolyphony,
+        // printf("noise_env%02d.state > 0 ? (\n", i);
+        // printf("  noise_env%02d.env_process();\n", i);
+        // printf("  n = noise_gen%02d.process_noise();\n", i);
+        // printf("  n *= noise_env%02d.env;\n", i);
+        // printf("  out_noise += n * min(1, noise_mix + vel_noise_mix * noise_env%02d.vel);\n", i);
+        // printf("  outm_%02d += n * min(1, noise_res + vel_noise_res * noise_env%02d.vel);\n", i, i);
+        // printf(");\n");
+
+
+
+        //for (int channel = 0; channel < totalNumOutputChannels; ++channel)
+        //{
+        //    buffer.setSample(channel, sample, 1);
+        //}
     }
 }
 
