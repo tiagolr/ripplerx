@@ -1,6 +1,6 @@
 // Copyright (C) 2025 tilr
 // Simple noise generator with a filter and envelope
-
+#pragma once
 #include "Filter.h"
 #include "Envelope.h"
 

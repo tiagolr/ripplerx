@@ -68,6 +68,8 @@ source_group(Source\\dsp
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Envelope.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Filter.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Filter.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Mallet.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Mallet.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Modal.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Modal.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Noise.h

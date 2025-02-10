@@ -8,6 +8,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "Globals.h"
 
 //==============================================================================
 RipplerXAudioProcessor::RipplerXAudioProcessor()
@@ -88,7 +89,25 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
     options.storageFormat = PropertiesFile::storeAsXML;
     settings.setStorageParameters(options);
 
+    for (auto* param : getParameters()) {
+        param->addListener(this);
+    }
+
+    for (int i = 0; i < globals::MAX_POLYPHONY; ++i) {
+        voices.push_back(Voice());
+    }
+
     loadSettings();
+    onSlider();
+}
+
+void RipplerXAudioProcessor::parameterValueChanged (int parameterIndex, float newValue)
+{
+    paramChanged = true;
+}
+
+void RipplerXAudioProcessor::parameterGestureChanged (int parameterIndex, bool gestureIsStarting)
+{
 }
 
 RipplerXAudioProcessor::~RipplerXAudioProcessor()
@@ -233,24 +252,25 @@ float RipplerXAudioProcessor::normalizeVolSlider(float val)
     return val * 60.0f / 100.0f - 60.0f;
 }
 
-double RipplerXAudioProcessor::note2freq(int note) 
-{
-    return 440 * pow(2.0, (note - 69) / 12.0); 
-}
-
 void RipplerXAudioProcessor::onNote(MIDIMsg msg)
 {
-    PolyMsg note;
-    note.note = msg.note;
-    note.vel = msg.vel / 127.0;
-    note.freq = note2freq(msg.note) / getSampleRate();
-    note.impulse = 1.0;
-    note.elapsed = (int)(getSampleRate()/10.0); // countdown (100ms)
-    note.nvoice = nvoice;
-    note.release = false;
-    notes.push_back(note);
-
+    auto srate = getSampleRate();
+    Voice& voice = voices[nvoice];
     nvoice = (nvoice + 1) % polyphony;
+
+    voice.trigger(srate, msg.note, msg.vel / 127.0);
+
+    //PolyMsg note;
+    //note.note = msg.note;
+    //note.vel = msg.vel / 127.0;
+    //note.freq = note2freq(msg.note) / getSampleRate();
+    //note.impulse = 1.0;
+    //note.elapsed = (int)(getSampleRate()/10.0); // countdown (100ms)
+    //note.nvoice = nvoice;
+    //note.release = false;
+    //notes.push_back(note);
+
+    //nvoice = (nvoice + 1) % polyphony;
     /*
     * click_f = min(5000, exp(log(click_freq) + vel / 127 * vel_click_freq * (log(5000) - log(40))));
     printf("nstring == %d ? (\n", i-1);
@@ -268,6 +288,7 @@ void RipplerXAudioProcessor::onNote(MIDIMsg msg)
 
 void RipplerXAudioProcessor::offNote(MIDIMsg msg)
 {
+    /*
     for (auto& note : notes) {
         if (note.note == msg.note) {
             //s%02d.string_init(s%02d.f0, 1, 1);  -> avoices[note.nstring].string_init()
@@ -277,6 +298,26 @@ void RipplerXAudioProcessor::offNote(MIDIMsg msg)
             break;
         }
     }
+    */
+}
+
+void RipplerXAudioProcessor::onSlider()
+{
+    auto srate = getSampleRate();
+    auto mallet_stiff = (double)params.getRawParameterValue("mallet_stiff")->load();
+    auto noise_filter_freq = (double)params.getRawParameterValue("noise_filter_freq")->load();
+    auto noise_filter_mode = (int)params.getRawParameterValue("noise_filter_mode")->load();
+    auto noise_filter_q = (double)params.getRawParameterValue("noise_filter_q")->load();
+    auto noise_att = (double)params.getRawParameterValue("noise_att")->load();
+    auto noise_dec = (double)params.getRawParameterValue("noise_dec")->load();
+    auto noise_sus = normalizeVolSlider((double)params.getRawParameterValue("noise_att")->load());
+    auto noise_rel = (double)params.getRawParameterValue("noise_rel")->load();
+
+    for (int i = 0; i < polyphony; i++) {
+        Voice& voice = voices[i];
+        voice.noise.init(srate, noise_filter_mode, noise_filter_freq, noise_filter_q, noise_att, noise_dec, noise_sus, noise_rel);
+        voice.mallet.setFreq(srate, mallet_stiff);
+    }
 }
 
 void RipplerXAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
@@ -285,15 +326,18 @@ void RipplerXAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     auto totalNumOutputChannels = getTotalNumOutputChannels();
     auto numSamples = buffer.getNumSamples();
 
+    auto mallet_mix = (double)params.getRawParameterValue("mallet_mix")->load();
+    auto vel_mallet_mix = (double)params.getRawParameterValue("vel_mallet_mix")->load();
+
     // remove midi messages that have been processed
     midi.erase(std::remove_if(midi.begin(), midi.end(), [](const MIDIMsg& msg) {
         return msg.offset < 0;
     }), midi.end());
 
-    // remove notes that finish playing and are no longer pressed
-    notes.erase(std::remove_if(notes.begin(), notes.end(), [](const PolyMsg& note) {
-        return note.elapsed == 0 && note.release;
-    }), notes.end());
+    if (paramChanged) {
+        onSlider();
+        paramChanged = false;
+    }
 
     // Process new MIDI messages
     keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), true);
@@ -309,16 +353,15 @@ void RipplerXAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
             });
         }
         else if (message.isAllNotesOff()) {
-            notes.clear();
+            // TODO
         }
         else if (message.isAllSoundOff()) {
-            notes.clear();
             // TODO clear all voices
         }
     }
     
     for (int sample = 0; sample < numSamples; ++sample) {
-        // process queued midi
+        // process midi queue
         for (auto& msg : midi) {
             if (msg.offset == 0) {
                 if (msg.isNoteon) {
@@ -331,20 +374,29 @@ void RipplerXAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
             msg.offset -= 1;
         }
 
-        double malletResOut[16] = {}; // mallet output to resonators
-        double malletDirOut = 0.0; // mallet direct output
-        // process notes being played
-        for (auto& note : notes) {
-            if (note.elapsed > 0) {
-                note.elapsed -= 1;
-                double noteOut = 0.0; // malletFilters[note.nvoice].df2(note.impulse) * 2.0;
-                //malletDirOut += noteOut * min(1, mallet_mix + vel_mallet_mix * note.vel);
-                //malletResOut[note.nvoice] = noteOut * min(1, mallet_res + vel_mallet_res * note.vel);
+        double resOut[16] = {}; // output to resonators, per voice
+        double dirOut = 0.0; // direct output
+
+        for (int i = 0; i < polyphony; ++i) {
+            Voice& voice = voices[i];
+            auto msample = voice.mallet.process();
+            if (msample) {
+                dirOut = msample * fmin(1.0, mallet_mix + vel_mallet_mix * voice.vel);
             }
         }
 
-        double aOut = 0.0; // resonator A out
-        double bOut = 0.0; // resonator B out
+        // process notes being played
+        //for (auto& note : notes) {
+        //    if (note.elapsed > 0) {
+        //        note.elapsed -= 1;
+        //        double noteOut = 0.0; // malletFilters[note.nvoice].df2(note.impulse) * 2.0;
+                //malletDirOut += noteOut * min(1, mallet_mix + vel_mallet_mix * note.vel);
+                //malletResOut[note.nvoice] = noteOut * min(1, mallet_res + vel_mallet_res * note.vel);
+        //    }
+       // }
+
+        //double aOut = 0.0; // resonator A out
+        //double bOut = 0.0; // resonator B out
 
         // process noise
         // loop(i=1;npolyphony,
@@ -358,10 +410,10 @@ void RipplerXAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 
 
 
-        //for (int channel = 0; channel < totalNumOutputChannels; ++channel)
-        //{
-        //    buffer.setSample(channel, sample, 1);
-        //}
+        for (int channel = 0; channel < totalNumOutputChannels; ++channel)
+        {
+            buffer.setSample(channel, sample, (float)dirOut);
+        }
     }
 }
 

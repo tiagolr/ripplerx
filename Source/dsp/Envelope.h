@@ -1,6 +1,7 @@
 // Copyright (C) 2025 tilr
-// Port of Envlib based of zenvelib.v1 by dwelx
+// Port of Envlib (tilr) based of zenvelib.v1 by dwelx
 // provides adsr envelopes with tension/shape and scale controls
+#pragma once
 #include <tuple>
 
 class Envelope
@@ -11,7 +12,7 @@ public:
 
 	void init(double srate, double a, double d, double s, double r, double tensionA, double tensionD, double tensionR);
 	void reset();
-	void attack(double _scale);
+	void attack(double scale);
 	void release();
 	void sustain();
 	void decay();

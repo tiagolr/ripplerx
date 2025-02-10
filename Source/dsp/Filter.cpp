@@ -42,7 +42,6 @@ void Filter::hp(double srate, double freq, double q)
 
 	b2 = b0 = (1.0 - a1  + a2) * 0.25;
 	b1 = b0 * -2.0;
-
 }
 
 void Filter::reset(double input)
@@ -60,4 +59,6 @@ double Filter::df1(double sample)
 	auto y2 = y1;
 	y1 = y0;
 	y0 = b0*x0 + b1*x1 + b2*x2 - a1*y1 - a2*y2;
+
+	return y0;
 }

@@ -1,5 +1,6 @@
 // Copyright (C) 2025 tilr
 // Incomplete port of Theo Niessink <theo@taletn.com> rbj filters
+#pragma once
 
 class Filter
 {

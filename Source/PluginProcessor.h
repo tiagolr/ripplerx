@@ -10,6 +10,7 @@
 
 #include <JuceHeader.h>
 #include <vector>
+#include "dsp/Voice.h"
 
 struct MIDIMsg {
     int offset;
@@ -31,7 +32,7 @@ struct PolyMsg {
 //==============================================================================
 /**
 */
-class RipplerXAudioProcessor  : public juce::AudioProcessor
+class RipplerXAudioProcessor  : public juce::AudioProcessor, public juce::AudioProcessorParameter::Listener
 {
 public:
     float scale = 1.0f;
@@ -45,15 +46,17 @@ public:
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
+    void parameterValueChanged (int parameterIndex, float newValue) override;
+    void parameterGestureChanged (int parameterIndex, bool gestureIsStarting) override;
 
    #ifndef JucePlugin_PreferredChannelConfigurations
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
    #endif
 
     float normalizeVolSlider(float val);
-    double note2freq(int note);
     void onNote (MIDIMsg msg);
     void offNote (MIDIMsg msg);
+    void onSlider ();
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
     //==============================================================================
     juce::AudioProcessorEditor* createEditor() override;
@@ -88,10 +91,11 @@ public:
     juce::UndoManager undoManager;
 
 private:
+    bool paramChanged = false; // flag that triggers on any param change
     juce::ApplicationProperties settings;
     std::vector<MIDIMsg> midi;
-    std::vector<PolyMsg> notes;
-    int nvoice; // next 
+    std::vector<Voice> voices;
+    int nvoice = 0; // next voice to use
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RipplerXAudioProcessor)
 };
