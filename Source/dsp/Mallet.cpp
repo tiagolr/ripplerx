@@ -13,7 +13,7 @@ void Mallet::setFreq(double srate, double freq)
 	filter.bp(srate, freq, 0.707);
 }
 
-void Mallet::reset()
+void Mallet::clear()
 {
 	elapsed = 0;
 	impulse = 0.0;

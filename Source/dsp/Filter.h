@@ -11,7 +11,7 @@ public:
 	void lp(double srate, double freq, double q);
 	void bp(double srate, double freq, double q);
 	void hp(double srate, double freq, double q);
-	void reset(double input);
+	void clear(double input);
 	double df1(double sample);
 
 private:

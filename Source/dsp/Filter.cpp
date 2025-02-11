@@ -44,7 +44,7 @@ void Filter::hp(double srate, double freq, double q)
 	b1 = b0 * -2.0;
 }
 
-void Filter::reset(double input)
+void Filter::clear(double input)
 {
 	x0 = x1 = input;
 	y0 = y1 = input / (1.0 + a1 + a2) * (b0 + b1 + b2);

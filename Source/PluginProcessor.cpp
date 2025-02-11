@@ -138,8 +138,9 @@ void RipplerXAudioProcessor::saveSettings ()
 void RipplerXAudioProcessor::setPolyphony(int value)
 {
     polyphony = value;
-    // clear all voices
     saveSettings();
+    clearVoices();
+    onSlider();
 }
 
 void RipplerXAudioProcessor::setScale(float value)
@@ -220,8 +221,8 @@ void RipplerXAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 {
     (void)sampleRate;
     (void)samplesPerBlock;
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    clearVoices();
+    onSlider();
 }
 
 void RipplerXAudioProcessor::releaseResources()
@@ -269,16 +270,6 @@ void RipplerXAudioProcessor::onNote(MIDIMsg msg)
 
     voice.trigger(srate, msg.note, msg.vel / 127.0);
 
-    //PolyMsg note;
-    //note.note = msg.note;
-    //note.vel = msg.vel / 127.0;
-    //note.freq = note2freq(msg.note) / getSampleRate();
-    //note.impulse = 1.0;
-    //note.elapsed = (int)(getSampleRate()/10.0); // countdown (100ms)
-    //note.nvoice = nvoice;
-    //note.release = false;
-    //notes.push_back(note);
-
     //nvoice = (nvoice + 1) % polyphony;
     /*
     * click_f = min(5000, exp(log(click_freq) + vel / 127 * vel_click_freq * (log(5000) - log(40))));
@@ -289,8 +280,6 @@ void RipplerXAudioProcessor::onNote(MIDIMsg msg)
     printf("  click_filter%02d.rbj_bp(click_f, 0.707);\n",i); -> malletFilters[note.nvoice].bp(click_f, 0.707);
     printf("  b_s%02d.string_init(freq, 0, 0);\n", i);
     printf("  b_s%02d.active = 1; b_s%02d.silence = 0;\n", i, i);
-    printf("  noise_env%02d.env_a(1);\n", i); -> noiseEnvs[note.nstring].attack(1)
-    printf("  noise_env%02d.vel = ptr[1];\n", i); -> noiseEnvs[note.nstring].vel = note.vel
     printf(");\n");
     */
 }
@@ -308,8 +297,6 @@ void RipplerXAudioProcessor::offNote(MIDIMsg msg)
         if (note.note == msg.note) {
             //s%02d.string_init(s%02d.f0, 1, 1);  -> avoices[note.nstring].string_init()
             //b_s%02d.string_init(b_s%02d.f0, 1, 0);\n", i-1, i, i, i, i); -> bvoices[note.nstring].string_init()
-            //noise_env%02d.env_r();\n", i-1, i); -> noiseEnvs[note.nstring].init()
-            note.release = true;
             break;
         }
     }
@@ -328,10 +315,46 @@ void RipplerXAudioProcessor::onSlider()
     auto noise_sus = (double)normalizeVolSlider(params.getRawParameterValue("noise_att")->load());
     auto noise_rel = (double)params.getRawParameterValue("noise_rel")->load();
 
+    auto a_on = (bool)params.getRawParameterValue("a_on")->load();
+    auto a_model = (int)params.getRawParameterValue("a_model")->load();
+    auto a_partials = (int)params.getRawParameterValue("a_partials")->load();
+    auto a_decay = (double)params.getRawParameterValue("a_decay")->load();
+    auto a_damp = (double)params.getRawParameterValue("a_damp")->load();
+    auto a_tone = (double)params.getRawParameterValue("a_tone")->load();
+    auto a_hit = (double)params.getRawParameterValue("a_hit")->load();
+    auto a_rel = (double)params.getRawParameterValue("a_rel")->load();
+    auto a_inharm = (double)params.getRawParameterValue("a_inharm")->load();
+    auto a_ratio = (double)params.getRawParameterValue("a_ratio")->load();
+    auto a_cut = (double)params.getRawParameterValue("a_cut")->load();
+    auto a_radius = (double)params.getRawParameterValue("a_radius")->load();
+
+    auto b_on = (bool)params.getRawParameterValue("b_on")->load();
+    auto b_model = (int)params.getRawParameterValue("b_model")->load();
+    auto b_partials = (int)params.getRawParameterValue("b_partials")->load();
+    auto b_decay = (double)params.getRawParameterValue("b_decay")->load();
+    auto b_damp = (double)params.getRawParameterValue("b_damp")->load();
+    auto b_tone = (double)params.getRawParameterValue("b_tone")->load();
+    auto b_hit = (double)params.getRawParameterValue("b_hit")->load();
+    auto b_rel = (double)params.getRawParameterValue("b_rel")->load();
+    auto b_inharm = (double)params.getRawParameterValue("b_inharm")->load();
+    auto b_ratio = (double)params.getRawParameterValue("b_ratio")->load();
+    auto b_cut = (double)params.getRawParameterValue("b_cut")->load();
+    auto b_radius = (double)params.getRawParameterValue("b_radius")->load();
+
+    auto vel_a_decay = (double)params.getRawParameterValue("vel_a_decay")->load();
+    auto vel_a_hit = (double)params.getRawParameterValue("vel_a_hit")->load();
+    auto vel_a_inharm = (double)params.getRawParameterValue("vel_a_inharm")->load();
+    auto vel_b_decay = (double)params.getRawParameterValue("vel_b_decay")->load();
+    auto vel_b_hit = (double)params.getRawParameterValue("vel_b_hit")->load();
+    auto vel_b_inharm = (double)params.getRawParameterValue("vel_b_inharm")->load();
+
     for (int i = 0; i < polyphony; i++) {
         Voice& voice = voices[i];
         voice.noise.init(srate, noise_filter_mode, noise_filter_freq, noise_filter_q, noise_att, noise_dec, noise_sus, noise_rel);
         voice.mallet.setFreq(srate, mallet_stiff);
+        voice.resA.setParams(srate, a_on, a_model, a_partials, a_decay, a_damp, a_tone, a_hit, a_rel, a_inharm, a_ratio, a_cut, a_radius, vel_a_decay, vel_a_hit, vel_a_inharm);
+        voice.resB.setParams(srate, b_on, b_model, b_partials, b_decay, b_damp, b_tone, b_hit, b_rel, b_inharm, b_ratio, b_cut, b_radius, vel_b_decay, vel_b_hit, vel_b_inharm);
+        voice.updateResonators();
     }
 }
 
@@ -358,6 +381,8 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
 
     auto mallet_mix = (double)params.getRawParameterValue("mallet_mix")->load();
     auto vel_mallet_mix = (double)params.getRawParameterValue("vel_mallet_mix")->load();
+    auto noise_mix = (double)params.getRawParameterValue("noise_mix")->load();
+    auto vel_noise_mix = (double)params.getRawParameterValue("vel_noise_mix")->load();
 
     // remove midi messages that have been processed
     midi.erase(std::remove_if(midi.begin(), midi.end(), [](const MIDIMsg& msg) {
@@ -383,10 +408,10 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
             });
         }
         else if (message.isAllNotesOff()) {
-            // TODO
+            clearVoices();
         }
         else if (message.isAllSoundOff()) {
-            // TODO clear all voices
+            clearVoices();
         }
     }
     
@@ -411,39 +436,26 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
             Voice& voice = voices[i];
             auto msample = voice.mallet.process();
             if (msample) {
-                dirOut = msample * fmin(1.0, mallet_mix + vel_mallet_mix * voice.vel);
+                dirOut += msample * fmin(1.0, mallet_mix + vel_mallet_mix * voice.vel);
+            }
+            auto nsample = voice.noise.process();
+            if (nsample) {
+                dirOut += nsample * fmin(1.0, noise_mix + vel_noise_mix * voice.vel);
             }
         }
-
-        // process notes being played
-        //for (auto& note : notes) {
-        //    if (note.elapsed > 0) {
-        //        note.elapsed -= 1;
-        //        double noteOut = 0.0; // malletFilters[note.nvoice].df2(note.impulse) * 2.0;
-                //malletDirOut += noteOut * min(1, mallet_mix + vel_mallet_mix * note.vel);
-                //malletResOut[note.nvoice] = noteOut * min(1, mallet_res + vel_mallet_res * note.vel);
-        //    }
-       // }
-
-        //double aOut = 0.0; // resonator A out
-        //double bOut = 0.0; // resonator B out
-
-        // process noise
-        // loop(i=1;npolyphony,
-        // printf("noise_env%02d.state > 0 ? (\n", i);
-        // printf("  noise_env%02d.env_process();\n", i);
-        // printf("  n = noise_gen%02d.process_noise();\n", i);
-        // printf("  n *= noise_env%02d.env;\n", i);
-        // printf("  out_noise += n * min(1, noise_mix + vel_noise_mix * noise_env%02d.vel);\n", i);
-        // printf("  outm_%02d += n * min(1, noise_res + vel_noise_res * noise_env%02d.vel);\n", i, i);
-        // printf(");\n");
-
-
 
         for (int channel = 0; channel < totalNumOutputChannels; ++channel)
         {
             buffer.setSample(channel, sample, static_cast<FloatType>(dirOut));
         }
+    }
+}
+
+void RipplerXAudioProcessor::clearVoices()
+{
+    for (int i = 0; i < polyphony; ++i) {
+        Voice& voice = voices[i];
+        voice.reset();
     }
 }
 

@@ -79,7 +79,7 @@ void Rotary::draw_label(juce::Graphics& g, float slider_val, float vel_val)
     }
 
     g.setColour(juce::Colour(globals::COLOR_NEUTRAL));
-    g.setFont(16);
+    g.setFont(14);
     g.drawText(text, 0, getHeight() - 16, getWidth(), 16, juce::Justification::centred, true);
     //g.drawRect(getLocalBounds());
 }

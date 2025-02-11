@@ -19,16 +19,6 @@ struct MIDIMsg {
     int vel;
 };
 
-struct PolyMsg {
-    int note;
-    int elapsed;
-    int nvoice;
-    bool release;
-    double vel;
-    double freq;
-    double impulse;
-};
-
 //==============================================================================
 /**
 */
@@ -62,6 +52,7 @@ public:
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
     template <typename FloatType>
     void processBlockByType(AudioBuffer<FloatType>& buffer, MidiBuffer& midiMessages);
+    void clearVoices();
     //==============================================================================
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override;

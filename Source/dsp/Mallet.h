@@ -9,7 +9,7 @@ public:
 
 	void trigger(double srate);
 	void setFreq(double srate, double freq);
-	void reset();
+	void clear();
 	double process();
 
 	double impulse = 0.0;

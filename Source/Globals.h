@@ -8,4 +8,5 @@ namespace globals
 	static const unsigned int COLOR_ACTIVE = 0xff008070;
 	static const unsigned int COLOR_VEL = 0xffaa5050;
 	static const unsigned int MAX_POLYPHONY = 16;
+	static const unsigned int MAX_PARTIALS = 64;
 }
