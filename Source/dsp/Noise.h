@@ -14,7 +14,7 @@ public:
 	double process();
 	void attack(double vel);
 	void release();
-	void reset();
+	void clear();
 
 	double vel = 0.0;
 private:

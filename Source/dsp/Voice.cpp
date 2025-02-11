@@ -9,6 +9,8 @@ double Voice::note2freq(int _note)
 // Triggers mallet and noise generator
 void Voice::trigger(double srate, int _note, double _vel)
 {
+	resA.clear();
+	resB.clear();
 	note = _note;
 	rel = false;
 	vel = _vel;
@@ -27,10 +29,12 @@ void Voice::release()
 	updateResonators();
 }
 
-void Voice::reset()
+void Voice::clear()
 {
 	mallet.clear();
-	noise.reset();
+	noise.clear();
+	resA.clear();
+	resB.clear();
 }
 
 void Voice::updateResonators()

@@ -35,7 +35,7 @@ Resonator::Resonator()
 }
 
 void Resonator::setParams(double _srate, bool _on, int model, int _partials, double _decay, double damp, double tone, double hit,
-	double _rel, double inharm, double _ratio, double cut, double _radius, double vel_decay, double vel_hit, double vel_inharm)
+	double _rel, double inharm, double _ratio, double _cut, double _radius, double vel_decay, double vel_hit, double vel_inharm)
 {
 	on = _on;
 	nmodel = model;
@@ -45,10 +45,12 @@ void Resonator::setParams(double _srate, bool _on, int model, int _partials, dou
 	rel = _rel;
 	srate = _srate;
 	ratio = _ratio;
+	cut = _cut;
+
+	filter.hp(srate, cut, 0.707);
 
 	for (Partial& partial : partials) {
 		partial.damp = damp;
-		partial.cut = cut;
 		partial.decay = decay;
 		partial.hit = hit;
 		partial.inharm = inharm;
@@ -59,6 +61,13 @@ void Resonator::setParams(double _srate, bool _on, int model, int _partials, dou
 		partial.vel_inharm = vel_inharm;
 		partial.srate = _srate;
 	}
+
+	waveguide.decay = decay;
+	waveguide.radius = radius;
+	waveguide.is_closed = model == Models::ClosedTube;
+	waveguide.srate = srate;
+	waveguide.vel_decay = vel_decay;
+	waveguide.rel = rel;
 
 	// recalc models that depend on ratio var
 	if (nmodel == Models::Beam) recalcBeam();
@@ -76,7 +85,7 @@ void Resonator::update(double freq, double vel, bool isRelease)
 		}
 	}
 	else {
-		
+		waveguide.update(freq, vel, isRelease);
 	}
 }
 
@@ -98,6 +107,7 @@ double Resonator::process(double input)
 		}
 		else {
 			// waveguide process
+			out += waveguide.process(input);
 		}
 	}
 

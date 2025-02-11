@@ -18,7 +18,6 @@ public:
 	double hit = 0.0;
 	double rel = 0.0;
 	double inharm = 0.0;
-	double cut = 0.0;
 	double radius = 0.0;
 	double vel_decay = 0.0;
 	double vel_hit = 0.0;

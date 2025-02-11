@@ -249,7 +249,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     addAndMakeVisible(*aDamp);
     aDamp->setBounds(col+70,row,70,75);
 
-    aRadius = std::make_unique<Rotary>(p, "a_radius", "Radius", LabelFormat::Percent, "", true);
+    aRadius = std::make_unique<Rotary>(p, "a_radius", "Radius", LabelFormat::Percent);
     addAndMakeVisible(*aRadius);
     aRadius->setBounds(col+70,row,70,75);
 
@@ -345,7 +345,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     addAndMakeVisible(*bDamp);
     bDamp->setBounds(col+70,row,70,75);
 
-    bRadius = std::make_unique<Rotary>(p, "b_radius", "Radius", LabelFormat::Percent, "", true);
+    bRadius = std::make_unique<Rotary>(p, "b_radius", "Radius", LabelFormat::Percent);
     addAndMakeVisible(*bRadius);
     bRadius->setBounds(col+70,row,70,75);
 
@@ -482,6 +482,9 @@ void RipplerXAudioProcessorEditor::toggleUIComponents()
     bInharm.get()->setVisible(!is_tube);
     bRatio.get()->setVisible(!is_tube && (b_model == Models::Beam || b_model == Models::Membrane || b_model == Models::Plate));
     bRadius.get()->setVisible(is_tube);
+
+    aPartials.setVisible(a_model < 7);
+    bPartials.setVisible(b_model < 7);
 
     couple.setAlpha((a_on && b_on) ? 1.0f : 0.5f);
     abMix.get()->setAlpha((a_on && b_on) ? 1.0f : 0.5f);

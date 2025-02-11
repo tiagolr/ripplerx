@@ -4,6 +4,7 @@
 #include "../Globals.h"
 #include "Partial.h"
 #include "Waveguide.h"
+#include "Filter.h"
 
 enum Models {
 	String,
@@ -48,9 +49,11 @@ public:
 	double radius = 0.0;
 	double rel = 0.0;
 	double ratio = 0.0;
+	double cut = 0.0;
 
 	std::vector<Partial> partials;
 	Waveguide waveguide{};
+	Filter filter{};
 
 private:
 

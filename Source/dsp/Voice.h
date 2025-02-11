@@ -12,7 +12,7 @@ public:
 	double note2freq(int _note);
 	void trigger(double srate, int _note, double vel);
 	void release();
-	void reset();
+	void clear();
 	void updateResonators();
 
 	int note = 0;

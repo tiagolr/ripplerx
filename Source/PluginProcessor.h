@@ -30,7 +30,8 @@ public:
     bool velMap = false; // config used by UI to set velocity edit mode
     int last_a_model = -1;
     int last_b_model = -1;
-
+    int last_a_partials = -1;
+    int last_b_partials = -1;
 
     //==============================================================================
     RipplerXAudioProcessor();
@@ -74,6 +75,7 @@ public:
     void setCurrentProgram (int index) override;
     const juce::String getProgramName (int index) override;
     void changeProgramName (int index, const juce::String& newName) override;
+    void onProgramChange();
 
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;

@@ -24,7 +24,7 @@ void Noise::release()
 	env.release();
 }
 
-void Noise::reset()
+void Noise::clear()
 {
 	env.reset();
 	filter.clear(0.0);

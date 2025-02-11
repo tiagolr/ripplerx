@@ -347,6 +347,14 @@ void RipplerXAudioProcessor::onSlider()
         clearVoices();
         last_b_model = b_model;
     }
+    if (last_a_partials != a_partials) {
+        clearVoices();
+        last_a_partials = a_partials;
+    }
+    if (last_b_partials != b_partials) {
+        clearVoices();
+        last_b_partials = b_partials;
+    }
 
     // convert choice to partials num
     if (a_partials == 0) a_partials = 4;
@@ -392,6 +400,8 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
     auto totalNumOutputChannels = getTotalNumOutputChannels();
     auto numSamples = buffer.getNumSamples();
 
+    auto a_on = (bool)params.getRawParameterValue("a_on")->load();
+    auto b_on = (bool)params.getRawParameterValue("b_on")->load();
     auto mallet_mix = (double)params.getRawParameterValue("mallet_mix")->load();
     auto mallet_res = (double)params.getRawParameterValue("mallet_res")->load();
     auto vel_mallet_mix = (double)params.getRawParameterValue("vel_mallet_mix")->load();
@@ -400,6 +410,10 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
     auto noise_res = (double)params.getRawParameterValue("noise_res")->load();
     auto vel_noise_mix = (double)params.getRawParameterValue("vel_noise_mix")->load();
     auto vel_noise_res = (double)params.getRawParameterValue("vel_noise_res")->load();
+    auto serial = (bool)params.getRawParameterValue("couple")->load();
+    auto ab_mix = (double)params.getRawParameterValue("ab_mix")->load();
+    auto gain = (double)params.getRawParameterValue("gain")->load();
+    gain = pow(10.0, gain / 20.0);
 
     // remove midi messages that have been processed
     midi.erase(std::remove_if(midi.begin(), midi.end(), [](const MIDIMsg& msg) {
@@ -448,6 +462,7 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
 
         double dirOut = 0.0; // direct output
         double aOut = 0.0; // resonator A output
+        double bOut = 0.0;
 
         for (int i = 0; i < polyphony; ++i) {
             Voice& voice = voices[i];
@@ -465,12 +480,30 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
                 resOut += nsample * fmin(1.0, noise_res + vel_noise_res * voice.vel);
             }
 
-            if (voice.resA.on) {
-                aOut += voice.resA.process(resOut);
+            if (a_on) {
+                auto out = voice.resA.process(resOut);
+                if (voice.resA.cut > 20.0001) 
+                    out = voice.resA.filter.df1(out);
+                aOut += out;
+            }
+
+            if (b_on) {
+                auto out = voice.resB.process(resOut);
+                if (voice.resB.cut > 20.0001) 
+                    out = voice.resB.filter.df1(out);
+                bOut += out;
             }
         }
 
-        double totalOut = dirOut + aOut;
+        double resOut = 0.0;
+        if (a_on && b_on) 
+            resOut = serial 
+                ? bOut
+                : aOut * (1-ab_mix) + bOut * ab_mix;
+        else
+            resOut = aOut + bOut; // one of them is turned off, can just sum the two
+
+        double totalOut = dirOut + resOut * gain;
         for (int channel = 0; channel < totalNumOutputChannels; ++channel)
         {
             buffer.setSample(channel, sample, static_cast<FloatType>(totalOut));
@@ -480,9 +513,9 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
 
 void RipplerXAudioProcessor::clearVoices()
 {
-    for (int i = 0; i < polyphony; ++i) {
+    for (int i = 0; i < globals::MAX_POLYPHONY; ++i) {
         Voice& voice = voices[i];
-        voice.reset();
+        voice.clear();
     }
 }
 
@@ -511,6 +544,22 @@ void RipplerXAudioProcessor::setStateInformation (const void* data, int sizeInBy
     if (xmlState.get() != nullptr)
         if (xmlState->hasTagName(params.state.getType()))
             params.replaceState(juce::ValueTree::fromXml (*xmlState));
+
+    onProgramChange();
+}
+
+void RipplerXAudioProcessor::onProgramChange()
+{
+    // init last params so they don't trigger ratio changes onSlider()
+    auto a_model = (int)params.getRawParameterValue("a_model")->load();
+    auto a_partials = (int)params.getRawParameterValue("a_partials")->load();
+    auto b_model = (int)params.getRawParameterValue("a_model")->load();
+    auto b_partials = (int)params.getRawParameterValue("a_partials")->load();
+    last_a_model = a_model;
+    last_b_model = b_model;
+    last_a_partials = a_partials;
+    last_b_partials = b_partials;
+    clearVoices();
 }
 
 //==============================================================================
