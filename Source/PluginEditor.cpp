@@ -16,10 +16,14 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     , audioProcessor (p)
     , keyboardComponent(audioProcessor.keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard)
 {
-    setLookAndFeel(&customLookAndFeel);
+    audioProcessor.params.addParameterListener("couple", this);
+    audioProcessor.params.addParameterListener("a_on", this);
+    audioProcessor.params.addParameterListener("b_on", this);
+    audioProcessor.params.addParameterListener("a_model", this);
+    audioProcessor.params.addParameterListener("b_model", this);
 
+    setLookAndFeel(&customLookAndFeel);
     setSize (650, 485);
-    auto bounds = getLocalBounds();
     setScaleFactor(audioProcessor.scale);
     auto col = 10;
     auto row = 10; 
@@ -199,6 +203,15 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
             aimage, 1.0f, juce::Colours::transparentBlack);
     }
     aOn.setBounds(col+50+5, row+5, 16, 17);
+    aOn.onClick = [this] {
+        MessageManager::callAsync([this] {
+            auto param = audioProcessor.params.getParameter("a_on");
+            auto newVal = param->getValue() ? 0.0f : 1.0f;
+            param->beginChangeGesture();
+            param->setValueNotifyingHost(newVal);
+            param->endChangeGesture();
+        });
+    };
 
     addAndMakeVisible(aModel);
     aModel.setColour(ComboBox::backgroundColourId, Colour(globals::COLOR_ACTIVE));
@@ -235,6 +248,10 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     aDamp = std::make_unique<Rotary>(p, "a_damp", "Material", LabelFormat::Percent, "", true);
     addAndMakeVisible(*aDamp);
     aDamp->setBounds(col+70,row,70,75);
+
+    aRadius = std::make_unique<Rotary>(p, "a_radius", "Radius", LabelFormat::Percent, "", true);
+    addAndMakeVisible(*aRadius);
+    aRadius->setBounds(col+70,row,70,75);
 
     aHit = std::make_unique<Rotary>(p, "a_hit", "Hit", LabelFormat::Percent, "vel_a_hit");
     addAndMakeVisible(*aHit);
@@ -282,6 +299,15 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
             bimage, 1.0f, juce::Colours::transparentBlack);
     }
     bOn.setBounds(col+50+5, row+5, 16, 17);
+    bOn.onClick = [this] {
+        MessageManager::callAsync([this] {
+            auto param = audioProcessor.params.getParameter("b_on");
+            auto newVal = param->getValue() ? 0.0f : 1.0f;
+            param->beginChangeGesture();
+            param->setValueNotifyingHost(newVal);
+            param->endChangeGesture();
+        });
+    };
 
     addAndMakeVisible(bModel);
     bModel.setColour(ComboBox::backgroundColourId, Colour(globals::COLOR_ACTIVE));
@@ -318,6 +344,10 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     bDamp = std::make_unique<Rotary>(p, "b_damp", "Material", LabelFormat::Percent, "", true);
     addAndMakeVisible(*bDamp);
     bDamp->setBounds(col+70,row,70,75);
+
+    bRadius = std::make_unique<Rotary>(p, "b_radius", "Radius", LabelFormat::Percent, "", true);
+    addAndMakeVisible(*bRadius);
+    bRadius->setBounds(col+70,row,70,75);
 
     bHit = std::make_unique<Rotary>(p, "b_hit", "Hit", LabelFormat::Percent, "vel_b_hit");
     addAndMakeVisible(*bHit);
@@ -365,12 +395,16 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     addAndMakeVisible(*abMix);
     abMix->setBounds(col,row,70,75);
 
+    abSplit = std::make_unique<Rotary>(p, "ab_split", "Split", LabelFormat::Percent, "", true);
+    addAndMakeVisible(*abSplit);
+    abSplit->setBounds(col,row,70,75);
+
     gain = std::make_unique<Rotary>(p, "gain", "Gain", LabelFormat::dB, "", true);
     addAndMakeVisible(*gain);
     gain->setBounds(col, row+75*3+25+10, 70, 75);
 
     // KEYBOARD
-
+    auto bounds = getLocalBounds();
     addAndMakeVisible(keyboardComponent);
     keyboardComponent.setMidiChannel(1);
     keyboardComponent.setBounds(bounds.withTop(bounds.getHeight() - 60).withLeft(10).withWidth(bounds.getWidth()-20));
@@ -378,11 +412,100 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     keyboardComponent.setScrollButtonsVisible(false);
     keyboardComponent.setColour(juce::MidiKeyboardComponent::keyDownOverlayColourId, Colour(globals::COLOR_ACTIVE));
     keyboardComponent.setColour(juce::MidiKeyboardComponent::mouseOverKeyOverlayColourId, Colour(globals::COLOR_ACTIVE).withAlpha(0.5f));
+
+    toggleUIComponents();
 }
 
 RipplerXAudioProcessorEditor::~RipplerXAudioProcessorEditor()
 {
     setLookAndFeel(nullptr);
+    audioProcessor.params.removeParameterListener("couple", this);
+    audioProcessor.params.removeParameterListener("a_on", this);
+    audioProcessor.params.removeParameterListener("b_on", this);
+    audioProcessor.params.removeParameterListener("a_model", this);
+    audioProcessor.params.removeParameterListener("b_model", this);
+}
+
+void RipplerXAudioProcessorEditor::parameterChanged (const juce::String& parameterID, float newValue) 
+{
+    (void)parameterID;
+    (void)newValue;
+    toggleUIComponents();
+};
+
+void RipplerXAudioProcessorEditor::toggleUIComponents()
+{
+    auto a_on = (bool)audioProcessor.params.getRawParameterValue("a_on")->load();
+    auto b_on = (bool)audioProcessor.params.getRawParameterValue("b_on")->load();
+    auto a_model = (int)audioProcessor.params.getRawParameterValue("a_model")->load();
+    auto b_model = (int)audioProcessor.params.getRawParameterValue("b_model")->load();
+    auto is_serial = (bool)audioProcessor.params.getRawParameterValue("couple")->load();
+
+    auto alpha = a_on ? 1.0f : 0.5f;
+    aModel.setAlpha(alpha);
+    aPartials.setAlpha(alpha);
+    aDecay.get()->setAlpha(alpha);
+    aDamp.get()->setAlpha(alpha);
+    aTone.get()->setAlpha(alpha);
+    aHit.get()->setAlpha(alpha);
+    aRel.get()->setAlpha(alpha);
+    aInharm.get()->setAlpha(alpha);
+    aRatio.get()->setAlpha(alpha);
+    aCut.get()->setAlpha(alpha);
+    aRadius.get()->setAlpha(alpha);
+
+    alpha = b_on ? 1.0f : 0.5f;
+    bModel.setAlpha(alpha);
+    bPartials.setAlpha(alpha);
+    bDecay.get()->setAlpha(alpha);
+    bDamp.get()->setAlpha(alpha);
+    bTone.get()->setAlpha(alpha);
+    bHit.get()->setAlpha(alpha);
+    bRel.get()->setAlpha(alpha);
+    bInharm.get()->setAlpha(alpha);
+    bRatio.get()->setAlpha(alpha);
+    bCut.get()->setAlpha(alpha);
+    bRadius.get()->setAlpha(alpha);
+
+    bool is_tube = a_model >= 7;
+    aDamp.get()->setVisible(!is_tube);
+    aTone.get()->setVisible(!is_tube);
+    aHit.get()->setVisible(!is_tube);
+    aInharm.get()->setVisible(!is_tube);
+    aRatio.get()->setVisible(!is_tube && (a_model == Models::Beam || a_model == Models::Membrane || a_model == Models::Plate));
+    aRadius.get()->setVisible(is_tube);
+
+    is_tube = b_model >= 7;
+    bDamp.get()->setVisible(!is_tube);
+    bTone.get()->setVisible(!is_tube);
+    bHit.get()->setVisible(!is_tube);
+    bInharm.get()->setVisible(!is_tube);
+    bRatio.get()->setVisible(!is_tube && (b_model == Models::Beam || b_model == Models::Membrane || b_model == Models::Plate));
+    bRadius.get()->setVisible(is_tube);
+
+    couple.setAlpha((a_on && b_on) ? 1.0f : 0.5f);
+    abMix.get()->setAlpha((a_on && b_on) ? 1.0f : 0.5f);
+    abSplit.get()->setAlpha((a_on && b_on) ? 1.0f : 0.5f);
+    abMix.get()->setVisible(!is_serial);
+    abSplit.get()->setVisible(is_serial);
+
+    juce::MemoryInputStream onInputStream(BinaryData::on_png, BinaryData::on_pngSize, false);
+    juce::Image onImage = juce::ImageFileFormat::loadFrom(onInputStream);
+    juce::MemoryInputStream offInputStream(BinaryData::off_png, BinaryData::off_pngSize, false);
+    juce::Image offImage = juce::ImageFileFormat::loadFrom(offInputStream);
+
+    if (onImage.isValid() && offImage.isValid())
+    {
+        aOn.setImages(false, true, true, 
+            a_on ? onImage : offImage, 1.0f, juce::Colours::transparentBlack, 
+            a_on ? onImage : offImage, 1.0f, juce::Colours::transparentBlack, 
+            a_on ? onImage : offImage, 1.0f, juce::Colours::transparentBlack);
+
+        bOn.setImages(false, true, true, 
+            b_on ? onImage : offImage, 1.0f, juce::Colours::transparentBlack, 
+            b_on ? onImage : offImage, 1.0f, juce::Colours::transparentBlack, 
+            b_on ? onImage : offImage, 1.0f, juce::Colours::transparentBlack);
+    }
 }
 
 //==============================================================================

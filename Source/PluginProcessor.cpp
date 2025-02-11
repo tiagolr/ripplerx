@@ -38,9 +38,9 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("a_inharm", "A Inharmonic",juce::NormalisableRange<float>(0.0001f, 1.0f, 0.001f, 0.3f), 0.0001f),
         std::make_unique<juce::AudioParameterFloat>("a_ratio", "A Ratio",juce::NormalisableRange<float>(0.1f, 10.0f, 0.01f, 0.3f), 1.0f),
         std::make_unique<juce::AudioParameterFloat>("a_cut", "A LowCut",juce::NormalisableRange<float>(20.0f, 20000.0f, 1.0f, 0.3f), 20.0f),
-        std::make_unique<juce::AudioParameterFloat>("a_radius", "A Tube Radius", 0.0f, 100.0f, 50.0f),
+        std::make_unique<juce::AudioParameterFloat>("a_radius", "A Tube Radius", 0.0f, 1.0f, 0.5f),
 
-        std::make_unique<juce::AudioParameterBool>("b_on", "B ON", true),
+        std::make_unique<juce::AudioParameterBool>("b_on", "B ON", false),
         std::make_unique<juce::AudioParameterChoice>("b_model", "B Model", StringArray { "String", "Beam", "Squared", "Membrane", "Plate", "Drumhead", "Marimba", "Open Tube", "Closed Tube" }, 0),
         std::make_unique<juce::AudioParameterChoice>("b_partials", "B Partials", StringArray { "4", "8", "16", "32", "64" }, 3),
         std::make_unique<juce::AudioParameterFloat>("b_decay", "B Decay",juce::NormalisableRange<float>(0.01f, 100.0f, 0.01f, 0.2f), 1.0f),
@@ -51,7 +51,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("b_inharm", "B Inharmonic",juce::NormalisableRange<float>(0.0001f, 1.0f, 0.001f, 0.3f), 0.0001f),
         std::make_unique<juce::AudioParameterFloat>("b_ratio", "B Ratio",juce::NormalisableRange<float>(0.1f, 10.0f, 0.01f, 0.3f), 1.0f),
         std::make_unique<juce::AudioParameterFloat>("b_cut", "B LowCut",juce::NormalisableRange<float>(20.0f, 20000.0f, 1.0f, 0.3f), 20.0f),
-        std::make_unique<juce::AudioParameterFloat>("b_radius", "B Tube Radius", 0.0f, 100.0f, 50.0f),
+        std::make_unique<juce::AudioParameterFloat>("b_radius", "B Tube Radius", 0.0f, 1.0f, 0.5f),
         
         std::make_unique<juce::AudioParameterFloat>("noise_mix", "Noise Mix", 0.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("noise_res", "Noise Resonance", 0.0f, 1.0f, 0.0f),
@@ -77,7 +77,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
 
         std::make_unique<juce::AudioParameterChoice>("couple", "Coupling", StringArray {"A+B", "A>B"}, 1),
         std::make_unique<juce::AudioParameterFloat>("ab_mix", "A+B Mix", 0.0f, 1.0f, 0.5f),
-        std::make_unique<juce::AudioParameterFloat>("ab_split", "A>B Split", juce::NormalisableRange<float>(1.0f, 100.0f, 0.01f, 0.3f), 1.0f),
+        std::make_unique<juce::AudioParameterFloat>("ab_split", "A>B Split", juce::NormalisableRange<float>(0.01f, 1.0f, 0.001f, 0.5f), 0.01f),
         std::make_unique<juce::AudioParameterFloat>("gain", "Res Gain", -24.0f, 24.0f, 0.0f),
     })
 #endif

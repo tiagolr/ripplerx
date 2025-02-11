@@ -16,13 +16,15 @@
 //==============================================================================
 /**
 */
-class RipplerXAudioProcessorEditor : public juce::AudioProcessorEditor
+class RipplerXAudioProcessorEditor : public juce::AudioProcessorEditor, private juce::AudioProcessorValueTreeState::Listener
 {
 public:
     RipplerXAudioProcessorEditor (RipplerXAudioProcessor&);
     ~RipplerXAudioProcessorEditor() override;
 
     //==============================================================================
+    void parameterChanged (const juce::String& parameterID, float newValue) override;
+    void toggleUIComponents ();
     void paint (juce::Graphics&) override;
     void resized() override;
     void repaintVelSliders ();

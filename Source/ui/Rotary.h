@@ -9,8 +9,6 @@ enum LabelFormat {
     Hz,
     dB,
     Percent,
-    fPercent,
-    f2Percent,
     float1,
     millis,
     seconds2f,
