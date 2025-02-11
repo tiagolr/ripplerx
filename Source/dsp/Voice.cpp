@@ -15,12 +15,16 @@ void Voice::trigger(double srate, int _note, double _vel)
 	freq = note2freq(note);
 	mallet.trigger(srate);
 	noise.attack(vel);
+	if (resA.on) resA.activate();
+	if (resB.on) resB.activate();
+	updateResonators();
 }
 
 void Voice::release()
 {
 	rel = true;
 	noise.release();
+	updateResonators();
 }
 
 void Voice::reset()
@@ -31,6 +35,6 @@ void Voice::reset()
 
 void Voice::updateResonators()
 {
-	resA.update(freq, vel, rel);
-	resB.update(freq, vel, rel);
+	if (resA.on) resA.update(freq, vel, rel);
+	if (resB.on) resB.update(freq, vel, rel);
 }

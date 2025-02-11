@@ -1,7 +1,7 @@
 #pragma once
 #include "Mallet.h"
 #include "Noise.h"
-#include "Modal.h"
+#include "Resonator.h"
 
 class Voice
 {

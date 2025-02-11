@@ -269,19 +269,6 @@ void RipplerXAudioProcessor::onNote(MIDIMsg msg)
     nvoice = (nvoice + 1) % polyphony;
 
     voice.trigger(srate, msg.note, msg.vel / 127.0);
-
-    //nvoice = (nvoice + 1) % polyphony;
-    /*
-    * click_f = min(5000, exp(log(click_freq) + vel / 127 * vel_click_freq * (log(5000) - log(40))));
-    printf("nstring == %d ? (\n", i-1);
-    printf("  s%02d.vel = ptr[1];\n", i); -> avoices[note.nvoice].vel = note.vel 
-    printf("  s%02d.string_init(freq, 0, 1);\n", i); -> avoices[note.nvoice].init()
-    printf("  s%02d.active = 1; s%02d.silence = 0;\n", i, i); -> avoices[note.nvoice].active = 1; avoices[note.nvoice].silence = 0;
-    printf("  click_filter%02d.rbj_bp(click_f, 0.707);\n",i); -> malletFilters[note.nvoice].bp(click_f, 0.707);
-    printf("  b_s%02d.string_init(freq, 0, 0);\n", i);
-    printf("  b_s%02d.active = 1; b_s%02d.silence = 0;\n", i, i);
-    printf(");\n");
-    */
 }
 
 void RipplerXAudioProcessor::offNote(MIDIMsg msg)
@@ -292,15 +279,6 @@ void RipplerXAudioProcessor::offNote(MIDIMsg msg)
             voice.release();
         }
     }
-    /*
-    for (auto& note : notes) {
-        if (note.note == msg.note) {
-            //s%02d.string_init(s%02d.f0, 1, 1);  -> avoices[note.nstring].string_init()
-            //b_s%02d.string_init(b_s%02d.f0, 1, 0);\n", i-1, i, i, i, i); -> bvoices[note.nstring].string_init()
-            break;
-        }
-    }
-    */
 }
 
 void RipplerXAudioProcessor::onSlider()
@@ -348,6 +326,19 @@ void RipplerXAudioProcessor::onSlider()
     auto vel_b_hit = (double)params.getRawParameterValue("vel_b_hit")->load();
     auto vel_b_inharm = (double)params.getRawParameterValue("vel_b_inharm")->load();
 
+    // convert choice to partials num
+    if (a_partials == 0) a_partials = 4;
+    else if (a_partials == 1) a_partials = 8;
+    else if (a_partials == 2) a_partials = 16;
+    else if (a_partials == 3) a_partials = 32;
+    else if (a_partials == 4) a_partials = 64;
+    // convert choice to partials num
+    if (b_partials == 0) b_partials = 4;
+    else if (b_partials == 1) b_partials = 8;
+    else if (b_partials == 2) b_partials = 16;
+    else if (b_partials == 3) b_partials = 32;
+    else if (b_partials == 4) b_partials = 64;
+
     for (int i = 0; i < polyphony; i++) {
         Voice& voice = voices[i];
         voice.noise.init(srate, noise_filter_mode, noise_filter_freq, noise_filter_q, noise_att, noise_dec, noise_sus, noise_rel);
@@ -380,9 +371,13 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
     auto numSamples = buffer.getNumSamples();
 
     auto mallet_mix = (double)params.getRawParameterValue("mallet_mix")->load();
+    auto mallet_res = (double)params.getRawParameterValue("mallet_res")->load();
     auto vel_mallet_mix = (double)params.getRawParameterValue("vel_mallet_mix")->load();
+    auto vel_mallet_res = (double)params.getRawParameterValue("vel_mallet_res")->load();
     auto noise_mix = (double)params.getRawParameterValue("noise_mix")->load();
+    auto noise_res = (double)params.getRawParameterValue("noise_res")->load();
     auto vel_noise_mix = (double)params.getRawParameterValue("vel_noise_mix")->load();
+    auto vel_noise_res = (double)params.getRawParameterValue("vel_noise_res")->load();
 
     // remove midi messages that have been processed
     midi.erase(std::remove_if(midi.begin(), midi.end(), [](const MIDIMsg& msg) {
@@ -429,24 +424,34 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
             msg.offset -= 1;
         }
 
-        //double resOut[16] = {}; // output to resonators, per voice
         double dirOut = 0.0; // direct output
+        double aOut = 0.0; // resonator A output
 
         for (int i = 0; i < polyphony; ++i) {
             Voice& voice = voices[i];
-            auto msample = voice.mallet.process();
+            double resOut = 0.0;
+
+            auto msample = voice.mallet.process(); // process mallet
             if (msample) {
-                dirOut += msample * fmin(1.0, mallet_mix + vel_mallet_mix * voice.vel);
+                dirOut += msample * fmin(1.0, mallet_mix + vel_mallet_mix * voice.vel); 
+                resOut += msample * fmin(1.0, mallet_res + vel_mallet_res * voice.vel);
             }
-            auto nsample = voice.noise.process();
+
+            auto nsample = voice.noise.process(); // process noise
             if (nsample) {
-                dirOut += nsample * fmin(1.0, noise_mix + vel_noise_mix * voice.vel);
+                dirOut += nsample * fmin(1.0, noise_mix + vel_noise_mix * voice.vel); 
+                resOut += nsample * fmin(1.0, noise_res + vel_noise_res * voice.vel);
+            }
+
+            if (voice.resA.on) {
+                aOut += voice.resA.process(resOut);
             }
         }
 
+        double totalOut = dirOut + aOut;
         for (int channel = 0; channel < totalNumOutputChannels; ++channel)
         {
-            buffer.setSample(channel, sample, static_cast<FloatType>(dirOut));
+            buffer.setSample(channel, sample, static_cast<FloatType>(totalOut));
         }
     }
 }

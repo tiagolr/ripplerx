@@ -70,8 +70,12 @@ source_group(Source\\dsp
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Filter.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Mallet.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Mallet.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Modal.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Modal.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Resonator.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Resonator.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Partial.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Partial.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Waveguide.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Waveguide.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Noise.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Noise.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Voice.h
