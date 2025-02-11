@@ -61,9 +61,9 @@ void Resonator::setParams(double _srate, bool _on, int model, int _partials, dou
 	}
 
 	// recalc models that depend on ratio var
-	//if (nmodel == Models::Beam) recalcBeam();
-	//if (nmodel == Models::Membrane) recalcMembrane();
-	//if (nmodel == Models::Plate) recalcPlate();
+	if (nmodel == Models::Beam) recalcBeam();
+	if (nmodel == Models::Membrane) recalcMembrane();
+	if (nmodel == Models::Plate) recalcPlate();
 }
 
 void Resonator::update(double freq, double vel, bool isRelease)
@@ -125,6 +125,7 @@ void Resonator::recalcBeam()
 	for (int m = 1; m <= 8; ++m) {
 		for (int n = 1; n <= 8; ++n) {
 			models[Models::Beam][i] = sqrt(pow(m, 4.0) + pow(ratio * bfree[i], 4.0));
+			i += 1;
 		}
 	}
 	auto f0 = models[Models::Beam][0];
@@ -138,7 +139,8 @@ void Resonator::recalcMembrane()
 	int i = 0;
 	for (int m = 1; m <= 8; ++m) {
 		for (int n = 1; n <= 8; ++n) {
-			models[Models::Membrane][i] = sqrt(pow(m, 2.0) * pow(ratio * n, 2.0));
+			models[Models::Membrane][i] = sqrt(pow(m, 2.0) + pow(ratio * n, 2.0));
+			i += 1;
 		}
 	}
 	auto f0 = models[Models::Membrane][0];
@@ -153,6 +155,7 @@ void Resonator::recalcPlate()
 	for (int m = 1; m <= 8; ++m) {
 		for (int n = 1; n <= 8; ++n) {
 			models[Models::Plate][i] = pow(m, 2.0) + pow(ratio * n, 2.0);
+			i += 1;
 		}
 	}
 	auto f0 = models[Models::Plate][0];
