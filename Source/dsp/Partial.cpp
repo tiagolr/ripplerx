@@ -24,8 +24,8 @@ void Partial::update(double f_0, double ratio, double ratio_max, double vel, boo
 	if (isRelease) decay_k *= rel;
 
 	auto damp_k = damp <= 0
-		? pow(f_0 / f_k, damp * 2)
-		: pow(f_max / f_k, damp * 2);
+		? pow(f_0 / f_k, damp * 2.0)
+		: pow(f_max / f_k, damp * 2.0);
 
 	decay_k /= damp_k;
 

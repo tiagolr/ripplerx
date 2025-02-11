@@ -61,9 +61,9 @@ void Resonator::setParams(double _srate, bool _on, int model, int _partials, dou
 	}
 
 	// recalc models that depend on ratio var
-	if (nmodel == Models::Beam) recalcBeam();
-	if (nmodel == Models::Membrane) recalcMembrane();
-	if (nmodel == Models::Plate) recalcPlate();
+	//if (nmodel == Models::Beam) recalcBeam();
+	//if (nmodel == Models::Membrane) recalcMembrane();
+	//if (nmodel == Models::Plate) recalcPlate();
 }
 
 void Resonator::update(double freq, double vel, bool isRelease)

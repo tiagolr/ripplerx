@@ -28,6 +28,9 @@ public:
     float scale = 1.0f;
     int polyphony = 8;
     bool velMap = false; // config used by UI to set velocity edit mode
+    int last_a_model = -1;
+    int last_b_model = -1;
+
 
     //==============================================================================
     RipplerXAudioProcessor();

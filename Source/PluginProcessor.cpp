@@ -98,7 +98,6 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
     }
 
     loadSettings();
-    onSlider();
 }
 
 void RipplerXAudioProcessor::parameterValueChanged (int parameterIndex, float newValue)
@@ -325,6 +324,29 @@ void RipplerXAudioProcessor::onSlider()
     auto vel_b_decay = (double)params.getRawParameterValue("vel_b_decay")->load();
     auto vel_b_hit = (double)params.getRawParameterValue("vel_b_hit")->load();
     auto vel_b_inharm = (double)params.getRawParameterValue("vel_b_inharm")->load();
+
+    if (a_model != last_a_model) {
+        auto param = params.getParameter("a_ratio");
+        auto value = param->convertTo0to1(a_model == 1 ? 2.0f : 0.78f);
+        MessageManager::callAsync([param, value] {
+            param->beginChangeGesture();
+            param->setValueNotifyingHost(value);
+            param->endChangeGesture();
+        });
+        clearVoices();
+        last_a_model = a_model;
+    }
+    if (b_model != last_b_model) {
+        auto param = params.getParameter("b_ratio");
+        auto value = param->convertTo0to1(b_model == 1 ? 2.0f : 0.78f);
+        MessageManager::callAsync([param, value] {
+            param->beginChangeGesture();
+            param->setValueNotifyingHost(value);
+            param->endChangeGesture();
+        });
+        clearVoices();
+        last_b_model = b_model;
+    }
 
     // convert choice to partials num
     if (a_partials == 0) a_partials = 4;
