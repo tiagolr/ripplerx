@@ -1,3 +1,9 @@
+// Copyright 2025 tilr
+// Resonator holds a number of Partials and a Waveguide
+// depending on the selected model uses the Partials bank or Waveguide to process input
+// also holds the partials ratios tuned for each model, 
+// some of these are recalculated based on ratio parameter the others are fixed
+
 #pragma once
 #include <vector>
 #include <array>

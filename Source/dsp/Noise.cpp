@@ -33,14 +33,14 @@ void Noise::clear()
 double Noise::process()
 {
 	if (!env.state) return 0.0;
-	auto state = env.process();
+	env.process();
 	double sample = (std::rand() / (double)RAND_MAX) * 2.0 - 1.0;
-	if (fmode == 1 || (fmode == 0 && ffreq < 20000.0) || (fmode == 2 && ffreq > 20.0)) {
+	if (fmode == 1 || (fmode == 0 && ffreq < 20000.0) || (fmode == 2 && ffreq > 20.0))
 		sample = filter.df1(sample);
-	}
-	if (!env.state) {
+
+	if (!env.state) 
 		filter.clear(0.0); // envelope has finished, clear filter to avoid pops
-	}
+
 	return sample * env.env;
 }
 

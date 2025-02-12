@@ -1,5 +1,5 @@
-// Copyright (C) 2025 tilr
-// Port of FairlyChildish Reaper limiter
+// Copyright 2025 tilr
+// Port of FairlyChildish limiter for Reaper
 
 // Copyright 2006, Thomas Scott Stillwell
 // All rights reserved.

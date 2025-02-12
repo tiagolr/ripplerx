@@ -1,16 +1,9 @@
-/*
-  ==============================================================================
-
-    This file contains the basic framework code for a JUCE plugin editor.
-
-  ==============================================================================
-*/
+// Copyright 2025 tilr
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include "Globals.h"
 
-//==============================================================================
 RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcessor& p)
     : AudioProcessorEditor (&p)
     , audioProcessor (p)

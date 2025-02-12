@@ -1,4 +1,4 @@
-// Copyright (C) 2025 tilr
+// Copyright 2025 tilr
 // Port of Envlib (tilr) based of zenvelib.v1 by dwelx
 // provides adsr envelopes with tension/shape and scale controls
 #pragma once

@@ -1,3 +1,7 @@
+// Copyright 2025 tilr
+// Each pressed key triggers a voice, there are max 16 polyphony voices in audioProcessor
+// Voices hold resonators, a mallet and noise generator, they also calculate split frequencies for coupled resonators
+
 #pragma once
 #include "Mallet.h"
 #include "Noise.h"
@@ -23,8 +27,8 @@ public:
 	double freq = 0.0;
 	double vel = 0.0;
 	bool rel = false; // release state
-	bool couple;
-	double split;
+	bool couple = false;
+	double split = 0.0;
 
 	Mallet mallet{};
 	Noise noise{};

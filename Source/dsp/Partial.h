@@ -1,3 +1,6 @@
+// Copyright 2025 tilr
+// Partial is a second order bandpass filter with extra variables for decay, frequency and amplitude calculation
+
 #pragma once
 
 class Partial

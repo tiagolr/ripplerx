@@ -1,16 +1,9 @@
-/*
-  ==============================================================================
-
-    This file contains the basic framework code for a JUCE plugin processor.
-
-  ==============================================================================
-*/
+// Copyright 2025 tilr
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include "Globals.h"
 
-//==============================================================================
 RipplerXAudioProcessor::RipplerXAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
      : AudioProcessor (BusesProperties()
@@ -25,7 +18,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
     , params(*this, &undoManager, "PARAMETERS", {
         std::make_unique<juce::AudioParameterFloat>("mallet_mix", "Mallet Mix", 0.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("mallet_res", "Mallet Resonance", 0.0f, 1.0f, 0.8f),
-        std::make_unique<juce::AudioParameterFloat>("mallet_stiff", "Mallet Stifness",juce::NormalisableRange<float>(100.0f, 5000.0f, 1.0f, 0.3f) , 880.0f),
+        std::make_unique<juce::AudioParameterFloat>("mallet_stiff", "Mallet Stifness",juce::NormalisableRange<float>(100.0f, 5000.0f, 1.0f, 0.3f) , 600.0f),
 
         std::make_unique<juce::AudioParameterBool>("a_on", "A ON", true),
         std::make_unique<juce::AudioParameterChoice>("a_model", "A Model", StringArray { "String", "Beam", "Squared", "Membrane", "Plate", "Drumhead", "Marimba", "Open Tube", "Closed Tube" }, 0),
@@ -435,35 +428,29 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
 
     // Process new MIDI messages
     keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), true);
-    for (const auto metadata : midiMessages)
-    {
+    for (const auto metadata : midiMessages) {
         juce::MidiMessage message = metadata.getMessage();
-        if (message.isNoteOn() || message.isNoteOff()) {
+        if (message.isNoteOn() || message.isNoteOff())
             midi.push_back({ // queue midi message
                 metadata.samplePosition, 
                 message.isNoteOn(),
                 message.getNoteNumber(),
                 message.getVelocity()
             });
-        }
-        else if (message.isAllNotesOff()) {
+        else if (message.isAllNotesOff())
             clearVoices();
-        }
-        else if (message.isAllSoundOff()) {
+        else if (message.isAllSoundOff())
             clearVoices();
-        }
     }
     
     for (int sample = 0; sample < numSamples; ++sample) {
         // process midi queue
         for (auto& msg : midi) {
             if (msg.offset == 0) {
-                if (msg.isNoteon) {
+                if (msg.isNoteon)
                     onNote(msg);
-                }
-                else {
+                else
                     offNote(msg);
-                }
             }
             msg.offset -= 1;
         }

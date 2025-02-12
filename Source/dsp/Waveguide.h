@@ -1,3 +1,5 @@
+// Copyright 2025 tilr
+// Waveguide for OpenTube and ClosedTube models
 #pragma once
 
 class Waveguide
