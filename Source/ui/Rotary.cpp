@@ -31,7 +31,7 @@ void Rotary::parameterChanged(const juce::String& parameterID, float newValue)
 {
     (void)parameterID;
     (void)newValue;
-    repaint();
+    juce::MessageManager::callAsync([this] { repaint(); });
 }
 
 void Rotary::paint(juce::Graphics& g) {

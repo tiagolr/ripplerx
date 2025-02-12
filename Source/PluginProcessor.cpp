@@ -18,7 +18,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
     , params(*this, &undoManager, "PARAMETERS", {
         std::make_unique<juce::AudioParameterFloat>("mallet_mix", "Mallet Mix", 0.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("mallet_res", "Mallet Resonance", 0.0f, 1.0f, 0.8f),
-        std::make_unique<juce::AudioParameterFloat>("mallet_stiff", "Mallet Stifness",juce::NormalisableRange<float>(100.0f, 5000.0f, 1.0f, 0.3f) , 1500.0f),
+        std::make_unique<juce::AudioParameterFloat>("mallet_stiff", "Mallet Stifness",juce::NormalisableRange<float>(100.0f, 5000.0f, 1.0f, 0.3f) , 600.0f),
 
         std::make_unique<juce::AudioParameterBool>("a_on", "A ON", true),
         std::make_unique<juce::AudioParameterChoice>("a_model", "A Model", StringArray { "String", "Beam", "Squared", "Membrane", "Plate", "Drumhead", "Marimba", "Open Tube", "Closed Tube" }, 0),
@@ -53,7 +53,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("noise_filter_q", "Noise Filter Q", 0.707f, 4.0f, 0.707f),
         std::make_unique<juce::AudioParameterFloat>("noise_att", "Noise Attack",juce::NormalisableRange<float>(1.0f, 5000.0f, 1.0f, 0.3f), 1.0f),
         std::make_unique<juce::AudioParameterFloat>("noise_dec", "Noise Decay",juce::NormalisableRange<float>(1.0f, 5000.0f, 1.0f, 0.3f), 500.0f),
-        std::make_unique<juce::AudioParameterFloat>("noise_sus", "Noise Sustain", 0.0f, 100.0f, 0.0f),
+        std::make_unique<juce::AudioParameterFloat>("noise_sus", "Noise Sustain", 0.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("noise_rel", "Noise Release",juce::NormalisableRange<float>(1.0f, 5000.0f, 1.0f, 0.3f), 500.0f),
 
         std::make_unique<juce::AudioParameterFloat>("vel_mallet_mix", "Vel Mallet Mix", 0.0f, 1.0f, 0.0f),
@@ -286,7 +286,7 @@ void RipplerXAudioProcessor::onSlider()
     auto noise_filter_q = (double)params.getRawParameterValue("noise_filter_q")->load();
     auto noise_att = (double)params.getRawParameterValue("noise_att")->load();
     auto noise_dec = (double)params.getRawParameterValue("noise_dec")->load();
-    auto noise_sus = (double)normalizeVolSlider(params.getRawParameterValue("noise_att")->load());
+    auto noise_sus = (double)normalizeVolSlider(params.getRawParameterValue("noise_sus")->load() * 100.0f);
     auto noise_rel = (double)params.getRawParameterValue("noise_rel")->load();
 
     auto a_on = (bool)params.getRawParameterValue("a_on")->load();

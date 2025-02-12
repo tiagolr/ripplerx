@@ -405,6 +405,9 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     keyboardComponent.setScrollButtonsVisible(false);
     keyboardComponent.setColour(juce::MidiKeyboardComponent::keyDownOverlayColourId, Colour(globals::COLOR_ACTIVE));
     keyboardComponent.setColour(juce::MidiKeyboardComponent::mouseOverKeyOverlayColourId, Colour(globals::COLOR_ACTIVE).withAlpha(0.5f));
+#if !defined(DEBUG)
+    keyboardComponent.clearKeyMappings();
+#endif
 
     // METER
     meter = std::make_unique<Meter>(p);
@@ -413,6 +416,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
 
 #if defined(DEBUG)
     addAndMakeVisible(presetExport);
+    presetExport.setTooltip("DEBUG ONLY - Exports preset to debug console");
     presetExport.setButtonText("Preset");
     presetExport.setBounds(bounds.getRight() - 80, 10, 70, 25);
     presetExport.onClick = [this] {
@@ -440,7 +444,9 @@ void RipplerXAudioProcessorEditor::parameterChanged (const juce::String& paramet
 {
     (void)parameterID;
     (void)newValue;
-    toggleUIComponents();
+    juce::MessageManager::callAsync([this] { 
+        toggleUIComponents();
+    });
 };
 
 void RipplerXAudioProcessorEditor::toggleUIComponents()

@@ -16,7 +16,7 @@ void Voice::trigger(double srate, int _note, double _vel, double malletFreq)
 	vel = _vel;
 	freq = note2freq(note);
 	mallet.trigger(srate, malletFreq);
-	noise.attack(vel);
+	noise.attack(1.0);
 	if (resA.on) resA.activate();
 	if (resB.on) resB.activate();
 	updateResonators();

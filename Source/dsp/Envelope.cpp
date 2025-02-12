@@ -5,18 +5,19 @@
 double Envelope::normalizeTension(double t) 
 {
 	t += 1.0;
-	return t == 1.0 ? 100.0 : t > 1.0 ? 3.001 - t : 0.001 + t;
+	return t == 1.0 ? 100.0 
+		: t > 1.0 ? 3.001 - t : 0.001 + t;
 }
 
 void Envelope::init(double srate, double a, double d, double s, double r, double tensionA, double tensionD, double tensionR) {
 	att = fmax(a, 1.0) * 0.001 * srate;
 	dec = fmax(d, 1.0) * 0.001 * srate;
-	sus = pow(10.0, fmin(s, 0) / 20);
+	sus = pow(10.0, fmin(s, 0.0) / 20.0);
 	rel = fmax(r, 1.0) * 0.001 * srate;
 
 	ta = normalizeTension(tensionA);
-	td = normalizeTension(tensionD);
-	tr = normalizeTension(tensionR);
+	td = normalizeTension(-1.0 * tensionD);
+	tr = normalizeTension(-1.0 * tensionR);
 }
 
 std::tuple<double, double> Envelope::calcCoefs(double targetB1, double targetB2, double targetC, double rate, double tension, double mult)

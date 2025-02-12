@@ -28,13 +28,13 @@ RipplerX is a physically modeled synth, capable of sounds similar to AAS Chromap
 
 ### Features
 
-  * **Cross-platform** available on Windows, Linux and macOS
-  * **Dual resonators** with serial and parallel coupling
+  * **Cross-platform** available on Windows, Linux and macOS.
+  * **Dual resonators** with serial and parallel coupling.
   * **9 Models** of acoustic resonators: String, Beam, Squared, Membrane, Drumhead, Plate, Marimba, Open tube and Closed tube.
   * **Inharmocity, Tone, Ratio and Material** sliders to shape the timbre.
-  * **Noise and mallet** generators
+  * **Noise and mallet** generators.
   * Up to **64 partials** per resonator.
-  * Built with **JUCE**
+  * Built with **JUCE**.
 
 ### Download
 
@@ -48,7 +48,7 @@ RipplerX is a port of [Rippler2](https://github.com/tiagolr/tilr_jsfx?tab=readme
 for the Reaper DAW, it started as a research project into physically modelled drums and ended up a
 synth heavily based on AAS Chromaphone and Sai'ke [Partials](https://github.com/JoepVanlier/JSFX?tab=readme-ov-file#partials---modal-synthesis-effect).
 
-The first version was based off Partials since it is one the few open source modal synths available, from there
+The first version was based off Partials since it is one the few open source modal synths I could find, from there
 the main reference became Chromaphone and Collision, the controls and models are almost a one to one match.
 
 Ripplerx has additional controls for Inharmonicity and model Ratio and a distinct sound,
@@ -62,7 +62,8 @@ it also provides an entry point for developers or researchers into physical mode
 
 * Saike for the open source Partials synth which the original Rippler was based on.
 * AAS for Chromaphone synth and manual with hints about the models and parameters used.
-* Other DSP coders like Tale and Scott Stillwell for providing open source JSFXs and libs.
+* Nathan Ho and others for articles about [modal synthesis](https://nathan.ho.name/posts/exploring-modal-synthesis).
+* DSP coders like Tale and Scott Stillwell for providing open source JSFXs and libs.
 
 ### MacOS
 
