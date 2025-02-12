@@ -1,6 +1,8 @@
 // Copyright 2025 tilr
 // Each pressed key triggers a voice, there are max 16 polyphony voices in audioProcessor
-// Voices hold resonators, a mallet and noise generator, they also calculate split frequencies for coupled resonators
+// Voices hold A and B resonators, a mallet and noise generator
+// they also calculate split frequencies for coupled resonators
+// and tune the resonators modals by providing the models
 
 #pragma once
 #include <array>
@@ -15,10 +17,12 @@ public:
 	Voice() {};
 	~Voice() {};
 
+	// static ratio models shared by voices, definition in .cpp
 	static std::array<double, 64> bFree;
 	static std::array<std::array<double, 64>, 9> aModels;
 	static std::array<std::array<double, 64>, 9> bModels;
 
+	// triggered on model ratio param changes
 	void static recalcBeam(bool resA, double ratio);
 	void static recalcMembrane(bool resA, double ratio);
 	void static recalcPlate(bool resA, double ratio);

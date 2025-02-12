@@ -3,8 +3,11 @@
 
 // Bfree[n] is the nth solution of cos($pi*x) = 1/cos($pi*x)
 std::array<double, 64> Voice::bFree = {1.50561873, 2.49975267, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.5, 18.5, 19.5, 20.5, 21.5, 22.5, 23.5, 24.5, 25.5, 26.5, 27.5, 28.5, 29.5, 30.5, 31.5, 32.5, 33.5, 34.5, 35.5, 36.5, 37.5, 38.5, 39.5, 40.5, 41.5, 42.5, 43.5, 44.5, 45.5, 46.5, 47.5, 48.5, 49.5, 50.5, 51.5, 52.5, 53.5, 54.5, 55.5, 56.5, 57.5, 58.5, 59.5, 60.5, 61.5, 62.5, 63.5, 64.5};
+// 9 Models of modal ratios shared by every voice
+// The last two models are for Tubes and only used for frequency shifts when serial coupling
+// Some of the models are recalculated on the fly when the model ratio changes
 std::array<std::array<double, 64>, 9> Voice::aModels = {{
-		// string model: fk *= k
+	// string model: fk *= k
 	{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0, 27.0, 28.0, 29.0, 30.0, 31.0, 32.0, 33.0, 34.0, 35.0, 36.0, 37.0, 38.0, 39.0, 40.0, 41.0, 42.0, 43.0, 44.0, 45.0, 46.0, 47.0, 48.0, 49.0, 50.0, 51.0, 52.0, 53.0, 54.0, 55.0, 56.0, 57.0, 58.0, 59.0, 60.0, 61.0, 62.0, 63.0, 64.0},
 	// beam model: fmn *= sqrt(m**4 + (2*Bfree[n])**4)
 	// where Bfree[n] is the nth solution of cos($pi*x) = 1/cos($pi*x)
@@ -26,7 +29,7 @@ std::array<std::array<double, 64>, 9> Voice::aModels = {{
 	{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0, 27.0, 28.0, 29.0, 30.0, 31.0, 32.0, 33.0, 34.0, 35.0, 36.0, 37.0, 38.0, 39.0, 40.0, 41.0, 42.0, 43.0, 44.0, 45.0, 46.0, 47.0, 48.0, 49.0, 50.0, 51.0, 52.0, 53.0, 54.0, 55.0, 56.0, 57.0, 58.0, 59.0, 60.0, 61.0, 62.0, 63.0, 64.0},
 	// open tube harmonics, used for frequency shifts
 	{1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 61, 63, 65, 67, 69, 71, 73, 75, 77, 79, 81, 83, 85, 87, 89, 91, 93, 95, 97, 99, 101, 103, 105, 107, 109, 111, 113, 115, 117, 119, 121, 123, 125, 127}
-	}};
+}};
 std::array<std::array<double, 64>, 9> Voice::bModels = aModels;
 
 double Voice::note2freq(int _note) 
@@ -124,6 +127,8 @@ void Voice::updateResonators()
 	if (resA.on) resA.update(freq, vel, rel, aModel);
 	if (resB.on) resB.update(freq, vel, rel, bModel);
 }
+
+// =======================================================
 
 void Voice::recalcBeam(bool resA, double ratio)
 {

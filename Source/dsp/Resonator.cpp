@@ -42,23 +42,18 @@ void Resonator::setParams(double _srate, bool _on, int model, int _partials, dou
 	waveguide.srate = srate;
 	waveguide.vel_decay = vel_decay;
 	waveguide.rel = rel;
-
-	// recalc models that depend on ratio var
-	//if (nmodel == Models::Beam) recalcBeam();
-	//if (nmodel == Models::Membrane) recalcMembrane();
-	//if (nmodel == Models::Plate) recalcPlate();
 }
 
-void Resonator::update(double freq, double vel, bool isRelease, std::array<double,64> _model)
+void Resonator::update(double freq, double vel, bool isRelease, std::array<double,64> model)
 {
 	if (nmodel < 7) {
 		for (Partial& partial : partials) {
 			auto idx = partial.k - 1; // clears lnt-arithmetic-overflow warning when accessing _model[k-1] directly 
-			partial.update(freq, _model[idx], _model[_model.size() - 1], vel, isRelease);
+			partial.update(freq, model[idx], model[model.size() - 1], vel, isRelease);
 		}
 	}
 	else
-		waveguide.update(_model[0] * freq, vel, isRelease);
+		waveguide.update(model[0] * freq, vel, isRelease);
 }
 
 void Resonator::activate()
