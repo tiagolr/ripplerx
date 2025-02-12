@@ -45,7 +45,7 @@ Current builds include LV2 (Linux), AU (macOS) and VST3 (Windows, Linux and macO
 
 RipplerX is a port of [Rippler2](https://github.com/tiagolr/tilr_jsfx?tab=readme-ov-file#rippler-2) for the Reaper DAW, it started as a research project into physically modelled drums and ended up a synth heavily based on AAS Chromaphone and Sai'ke Partials.
 
-**Is Rippler a Chromaphone ripoff?**
+**Is RipplerX a Chromaphone ripoff?**
 
 No and yes, the controls and models are heavily based on Chromaphone, almost a one to one copy, with that said this one has additional controls for Inharmonicity and model Ratio for example and a distinct sound. Chromaphone is a more complete synth with more features, it has a more sophisticated mallet generator, a physics based serial coupling, a better UI, to name a few.. if you like this synth you should definetly check it out.
 
