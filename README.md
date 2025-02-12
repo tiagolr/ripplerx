@@ -53,9 +53,9 @@ There is value in having an open source alternative to AAS plugins otherwise I w
 
 **Acknowledgments**
 
-Saike for the open source Partials synth which the original Rippler was based on.
-AAS for Chromaphone synth and manual with hints about the models and parameters used.
-Other DSP coders like Tale and Scott Stillwell for providing open source JSFXs and libs.
+* Saike for the open source Partials synth which the original Rippler was based on.
+* AAS for Chromaphone synth and manual with hints about the models and parameters used.
+* Other DSP coders like Tale and Scott Stillwell for providing open source JSFXs and libs.
 
 ### MacOS
 
