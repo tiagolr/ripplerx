@@ -1,8 +1,6 @@
 <h1 align="center">
   <img src="doc/logo.svg" width="128" style="padding: 5px;" />
   <br>
-  RipplerX
-  <br>
 </h1>
 <div align="center">
 
@@ -41,6 +39,7 @@ RipplerX is a physically modeled synth, capable of sounds similar to AAS Chromap
 ### Download
 
 The latest version and others can be found on [Github releases](https://github.com/tiagolr/ripplerx/releases)
+Current builds include LV2 (Linux), AU (macOS) and VST3 (Windows, Linux and macOS)
 
 ### About
 
