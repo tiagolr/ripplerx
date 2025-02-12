@@ -369,11 +369,18 @@ void RipplerXAudioProcessor::onSlider()
     else if (b_partials == 3) b_partials = 32;
     else if (b_partials == 4) b_partials = 64;
 
+    if (a_model == Models::Beam) Voice::recalcBeam(true, a_ratio);
+    else if (a_model == Models::Membrane) Voice::recalcMembrane(true, a_ratio);
+    else if (a_model == Models::Plate) Voice::recalcPlate(true, a_ratio);
+    if (b_model == Models::Beam) Voice::recalcBeam(false, b_ratio);
+    else if (b_model == Models::Membrane) Voice::recalcMembrane(false, b_ratio);
+    else if (b_model == Models::Plate) Voice::recalcPlate(false, b_ratio);
+
     for (int i = 0; i < polyphony; i++) {
         Voice& voice = voices[i];
         voice.noise.init(srate, noise_filter_mode, noise_filter_freq, noise_filter_q, noise_att, noise_dec, noise_sus, noise_rel);
-        voice.resA.setParams(srate, a_on, a_model, a_partials, a_decay, a_damp, a_tone, a_hit, a_rel, a_inharm, a_ratio, a_cut, a_radius, vel_a_decay, vel_a_hit, vel_a_inharm);
-        voice.resB.setParams(srate, b_on, b_model, b_partials, b_decay, b_damp, b_tone, b_hit, b_rel, b_inharm, b_ratio, b_cut, b_radius, vel_b_decay, vel_b_hit, vel_b_inharm);
+        voice.resA.setParams(srate, a_on, a_model, a_partials, a_decay, a_damp, a_tone, a_hit, a_rel, a_inharm, a_cut, a_radius, vel_a_decay, vel_a_hit, vel_a_inharm);
+        voice.resB.setParams(srate, b_on, b_model, b_partials, b_decay, b_damp, b_tone, b_hit, b_rel, b_inharm, b_cut, b_radius, vel_b_decay, vel_b_hit, vel_b_inharm);
         voice.setCoupling(couple, split);
         voice.updateResonators();
     }

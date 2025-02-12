@@ -13,6 +13,7 @@
 #include "dsp/Voice.h"
 #include "dsp/Limiter.h"
 #include "dsp/Comb.h"
+#include "dsp/Resonator.h"
 
 struct MIDIMsg {
     int offset;

@@ -18,6 +18,7 @@ void Meter::timerCallback()
 
 void Meter::paint(Graphics& g)
 {
+	(void)g;
 	// there is a limiter that prevents high volumes so rms is compared with 0.8 to light all bulbs
 	// other gimmicks gimmicks like pow(0.25) and (totalBulbs + 1) kinda makes the meter decent
 	// but still totally inaccurate

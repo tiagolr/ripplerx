@@ -3,6 +3,7 @@
 // Voices hold resonators, a mallet and noise generator, they also calculate split frequencies for coupled resonators
 
 #pragma once
+#include <array>
 #include "Mallet.h"
 #include "Noise.h"
 #include "Resonator.h"
@@ -14,12 +15,20 @@ public:
 	Voice() {};
 	~Voice() {};
 
+	static std::array<double, 64> bFree;
+	static std::array<std::array<double, 64>, 9> aModels;
+	static std::array<std::array<double, 64>, 9> bModels;
+
+	void static recalcBeam(bool resA, double ratio);
+	void static recalcMembrane(bool resA, double ratio);
+	void static recalcPlate(bool resA, double ratio);
+
 	double note2freq(int _note);
 	void trigger(double srate, int _note, double vel, double malletFreq);
 	void release();
 	void clear();
-	double inline freqShift(double fa, double fb);
-	std::tuple<std::array<double, 64>, std::array<double, 64>> calcFrequencyShifts();
+	double inline freqShift(double fa, double fb) const;
+	std::tuple<std::array<double, 64>, std::array<double, 64>> calcFrequencyShifts() const;
 	void setCoupling(bool _couple, double _split);
 	void updateResonators();
 
