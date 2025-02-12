@@ -80,7 +80,8 @@ void Resonator::update(double freq, double vel, bool isRelease, std::array<doubl
 {
 	if (nmodel < 7) {
 		for (Partial& partial : partials) {
-			partial.update(freq, _model[partial.k - 1], _model[_model.size() - 1], vel, isRelease);
+			auto idx = partial.k - 1; // clears lnt-arithmetic-overflow warning when accessing _model[k-1] directly 
+			partial.update(freq, _model[idx], _model[_model.size() - 1], vel, isRelease);
 		}
 	}
 	else

@@ -37,7 +37,7 @@ void Voice::clear()
 	resB.clear();
 }
 
-void Voice::setCoupling(bool _couple, double _split) {
+void Voice::setCoupling(bool couple, double split); {
 	couple = _couple;
 	split = _split;
 }

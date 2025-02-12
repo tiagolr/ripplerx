@@ -20,7 +20,7 @@ public:
 	void clear();
 	double inline freqShift(double fa, double fb);
 	std::tuple<std::array<double, 64>, std::array<double, 64>> calcFrequencyShifts();
-	void setCoupling(bool couple, double split);
+	void setCoupling(bool _couple, double _split);
 	void updateResonators();
 
 	int note = 0;
