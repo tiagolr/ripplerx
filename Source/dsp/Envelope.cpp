@@ -97,5 +97,7 @@ int Envelope::process()
 		env = rb + env * rc;
 		if (env <= 0) reset();
 	}
+
+	return state;
 }
 

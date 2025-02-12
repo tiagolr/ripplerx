@@ -26,12 +26,13 @@ public:
 
 	std::array<double, 64> bfree;
 	std::array<std::array<double, 64>, 9> models;
+	std::array<double, 64> fshifts = {};
 
 	void setParams(double srate, bool on, int model, int partials, double decay, double damp, double tone, double hit,
 		double rel, double inharm, double ratio, double cut,double radius, double vel_decay, double vel_hit, double vel_inharm);
 
 	void activate();
-	void update(double frequency, double vel, bool isRelease);
+	void update(double frequency, double vel, bool isRelease, std::array<double, 64> _model);
 	void clear();
 	double process(double x);
 

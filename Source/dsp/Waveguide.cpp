@@ -22,7 +22,7 @@ double Waveguide::process(double input)
 	// Apply decay to sample
 	auto dsample = y * tube_decay;
 	if (is_closed) dsample *= -1.0; // closed tube, inverting dsample causes only odd harmonics
-	tube[write_ptr] = input * 0.4 + dsample; // 0.4 normalizes tube amplitude in relation to the partials
+	tube[write_ptr] = input + dsample;
 
 	write_ptr = (write_ptr + 1) % tube_len;
 	read_ptr = (read_ptr + 1) % tube_len;

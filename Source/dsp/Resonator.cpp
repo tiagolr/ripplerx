@@ -7,6 +7,7 @@ Resonator::Resonator()
 	for (int i = 0; i < globals::MAX_PARTIALS; ++i) {
 		partials.push_back(Partial(i + 1));
 	}
+	// Bfree[n] is the nth solution of cos($pi*x) = 1/cos($pi*x)
 	bfree = {1.50561873, 2.49975267, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.5, 18.5, 19.5, 20.5, 21.5, 22.5, 23.5, 24.5, 25.5, 26.5, 27.5, 28.5, 29.5, 30.5, 31.5, 32.5, 33.5, 34.5, 35.5, 36.5, 37.5, 38.5, 39.5, 40.5, 41.5, 42.5, 43.5, 44.5, 45.5, 46.5, 47.5, 48.5, 49.5, 50.5, 51.5, 52.5, 53.5, 54.5, 55.5, 56.5, 57.5, 58.5, 59.5, 60.5, 61.5, 62.5, 63.5, 64.5};
 	models = {{
 		// string model: fk *= k
@@ -75,18 +76,15 @@ void Resonator::setParams(double _srate, bool _on, int model, int _partials, dou
 	if (nmodel == Models::Plate) recalcPlate();
 }
 
-void Resonator::update(double freq, double vel, bool isRelease)
+void Resonator::update(double freq, double vel, bool isRelease, std::array<double,64> _model)
 {
-	std::array<double, 64> model = models[nmodel]; // make a copy of model for frequency shifts when serial coupling
-
 	if (nmodel < 7) {
 		for (Partial& partial : partials) {
-			partial.update(freq, model[partial.k - 1], model[model.size() - 1], vel, isRelease);
+			partial.update(freq, _model[partial.k - 1], _model[_model.size() - 1], vel, isRelease);
 		}
 	}
-	else {
-		waveguide.update(freq, vel, isRelease);
-	}
+	else
+		waveguide.update(_model[0] * freq, vel, isRelease);
 }
 
 void Resonator::activate()

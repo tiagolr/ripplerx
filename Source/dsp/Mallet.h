@@ -7,8 +7,7 @@ public:
 	Mallet() {};
 	~Mallet() {};
 
-	void trigger(double srate);
-	void setFreq(double srate, double freq);
+	void trigger(double srate, double freq);
 	void clear();
 	double process();
 

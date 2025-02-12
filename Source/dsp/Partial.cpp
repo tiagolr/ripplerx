@@ -34,8 +34,7 @@ void Partial::update(double f_0, double ratio, double ratio_max, double vel, boo
 		: pow(f_k / f_max, tone * 12 / 6);
 
 	auto amp_k = fabs(sin(juce::MathConstants<double>::pi * k * fmin(.5, hit + vel_hit * vel / 2.0)));
-	amp_k *= f_k; // push higher frequencies
-	amp_k *= 0.025;
+	amp_k *= 50.0; // ~34dB increase
 
 	// Bandpass filter coefficients (normalized)
 	b0 = alpha * tone_gain * amp_k;

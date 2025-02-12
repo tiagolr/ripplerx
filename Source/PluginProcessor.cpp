@@ -25,7 +25,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
     , params(*this, &undoManager, "PARAMETERS", {
         std::make_unique<juce::AudioParameterFloat>("mallet_mix", "Mallet Mix", 0.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("mallet_res", "Mallet Resonance", 0.0f, 1.0f, 0.8f),
-        std::make_unique<juce::AudioParameterFloat>("mallet_stiff", "Mallet Stifness",juce::NormalisableRange<float>(400.0f, 5000.0f, 0.1f, 0.3f) , 1500.0f),
+        std::make_unique<juce::AudioParameterFloat>("mallet_stiff", "Mallet Stifness",juce::NormalisableRange<float>(100.0f, 5000.0f, 1.0f, 0.3f) , 880.0f),
 
         std::make_unique<juce::AudioParameterBool>("a_on", "A ON", true),
         std::make_unique<juce::AudioParameterChoice>("a_model", "A Model", StringArray { "String", "Beam", "Squared", "Membrane", "Plate", "Drumhead", "Marimba", "Open Tube", "Closed Tube" }, 0),
@@ -218,8 +218,9 @@ void RipplerXAudioProcessor::changeProgramName (int index, const juce::String& n
 //==============================================================================
 void RipplerXAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    (void)sampleRate;
     (void)samplesPerBlock;
+    comb.init(sampleRate);
+    limiter.init(sampleRate);
     clearVoices();
     onSlider();
 }
@@ -267,7 +268,11 @@ void RipplerXAudioProcessor::onNote(MIDIMsg msg)
     Voice& voice = voices[nvoice];
     nvoice = (nvoice + 1) % polyphony;
 
-    voice.trigger(srate, msg.note, msg.vel / 127.0);
+    auto mallet_stiff = (double)params.getRawParameterValue("mallet_stiff")->load();
+    auto vel_mallet_stiff = (double)params.getRawParameterValue("vel_mallet_stiff")->load();
+    auto malletFreq = fmin(5000.0, exp(log(mallet_stiff) + msg.vel / 127.0 * vel_mallet_stiff * (log(5000.0) - log(40.0))));
+
+    voice.trigger(srate, msg.note, msg.vel / 127.0, malletFreq);
 }
 
 void RipplerXAudioProcessor::offNote(MIDIMsg msg)
@@ -283,7 +288,6 @@ void RipplerXAudioProcessor::offNote(MIDIMsg msg)
 void RipplerXAudioProcessor::onSlider()
 {
     auto srate = getSampleRate();
-    auto mallet_stiff = (double)params.getRawParameterValue("mallet_stiff")->load();
     auto noise_filter_freq = (double)params.getRawParameterValue("noise_filter_freq")->load();
     auto noise_filter_mode = (int)params.getRawParameterValue("noise_filter_mode")->load();
     auto noise_filter_q = (double)params.getRawParameterValue("noise_filter_q")->load();
@@ -324,6 +328,9 @@ void RipplerXAudioProcessor::onSlider()
     auto vel_b_decay = (double)params.getRawParameterValue("vel_b_decay")->load();
     auto vel_b_hit = (double)params.getRawParameterValue("vel_b_hit")->load();
     auto vel_b_inharm = (double)params.getRawParameterValue("vel_b_inharm")->load();
+
+    auto couple = (bool)params.getRawParameterValue("couple")->load();
+    auto split = (double)params.getRawParameterValue("ab_split")->load() * 100.0;
 
     if (a_model != last_a_model) {
         auto param = params.getParameter("a_ratio");
@@ -372,9 +379,9 @@ void RipplerXAudioProcessor::onSlider()
     for (int i = 0; i < polyphony; i++) {
         Voice& voice = voices[i];
         voice.noise.init(srate, noise_filter_mode, noise_filter_freq, noise_filter_q, noise_att, noise_dec, noise_sus, noise_rel);
-        voice.mallet.setFreq(srate, mallet_stiff);
         voice.resA.setParams(srate, a_on, a_model, a_partials, a_decay, a_damp, a_tone, a_hit, a_rel, a_inharm, a_ratio, a_cut, a_radius, vel_a_decay, vel_a_hit, vel_a_inharm);
         voice.resB.setParams(srate, b_on, b_model, b_partials, b_decay, b_damp, b_tone, b_hit, b_rel, b_inharm, b_ratio, b_cut, b_radius, vel_b_decay, vel_b_hit, vel_b_inharm);
+        voice.setCoupling(couple, split);
         voice.updateResonators();
     }
 }
@@ -413,6 +420,7 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
     auto serial = (bool)params.getRawParameterValue("couple")->load();
     auto ab_mix = (double)params.getRawParameterValue("ab_mix")->load();
     auto gain = (double)params.getRawParameterValue("gain")->load();
+    auto couple = (bool)params.getRawParameterValue("couple")->load();
     gain = pow(10.0, gain / 20.0);
 
     // remove midi messages that have been processed
@@ -462,7 +470,7 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
 
         double dirOut = 0.0; // direct output
         double aOut = 0.0; // resonator A output
-        double bOut = 0.0;
+        double bOut = 0.0; // resonator B output
 
         for (int i = 0; i < polyphony; ++i) {
             Voice& voice = voices[i];
@@ -480,16 +488,18 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
                 resOut += nsample * fmin(1.0, noise_res + vel_noise_res * voice.vel);
             }
 
+            auto out_from_a = 0.0; // output from voice A into B in case of resonator serial coupling
             if (a_on) {
                 auto out = voice.resA.process(resOut);
                 if (voice.resA.cut > 20.0001) 
                     out = voice.resA.filter.df1(out);
                 aOut += out;
+                out_from_a = out;
             }
 
             if (b_on) {
-                auto out = voice.resB.process(resOut);
-                if (voice.resB.cut > 20.0001) 
+                auto out = voice.resB.process(a_on && couple ? out_from_a : resOut);
+                if (voice.resB.cut > 20.0001)
                     out = voice.resB.filter.df1(out);
                 bOut += out;
             }
@@ -497,16 +507,17 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
 
         double resOut = 0.0;
         if (a_on && b_on) 
-            resOut = serial 
-                ? bOut
-                : aOut * (1-ab_mix) + bOut * ab_mix;
+            resOut = serial ? bOut : aOut * (1-ab_mix) + bOut * ab_mix;
         else
-            resOut = aOut + bOut; // one of them is turned off, can just sum the two
+            resOut = aOut + bOut; // one of them is turned off, just sum the two
 
         double totalOut = dirOut + resOut * gain;
+        auto [spl0, spl1] = comb.process(totalOut);
+        auto [left, right] = limiter.process(spl0, spl1);
+
         for (int channel = 0; channel < totalNumOutputChannels; ++channel)
         {
-            buffer.setSample(channel, sample, static_cast<FloatType>(totalOut));
+            buffer.setSample(channel, sample, static_cast<FloatType>(!channel ? left : right));
         }
     }
 }

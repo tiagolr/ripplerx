@@ -60,6 +60,8 @@ source_group(Source\\ui
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/ui/CustomLookAndFeel.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/ui/Rotary.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/ui/Rotary.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/ui/Meter.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/ui/Meter.cpp
 )
 
 source_group(Source\\dsp
@@ -80,6 +82,8 @@ source_group(Source\\dsp
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Noise.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Voice.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Voice.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Comb.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/dsp/Limiter.h
 )
 
 # Make the SourceFiles buildable

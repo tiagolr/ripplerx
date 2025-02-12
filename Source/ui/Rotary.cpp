@@ -29,6 +29,8 @@ Rotary::~Rotary()
 
 void Rotary::parameterChanged(const juce::String& parameterID, float newValue) 
 {
+    (void)parameterID;
+    (void)newValue;
     repaint();
 }
 

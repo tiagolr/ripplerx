@@ -11,6 +11,8 @@
 #include <JuceHeader.h>
 #include <vector>
 #include "dsp/Voice.h"
+#include "dsp/Limiter.h"
+#include "dsp/Comb.h"
 
 struct MIDIMsg {
     int offset;
@@ -96,6 +98,9 @@ private:
     std::vector<MIDIMsg> midi;
     std::vector<Voice> voices;
     int nvoice = 0; // next voice to use
+    Comb comb{};
+    Limiter limiter{};
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RipplerXAudioProcessor)
 };

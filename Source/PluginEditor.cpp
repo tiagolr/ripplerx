@@ -395,7 +395,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     addAndMakeVisible(*abMix);
     abMix->setBounds(col,row,70,75);
 
-    abSplit = std::make_unique<Rotary>(p, "ab_split", "Split", LabelFormat::Percent, "", true);
+    abSplit = std::make_unique<Rotary>(p, "ab_split", "Split", LabelFormat::Percent);
     addAndMakeVisible(*abSplit);
     abSplit->setBounds(col,row,70,75);
 
