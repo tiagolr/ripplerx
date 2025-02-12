@@ -18,7 +18,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
     , params(*this, &undoManager, "PARAMETERS", {
         std::make_unique<juce::AudioParameterFloat>("mallet_mix", "Mallet Mix", 0.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("mallet_res", "Mallet Resonance", 0.0f, 1.0f, 0.8f),
-        std::make_unique<juce::AudioParameterFloat>("mallet_stiff", "Mallet Stifness",juce::NormalisableRange<float>(100.0f, 5000.0f, 1.0f, 0.3f) , 600.0f),
+        std::make_unique<juce::AudioParameterFloat>("mallet_stiff", "Mallet Stifness",juce::NormalisableRange<float>(100.0f, 5000.0f, 1.0f, 0.3f) , 1500.0f),
 
         std::make_unique<juce::AudioParameterBool>("a_on", "A ON", true),
         std::make_unique<juce::AudioParameterChoice>("a_model", "A Model", StringArray { "String", "Beam", "Squared", "Membrane", "Plate", "Drumhead", "Marimba", "Open Tube", "Closed Tube" }, 0),
@@ -506,6 +506,9 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
         {
             buffer.setSample(channel, sample, static_cast<FloatType>(!channel ? left : right));
         }
+
+        float rms = (float)buffer.getRMSLevel(0, 0, buffer.getNumSamples());
+        rmsValue.store(rms, std::memory_order_release);
     }
 }
 

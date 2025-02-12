@@ -406,6 +406,23 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     keyboardComponent.setColour(juce::MidiKeyboardComponent::keyDownOverlayColourId, Colour(globals::COLOR_ACTIVE));
     keyboardComponent.setColour(juce::MidiKeyboardComponent::mouseOverKeyOverlayColourId, Colour(globals::COLOR_ACTIVE).withAlpha(0.5f));
 
+    // METER
+    meter = std::make_unique<Meter>(p);
+    addAndMakeVisible(*meter);
+    meter->setBounds(bounds.getRight() - 85, 235, 60, 95);
+
+#if defined(DEBUG)
+    addAndMakeVisible(presetExport);
+    presetExport.setButtonText("Preset");
+    presetExport.setBounds(bounds.getRight() - 80, 10, 70, 25);
+    presetExport.onClick = [this] {
+        auto state = audioProcessor.params.copyState();
+        std::unique_ptr<juce::XmlElement>xml(state.createXml());
+        juce::String xmlString = xml->toString();
+        DBG(xmlString.toStdString());
+    };
+#endif
+
     toggleUIComponents();
 }
 

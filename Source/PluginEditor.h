@@ -12,6 +12,7 @@
 #include "PluginProcessor.h"
 #include "ui/Rotary.h"
 #include "ui/CustomLookAndFeel.h"
+#include "ui/Meter.h"
 
 //==============================================================================
 /**
@@ -105,6 +106,12 @@ private:
 
     TooltipWindow tooltipWindow;
     juce::MidiKeyboardComponent keyboardComponent;
+    std::unique_ptr<Meter> meter;
+
+
+#if defined(DEBUG)
+    juce::TextButton presetExport;
+#endif
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RipplerXAudioProcessorEditor)
 };

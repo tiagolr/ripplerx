@@ -33,23 +33,30 @@ RipplerX is a physically modeled synth, capable of sounds similar to AAS Chromap
   * **9 Models** of acoustic resonators: String, Beam, Squared, Membrane, Drumhead, Plate, Marimba, Open tube and Closed tube.
   * **Inharmocity, Tone, Ratio and Material** sliders to shape the timbre.
   * **Noise and mallet** generators
-  * Up to **64 partials** per resonator (configurable).
+  * Up to **64 partials** per resonator.
   * Built with **JUCE**
 
 ### Download
 
-* The latest version and others can be found on [Github releases](https://github.com/tiagolr/ripplerx/releases)
+* The latest version can be found on [Github releases](https://github.com/tiagolr/ripplerx/releases)
 * Current builds include LV2 (Linux), AU (macOS) and VST3 (Windows, Linux and macOS)
+* Clap is planned when there is official [JUCE support](https://juce.com/blog/juce-roadmap-update-q3-2024/)
 
 ### About
 
-RipplerX is a port of [Rippler2](https://github.com/tiagolr/tilr_jsfx?tab=readme-ov-file#rippler-2) for the Reaper DAW, it started as a research project into physically modelled drums and ended up a synth heavily based on AAS Chromaphone and Sai'ke Partials.
+RipplerX is a port of [Rippler2](https://github.com/tiagolr/tilr_jsfx?tab=readme-ov-file#rippler-2)
+for the Reaper DAW, it started as a research project into physically modelled drums and ended up a
+synth heavily based on AAS Chromaphone and Sai'ke [Partials](https://github.com/JoepVanlier/JSFX?tab=readme-ov-file#partials---modal-synthesis-effect).
 
-**Is RipplerX a Chromaphone ripoff?**
+The first version was based off Partials since it is one the few open source modal synths available, from there
+the main reference became Chromaphone and Collision, the controls and models are almost a one to one match.
 
-No and yes, the controls and models are heavily based on Chromaphone, almost a one to one copy, with that said this one has additional controls for Inharmonicity and model Ratio for example and a distinct sound. Chromaphone is a more complete synth with more features, it has a more sophisticated mallet generator, a physics based serial coupling, a better UI, to name a few.. if you like this synth you should definetly check it out.
+Ripplerx has additional controls for Inharmonicity and model Ratio and a distinct sound,
+Chromaphone is a more complete synth with more features, it has a more sophisticated mallet generator, physics based serial coupling, a better UI, etc..
+If you like this synth you should definetly check it out.
 
-There is value in having an open source alternative to AAS plugins otherwise I would have called it RippoffX, it also provides an entry point for developers or researchers into physical modelling.
+The value of RipplerX is as an open source alternative to AAS plugins,
+it also provides an entry point for developers or researchers into physical modelling.
 
 **Acknowledgments**
 
