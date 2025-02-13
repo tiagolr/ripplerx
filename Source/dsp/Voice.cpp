@@ -43,7 +43,7 @@ void Voice::trigger(double srate, int _note, double _vel, double malletFreq)
 	resA.clear();
 	resB.clear();
 	note = _note;
-	rel = false;
+	isRelease = false;
 	vel = _vel;
 	freq = note2freq(note);
 	mallet.trigger(srate, malletFreq);
@@ -55,7 +55,7 @@ void Voice::trigger(double srate, int _note, double _vel, double malletFreq)
 
 void Voice::release()
 {
-	rel = true;
+	isRelease = true;
 	noise.release();
 	updateResonators();
 }
@@ -124,8 +124,8 @@ void Voice::updateResonators()
 		bModel = bModels[resB.nmodel];
 	}
 
-	if (resA.on) resA.update(freq, vel, rel, aModel);
-	if (resB.on) resB.update(freq, vel, rel, bModel);
+	if (resA.on) resA.update(freq, vel, isRelease, aModel);
+	if (resB.on) resB.update(freq, vel, isRelease, bModel);
 }
 
 // =======================================================

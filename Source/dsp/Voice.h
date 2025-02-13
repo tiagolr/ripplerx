@@ -39,7 +39,7 @@ public:
 	int note = 0;
 	double freq = 0.0;
 	double vel = 0.0;
-	bool rel = false; // release state
+	bool isRelease = false;
 	bool couple = false;
 	double split = 0.0;
 
