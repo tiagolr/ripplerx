@@ -55,7 +55,7 @@ public:
 
 	std::tuple<double, double> process(double spl0, double spl1)
 	{
-		auto maxspl = fmax(abs(spl0), abs(spl1));
+		auto maxspl = fmax(fabs(spl0), fabs(spl1));
 		maxspl = maxspl * maxspl;
 
 		runave = maxspl + rmscoef * (runave - maxspl);

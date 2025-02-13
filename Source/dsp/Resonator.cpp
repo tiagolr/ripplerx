@@ -48,7 +48,7 @@ void Resonator::update(double freq, double vel, bool isRelease, std::array<doubl
 {
 	if (nmodel < 7) {
 		for (Partial& partial : partials) {
-			auto idx = partial.k - 1; // clears lnt-arithmetic-overflow warning when accessing _model[k-1] directly 
+			auto idx = partial.k - 1; // clears lnt-arithmetic-overflow warning when accessing _model[k-1] directly
 			partial.update(freq, model[idx], model[model.size() - 1], vel, isRelease);
 		}
 	}
@@ -72,17 +72,16 @@ double Resonator::process(double input)
 				out += partials[p].process(input);
 			}
 		}
-		else {
-			// waveguide process
-			out += waveguide.process(input);
-		}
+		else
+			out += waveguide.process(input); // waveguide process
 	}
 
-	if (abs(out) + abs(input) > 0.00001) 
+	if (fabs(out) + fabs(input) > 0.00001)
 		silence = 0;
-	else 
-		silence += 1;
-	if (silence >= srate) 
+	else
+        silence += 1;
+
+	if (silence >= srate)
 		active = false;
 
 	return out;

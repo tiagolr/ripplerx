@@ -45,7 +45,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("b_ratio", "B Ratio",juce::NormalisableRange<float>(0.1f, 10.0f, 0.01f, 0.3f), 1.0f),
         std::make_unique<juce::AudioParameterFloat>("b_cut", "B LowCut",juce::NormalisableRange<float>(20.0f, 20000.0f, 1.0f, 0.3f), 20.0f),
         std::make_unique<juce::AudioParameterFloat>("b_radius", "B Tube Radius", 0.0f, 1.0f, 0.5f),
-        
+
         std::make_unique<juce::AudioParameterFloat>("noise_mix", "Noise Mix", 0.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("noise_res", "Noise Resonance", 0.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterChoice>("noise_filter_mode", "Noise Filter Mode", StringArray {"LP", "BP", "HP"}, 2),
@@ -110,7 +110,7 @@ RipplerXAudioProcessor::~RipplerXAudioProcessor()
 {
 }
 
-void RipplerXAudioProcessor::loadSettings () 
+void RipplerXAudioProcessor::loadSettings ()
 {
     if (auto* file = settings.getUserSettings()) {
         scale = (float)file->getDoubleValue("scale", 1.0f);
@@ -299,8 +299,8 @@ bool RipplerXAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts)
 }
 #endif
 
-float RipplerXAudioProcessor::normalizeVolSlider(float val) 
-{ 
+float RipplerXAudioProcessor::normalizeVolSlider(float val)
+{
     return val * 60.0f / 100.0f - 60.0f;
 }
 
@@ -488,7 +488,7 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
         juce::MidiMessage message = metadata.getMessage();
         if (message.isNoteOn() || message.isNoteOff())
             midi.push_back({ // queue midi message
-                metadata.samplePosition, 
+                metadata.samplePosition,
                 message.isNoteOn(),
                 message.getNoteNumber(),
                 message.getVelocity()
@@ -498,7 +498,7 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
         else if (message.isAllSoundOff())
             clearVoices();
     }
-    
+
     for (int sample = 0; sample < numSamples; ++sample) {
         // process midi queue
         for (auto& msg : midi) {
@@ -521,20 +521,20 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
 
             auto msample = voice.mallet.process(); // process mallet
             if (msample) {
-                dirOut += msample * fmin(1.0, mallet_mix + vel_mallet_mix * voice.vel); 
+                dirOut += msample * fmin(1.0, mallet_mix + vel_mallet_mix * voice.vel);
                 resOut += msample * fmin(1.0, mallet_res + vel_mallet_res * voice.vel);
             }
 
             auto nsample = voice.noise.process(); // process noise
             if (nsample) {
-                dirOut += nsample * fmin(1.0, noise_mix + vel_noise_mix * voice.vel); 
+                dirOut += nsample * fmin(1.0, noise_mix + vel_noise_mix * voice.vel);
                 resOut += nsample * fmin(1.0, noise_res + vel_noise_res * voice.vel);
             }
 
             auto out_from_a = 0.0; // output from voice A into B in case of resonator serial coupling
             if (a_on) {
                 auto out = voice.resA.process(resOut);
-                if (voice.resA.cut > 20.0001) 
+                if (voice.resA.cut > 20.0001)
                     out = voice.resA.filter.df1(out);
                 aOut += out;
                 out_from_a = out;
@@ -549,7 +549,7 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
         }
 
         double resOut = 0.0;
-        if (a_on && b_on) 
+        if (a_on && b_on)
             resOut = serial ? bOut : aOut * (1-ab_mix) + bOut * ab_mix;
         else
             resOut = aOut + bOut; // one of them is turned off, just sum the two
@@ -562,10 +562,10 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
         {
             buffer.setSample(channel, sample, static_cast<FloatType>(!channel ? left : right));
         }
-
-        float rms = (float)buffer.getRMSLevel(0, 0, buffer.getNumSamples());
-        rmsValue.store(rms, std::memory_order_release);
     }
+
+    float rms = (float)buffer.getRMSLevel(0, 0, buffer.getNumSamples());
+    rmsValue.store(rms, std::memory_order_release);
 }
 
 void RipplerXAudioProcessor::clearVoices()
