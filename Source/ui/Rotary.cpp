@@ -130,27 +130,32 @@ void Rotary::mouseDrag(const juce::MouseEvent& e) {
 
 void Rotary::draw_rotary_slider(juce::Graphics& g, float slider_pos) {
     auto bounds = getBounds();
-    const float radius = bounds.getHeight() / 2.0f - 20.0f;
+    const float radius = 16.0f;
     const float angle = -deg130 + slider_pos * (deg130 - -deg130);
 
-    g.setColour(Colour(0xffaaaaaa));
-    g.fillEllipse(bounds.getWidth()/2.0f-radius, bounds.getHeight()/2.0f-radius, radius*2.0f, radius*2.0f);
-    g.setColour(Colour(globals::COLOR_ACTIVE));
+    juce::DropShadow shadow(Colour(0xff888888), 15, {4, 4}); // (Color, Blur Radius, Offset)
+    juce::Path circlePath;
+    circlePath.addEllipse(bounds.getWidth()/2.0f-radius, bounds.getHeight()/2.0f-radius-4.0f, radius*2.0f, radius*2.0f); // x, y, width, height
+    shadow.drawForPath(g, circlePath);
+    g.setColour(Colour(globals::COLOR_BACKGROUND));
+    g.fillPath(circlePath);
 
+    g.setColour(Colour(globals::COLOR_ACTIVE));
     if ((isSymmetric && slider_pos != 0.5f) || (!isSymmetric && slider_pos)) {
         juce::Path arc;
-        arc.addCentredArc(bounds.getWidth() / 2.0f, bounds.getHeight() / 2.0f, radius + 4.0f, radius + 4.0f, 0, isSymmetric ? 0 : -deg130, angle, true);
-        g.strokePath(arc, PathStrokeType(3.0, PathStrokeType::JointStyle::curved, PathStrokeType::rounded));
+        arc.addCentredArc(bounds.getWidth() / 2.0f, bounds.getHeight() / 2.0f - 4.0f, radius + 2.0f, radius + 2.0f, 0, isSymmetric ? 0 : -deg130, angle, true);
+        g.strokePath(arc, PathStrokeType(2.0, PathStrokeType::JointStyle::curved, PathStrokeType::rounded));
     }
 
+    g.setColour(Colour(globals::COLOR_NEUTRAL));
     juce::Path p;
     p.addLineSegment (juce::Line<float>(0.0f, -5.0f, 0.0f, -radius + 5.0f), 0.1f);
     juce::PathStrokeType(3.0f, PathStrokeType::JointStyle::curved, PathStrokeType::rounded).createStrokedPath(p, p);
-    g.fillPath (p, juce::AffineTransform::rotation (angle).translated(bounds.getWidth() / 2.0f, bounds.getHeight() / 2.0f));
+    g.fillPath (p, juce::AffineTransform::rotation (angle).translated(bounds.getWidth() / 2.0f, bounds.getHeight() / 2.0f - 4.0f));
 
     if (velId.isNotEmpty() && audioProcessor.velMap) {
         g.setColour(Colour(globals::COLOR_VEL).withAlpha(0.5f));
-        g.fillEllipse(bounds.getWidth()/2.0f-radius, bounds.getHeight()/2.0f-radius, radius*2.0f, radius*2.0f);
+        g.fillEllipse(bounds.getWidth()/2.0f-radius, bounds.getHeight()/2.0f-radius-4.0f, radius*2.0f, radius*2.0f);
     }
 }
 
@@ -163,7 +168,7 @@ void Rotary::draw_vel_arc(juce::Graphics& g, float slider_pos, float vel_pos) co
 
     if (vel_pos && slider_angle < deg130) {
         juce::Path arc;
-        arc.addCentredArc(bounds.getWidth() / 2.0f, bounds.getHeight() / 2.0f, radius + 8.0f, radius + 8.0f, 0, slider_angle, vel_angle, true);
+        arc.addCentredArc(bounds.getWidth() / 2.0f, bounds.getHeight() / 2.0f - 4.0f, radius + 8.0f, radius + 8.0f, 0, slider_angle, vel_angle, true);
         g.strokePath(arc, PathStrokeType(2.0, PathStrokeType::JointStyle::curved, PathStrokeType::rounded));
     }
 }
