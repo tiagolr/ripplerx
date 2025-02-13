@@ -45,6 +45,10 @@ private:
     Label polyLabel;
     ComboBox polyMenu;
     TextButton velButton;
+    ComboBox presetMenu;
+#if defined(DEBUG)
+    juce::TextButton presetExport;
+#endif
 
     // Noise
     ComboBox noiseFilterMenu;
@@ -109,9 +113,7 @@ private:
     std::unique_ptr<Meter> meter;
 
 
-#if defined(DEBUG)
-    juce::TextButton presetExport;
-#endif
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RipplerXAudioProcessorEditor)
 };

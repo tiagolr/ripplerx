@@ -10,6 +10,7 @@ enum LabelFormat {
     dB,
     Percent,
     float1,
+    float2_100,
     millis,
     seconds2f,
     ABMix,

@@ -70,6 +70,11 @@ void Rotary::draw_label(juce::Graphics& g, float slider_val, float vel_val)
                 ss << std::fixed << std::setprecision(1) << slider_val;
                 text = ss.str();
             }
+            else if (format == LabelFormat::float2_100) {
+                std::stringstream ss;
+                ss << std::fixed << std::setprecision(2) << slider_val * 100;
+                text = ss.str();
+            }
             else if (format == LabelFormat::seconds2f) {
                 std::stringstream ss;
                 ss << std::fixed << std::setprecision(2) << slider_val << " s";
@@ -119,7 +124,7 @@ void Rotary::mouseDoubleClick(const juce::MouseEvent& e) {
 void Rotary::mouseDrag(const juce::MouseEvent& e) {
     auto change = e.getPosition() - last_mouse_position;
     last_mouse_position = e.getPosition();
-    auto speed = (e.mods.isCtrlDown() ? 20.0f : 1.0f) * pixels_per_percent;
+    auto speed = (e.mods.isCtrlDown() ? 30.0f : 4.0f) * pixels_per_percent;
     auto slider_change = float(change.getX() - change.getY()) / speed;
     cur_normed_value += slider_change;
     auto param = audioProcessor.params.getParameter((mouse_down_shift || audioProcessor.velMap) && velId.isNotEmpty() ? velId : paramId);

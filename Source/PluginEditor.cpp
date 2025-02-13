@@ -34,7 +34,21 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     addAndMakeVisible(logo);
     logo.setBounds(col, row+5, 120, 16);
 
-    col += 170;
+#if defined(DEBUG)
+    addAndMakeVisible(presetExport);
+    presetExport.setAlpha(0.f);
+    presetExport.setTooltip("DEBUG ONLY - Exports preset to debug console");
+    presetExport.setButtonText("Export");
+    presetExport.setBounds(10, 10, 100, 25);
+    presetExport.onClick = [this] {
+        auto state = audioProcessor.params.copyState();
+        std::unique_ptr<juce::XmlElement>xml(state.createXml());
+        juce::String xmlString = xml->toString();
+        DBG(xmlString.toStdString());
+    };
+#endif
+
+    col += 160;
     addAndMakeVisible(sizeLabel);
     sizeLabel.setColour(juce::Label::ColourIds::textColourId, Colour(globals::COLOR_NEUTRAL_LIGHT));
     sizeLabel.setFont(FontOptions(16.0f));
@@ -91,6 +105,38 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
             });
         };
     polyMenu.setBounds(col+115+80+50+5,row,55,25);
+
+    addAndMakeVisible(presetMenu);
+    presetMenu.setText("Patch");
+    presetMenu.addItem("Init", 1);
+    presetMenu.addItem("Harpsi", 2);
+    presetMenu.addItem("Harp", 3);
+    presetMenu.addItem("Sankyo", 4);
+    presetMenu.addItem("Tubes", 5);
+    presetMenu.addItem("Stars", 6);
+    presetMenu.addItem("DoorBell", 7);
+    presetMenu.addItem("Bells", 8);
+    presetMenu.addItem("Bells2", 9);
+    presetMenu.addItem("KeyRing", 10);
+    presetMenu.addItem("Sink", 11);
+    presetMenu.addItem("Cans", 12);
+    presetMenu.addItem("Gong", 13);
+    presetMenu.addItem("Bong", 14);
+    presetMenu.addItem("Marimba", 15);
+    presetMenu.addItem("Fight", 16);
+    presetMenu.addItem("Tabla", 17);
+    presetMenu.addItem("Tabla2", 18);
+    presetMenu.addItem("Strings", 19);
+    presetMenu.addItem("OldClock", 20);
+    presetMenu.addItem("Crystal", 21);
+    presetMenu.onChange = [this]()
+        {
+            const int value = presetMenu.getSelectedId();
+            MessageManager::callAsync([this, value] {
+                audioProcessor.setCurrentProgram(value - 1);
+            });
+        };
+    presetMenu.setBounds(getWidth() - 110, row, 100, 25);
 
     // NOISE SLIDERS
     col = 10; row += 35;
@@ -260,7 +306,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     addAndMakeVisible(*aTone);
     aTone->setBounds(col,row,70,75);
 
-    aInharm = std::make_unique<Rotary>(p, "a_inharm", "Inharm", LabelFormat::Percent, "vel_a_inharm");
+    aInharm = std::make_unique<Rotary>(p, "a_inharm", "Inharm", LabelFormat::float2_100, "vel_a_inharm");
     addAndMakeVisible(*aInharm);
     aInharm->setBounds(col+70,row,70,75);
 
@@ -356,7 +402,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     addAndMakeVisible(*bTone);
     bTone->setBounds(col,row,70,75);
 
-    bInharm = std::make_unique<Rotary>(p, "b_inharm", "Inharm", LabelFormat::Percent, "vel_b_inharm");
+    bInharm = std::make_unique<Rotary>(p, "b_inharm", "Inharm", LabelFormat::float2_100, "vel_b_inharm");
     addAndMakeVisible(*bInharm);
     bInharm->setBounds(col+70,row,70,75);
 
@@ -413,19 +459,6 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     meter = std::make_unique<Meter>(p);
     addAndMakeVisible(*meter);
     meter->setBounds(bounds.getRight() - 85, 235, 60, 95);
-
-#if defined(DEBUG)
-    addAndMakeVisible(presetExport);
-    presetExport.setTooltip("DEBUG ONLY - Exports preset to debug console");
-    presetExport.setButtonText("Preset");
-    presetExport.setBounds(bounds.getRight() - 80, 10, 70, 25);
-    presetExport.onClick = [this] {
-        auto state = audioProcessor.params.copyState();
-        std::unique_ptr<juce::XmlElement>xml(state.createXml());
-        juce::String xmlString = xml->toString();
-        DBG(xmlString.toStdString());
-    };
-#endif
 
     toggleUIComponents();
 }

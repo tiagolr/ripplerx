@@ -28,7 +28,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("a_tone", "A Tone", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("a_hit", "A HitPos", 0.02f, 0.5f, 0.26f),
         std::make_unique<juce::AudioParameterFloat>("a_rel", "A Release", 0.0f, 1.0f, 1.0f),
-        std::make_unique<juce::AudioParameterFloat>("a_inharm", "A Inharmonic",juce::NormalisableRange<float>(0.0001f, 1.0f, 0.001f, 0.3f), 0.0001f),
+        std::make_unique<juce::AudioParameterFloat>("a_inharm", "A Inharmonic",juce::NormalisableRange<float>(0.0001f, 1.0f, 0.0001f, 0.3f), 0.0001f),
         std::make_unique<juce::AudioParameterFloat>("a_ratio", "A Ratio",juce::NormalisableRange<float>(0.1f, 10.0f, 0.01f, 0.3f), 1.0f),
         std::make_unique<juce::AudioParameterFloat>("a_cut", "A LowCut",juce::NormalisableRange<float>(20.0f, 20000.0f, 1.0f, 0.3f), 20.0f),
         std::make_unique<juce::AudioParameterFloat>("a_radius", "A Tube Radius", 0.0f, 1.0f, 0.5f),
@@ -41,7 +41,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("b_tone", "B Tone", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("b_hit", "B HitPos", 0.02f, 0.5f, 0.26f),
         std::make_unique<juce::AudioParameterFloat>("b_rel", "B Release", 0.0f, 1.0f, 1.0f),
-        std::make_unique<juce::AudioParameterFloat>("b_inharm", "B Inharmonic",juce::NormalisableRange<float>(0.0001f, 1.0f, 0.001f, 0.3f), 0.0001f),
+        std::make_unique<juce::AudioParameterFloat>("b_inharm", "B Inharmonic",juce::NormalisableRange<float>(0.0001f, 1.0f, 0.0001f, 0.3f), 0.0001f),
         std::make_unique<juce::AudioParameterFloat>("b_ratio", "B Ratio",juce::NormalisableRange<float>(0.1f, 10.0f, 0.01f, 0.3f), 1.0f),
         std::make_unique<juce::AudioParameterFloat>("b_cut", "B LowCut",juce::NormalisableRange<float>(20.0f, 20000.0f, 1.0f, 0.3f), 20.0f),
         std::make_unique<juce::AudioParameterFloat>("b_radius", "B Tube Radius", 0.0f, 1.0f, 0.5f),
@@ -181,25 +181,74 @@ double RipplerXAudioProcessor::getTailLengthSeconds() const
 
 int RipplerXAudioProcessor::getNumPrograms()
 {
-    return 3;
+    return 21;
 }
 
 int RipplerXAudioProcessor::getCurrentProgram()
 {
-    return 0;
+    return currentProgram;
 }
 
 void RipplerXAudioProcessor::setCurrentProgram (int index)
 {
-    (void)index;
-    DBG("SET CURRENT PROGRAM");
+    currentProgram = index;
+    auto data = BinaryData::Init_xml;
+    auto size = BinaryData::Init_xmlSize;
+    if (currentProgram == -1) return;
+
+    if (index == 1) { data = BinaryData::Harpsi_xml; size = BinaryData::Harpsi_xmlSize; }
+    else if (index == 2) { data = BinaryData::Harp_xml; size = BinaryData::Harp_xmlSize; }
+    else if (index == 3) { data = BinaryData::Sankyo_xml; size = BinaryData::Sankyo_xmlSize; }
+    else if (index == 4) { data = BinaryData::Tubes_xml; size = BinaryData::Tubes_xmlSize; }
+    else if (index == 5) { data = BinaryData::Stars_xml; size = BinaryData::Stars_xmlSize; }
+    else if (index == 6) { data = BinaryData::DoorBell_xml; size = BinaryData::DoorBell_xmlSize; }
+    else if (index == 7) { data = BinaryData::Bells_xml; size = BinaryData::Bells_xmlSize; }
+    else if (index == 8) { data = BinaryData::Bells2_xml; size = BinaryData::Bells2_xmlSize; }
+    else if (index == 9) { data = BinaryData::KeyRing_xml; size = BinaryData::KeyRing_xmlSize; }
+    else if (index == 10) { data = BinaryData::Sink_xml; size = BinaryData::Sink_xmlSize; }
+    else if (index == 11) { data = BinaryData::Cans_xml; size = BinaryData::Cans_xmlSize; }
+    else if (index == 12) { data = BinaryData::Gong_xml; size = BinaryData::Gong_xmlSize; }
+    else if (index == 13) { data = BinaryData::Bong_xml; size = BinaryData::Bong_xmlSize; }
+    else if (index == 14) { data = BinaryData::Marimba_xml; size = BinaryData::Marimba_xmlSize; }
+    else if (index == 15) { data = BinaryData::Fight_xml; size = BinaryData::Fight_xmlSize; }
+    else if (index == 16) { data = BinaryData::Tabla_xml; size = BinaryData::Tabla_xmlSize; }
+    else if (index == 17) { data = BinaryData::Tabla2_xml; size = BinaryData::Tabla2_xmlSize; }
+    else if (index == 18) { data = BinaryData::Strings_xml; size = BinaryData::Strings_xmlSize; }
+    else if (index == 19) { data = BinaryData::OldClock_xml; size = BinaryData::OldClock_xmlSize; }
+    else if (index == 20) { data = BinaryData::Crystal_xml; size = BinaryData::Crystal_xmlSize; }
+
+    auto xmlState = XmlDocument::parse (juce::String (data, size));
+    if (xmlState.get() != nullptr)
+        if (xmlState->hasTagName(params.state.getType())) {
+            clearVoices();
+            params.replaceState(juce::ValueTree::fromXml (*xmlState));
+        }
 }
 
 const juce::String RipplerXAudioProcessor::getProgramName (int index)
 {
-    return index == 0 ? "Init"
-        : index == 1 ? "Test"
-        : "Other";
+    if (index == 0) return "Init";
+    if (index == 1) return "Harpsi";
+    if (index == 2) return "Harp";
+    if (index == 3) return "Sankyo";
+    if (index == 4) return "Tubes";
+    if (index == 5) return "Stars";
+    if (index == 6) return "DoorBell";
+    if (index == 7) return "Bells";
+    if (index == 8) return "Bells2";
+    if (index == 9) return "KeyRing";
+    if (index == 10) return "Sink";
+    if (index == 11) return "Cans";
+    if (index == 12) return "Gong";
+    if (index == 13) return "Bong";
+    if (index == 14) return "Marimba";
+    if (index == 15) return "Fight";
+    if (index == 16) return "Tabla";
+    if (index == 17) return "Tabla2";
+    if (index == 18) return "Strings";
+    if (index == 19) return "OldClock";
+    if (index == 20) return "Crystal";
+    return "";
 }
 
 void RipplerXAudioProcessor::changeProgramName (int index, const juce::String& newName)
