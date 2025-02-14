@@ -48,8 +48,8 @@ public:
 		reltime = 0.3;
 		atcoef = exp(-1.0 / (attime * srate));
 		relcoef = exp(-1.0 / (reltime * srate));
-		rmstime = rms_win / 1000000.0;
 		rmscoef = exp(-1.0 / (rmstime * srate));
+		rmstime = rms_win / 1000000.0;
 		runave = 0.0;
 	}
 
@@ -68,7 +68,7 @@ public:
 			rundb = overdb + relcoef * (rundb - overdb);
 		overdb = fmax(0.0, rundb);
 
-		auto cratio = bias == 0
+		auto cratio = bias == 0.0
 			? ratio
 			: 1.0 + (ratio -1.0) * sqrt(overdb / bias);
 
