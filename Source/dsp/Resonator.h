@@ -45,7 +45,6 @@ public:
 	int npartials = 0;
 	double decay = 0.0;
 	double radius = 0.0;
-	double rel = 0.0;
 	double cut = 0.0;
 
 	std::vector<Partial> partials;

@@ -17,7 +17,6 @@ void Resonator::setParams(double _srate, bool _on, int model, int _partials, dou
 	npartials = _partials;
 	decay = _decay;
 	radius = _radius;
-	rel = _rel;
 	srate = _srate;
 	cut = _cut;
 
@@ -41,7 +40,7 @@ void Resonator::setParams(double _srate, bool _on, int model, int _partials, dou
 	waveguide.is_closed = model == Models::ClosedTube;
 	waveguide.srate = srate;
 	waveguide.vel_decay = vel_decay;
-	waveguide.rel = rel;
+	waveguide.rel = _rel;
 }
 
 void Resonator::update(double freq, double vel, bool isRelease, std::array<double,64> model)
