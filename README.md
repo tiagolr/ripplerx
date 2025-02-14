@@ -72,8 +72,8 @@ MacOS builds are untested and unsigned, please let me know of any issues by open
 Because the builds are unsigned you may have to run the following command on macOS Sequoia and up:
 
 ```bash
-xattr -c RipplerX.component
-xattr -c RipplerX.vst3
+sudo xattr -dr com.apple.quarantine RipplerX.component
+sudo xattr -dr com.apple.quarantine RipplerX.vst3
 ```
 
 The command above removes all attributes from the files including the quarentine flag.
