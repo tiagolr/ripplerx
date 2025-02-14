@@ -9,7 +9,9 @@ void Waveguide::update(double f_0, double vel, bool isRelease)
 
 	auto decay_k = fmin(100.0, exp(log(decay) + vel * vel_decay * (log(100) - log(0.01))));
 	if (isRelease) decay_k *= rel;
-	tube_decay = exp(-juce::MathConstants<double>::pi / f_0 / (srate * decay_k / 125000)); // 125000 set by hear so that decay approximates in seconds
+	tube_decay = decay_k
+		? exp(-juce::MathConstants<double>::pi / f_0 / (srate * decay_k / 125000)) // 125000 set by hear so that decay approximates in seconds
+		: 0.0;
 }
 
 double Waveguide::process(double input)
