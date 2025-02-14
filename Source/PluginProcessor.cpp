@@ -78,6 +78,9 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
     juce::PropertiesFile::Options options{};
     options.applicationName = ProjectInfo::projectName;
     options.filenameSuffix = ".settings";
+#ifdef JUCE_LINUX || JUCE_BSD
+    options.folderName = "~/.config/RipplerX";
+#endif
     options.osxLibrarySubFolder = "Application Support";
     options.storageFormat = PropertiesFile::storeAsXML;
     settings.setStorageParameters(options);

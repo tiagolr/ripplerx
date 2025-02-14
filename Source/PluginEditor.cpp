@@ -91,15 +91,16 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     polyLabel.setBounds(col+115+80+5, row, 50, 25);
 
     addAndMakeVisible(polyMenu);
-    polyMenu.addItem("4", 1);
-    polyMenu.addItem("8", 2);
-    polyMenu.addItem("12", 3);
-    polyMenu.addItem("16", 4);
-    polyMenu.setSelectedId(audioProcessor.polyphony == 4 ? 1 : audioProcessor.polyphony == 8 ? 2 : audioProcessor.polyphony == 12 ? 3 : 4, NotificationType::dontSendNotification);
+    polyMenu.addItem("1", 1);
+    polyMenu.addItem("4", 2);
+    polyMenu.addItem("8", 3);
+    polyMenu.addItem("12", 4);
+    polyMenu.addItem("16", 5);
+    polyMenu.setSelectedId(audioProcessor.polyphony == 1 ? 1 : audioProcessor.polyphony == 4 ? 2 : audioProcessor.polyphony == 8 ? 3 : audioProcessor.polyphony == 12 ? 4 : 5, NotificationType::dontSendNotification);
     polyMenu.onChange = [this]()
         {
             const int value = polyMenu.getSelectedId();
-            auto poly = value == 1 ? 4 : value == 2 ? 8 : value == 3 ? 12 : 16;
+            auto poly = value == 1 ? 1 : value == 2 ? 4 : value == 3 ? 8 : value == 4 ? 12 : 16;
             MessageManager::callAsync([this, poly] {
                 audioProcessor.setPolyphony(poly);
             });
