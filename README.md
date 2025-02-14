@@ -76,7 +76,7 @@ sudo xattr -dr com.apple.quarantine RipplerX.component
 sudo xattr -dr com.apple.quarantine RipplerX.vst3
 ```
 
-The command above removes all attributes from the files including the quarentine flag.
+The command above will recursively remove the quarentine flag from the files.
 
 ### Build
 
