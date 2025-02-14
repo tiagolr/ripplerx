@@ -69,6 +69,15 @@ it also provides an entry point for developers or researchers into physical mode
 
 MacOS builds are untested and unsigned, please let me know of any issues by opening a ticket, don't expect a promptly fix as I don't have access to that OS.
 
+Because the builds are unsigned you may have to run the following command on macOS Sequoia and up:
+
+```bash
+xattr -c RipplerX.component
+xattr -c RipplerX.vst3
+```
+
+The command above removes all attributes from the files including the quarentine flag.
+
 ### Build
 
 ```bash
