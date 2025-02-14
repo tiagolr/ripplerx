@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22.1)
 
 # Change to your project name
-project(RipplerX VERSION 1.0.11)
+project(RipplerX VERSION 1.1.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_XCODE_GENERATE_SCHEME OFF)
@@ -14,7 +14,7 @@ endif()
 add_subdirectory(libs/JUCE)
 
 set(plugin_formats
-    Standalone
+    # Standalone
     VST3
 )
 if(APPLE)
