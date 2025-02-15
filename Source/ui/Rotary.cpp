@@ -105,6 +105,20 @@ void Rotary::mouseDown(const juce::MouseEvent& e)
     repaint();
 }
 
+void Rotary::mouseWheelMove(const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel)
+{
+    auto speed = (event.mods.isCtrlDown() ? 0.01f : 0.05f);
+    auto slider_change = wheel.deltaY > 0 ? speed : wheel.deltaY < 0 ? -speed : 0;
+    auto param = audioProcessor.params.getParameter((event.mods.isShiftDown() || audioProcessor.velMap) && velId.isNotEmpty() ? velId : paramId);
+    param->beginChangeGesture();
+    param->setValueNotifyingHost(param->getValue() + slider_change);
+    while (wheel.deltaY > 0.0f && param->getValue() == 0.0f) { // FIX wheel not working when value is zero, first step takes more than 0.05% 
+        slider_change += 0.05f;
+        param->setValueNotifyingHost(param->getValue() + slider_change);
+    }
+    param->endChangeGesture();
+}
+
 void Rotary::mouseUp(const juce::MouseEvent& e) {
     mouse_down = false;
     setMouseCursor(MouseCursor::NormalCursor);
@@ -118,7 +132,6 @@ void Rotary::mouseDoubleClick(const juce::MouseEvent& e) {
     param->beginChangeGesture();
     param->setValueNotifyingHost(param->getDefaultValue());
     param->endChangeGesture();
-    juce::ignoreUnused(e);
 }
 
 void Rotary::mouseDrag(const juce::MouseEvent& e) {
