@@ -10,7 +10,11 @@ void Partial::update(double f_0, double ratio, double ratio_max, double vel, boo
 	inharm_k = sqrt(1 + inharm_k * (ratio - 1) * (ratio - 1));
 	auto f_k = f_0 * ratio * inharm_k;
 
-	if (f_k >= 0.48 * srate || f_k < 20) {
+	auto decay_k = fmin(100.0, exp(log(decay) + vel * vel_decay * (log(100.0) - log(0.01)))); // normalize velocity contribution on a logarithmic scale
+	if (isRelease) 
+		decay_k *= rel;
+
+	if (f_k >= 0.48 * srate || f_k < 20.0 || decay_k == 0.0) {
 		b0 = b2 = a1 = a2 = 0.0;
 		a0 = 1.0;
 		return;
@@ -19,10 +23,6 @@ void Partial::update(double f_0, double ratio, double ratio_max, double vel, boo
 	auto f_max = fmin(20000.0, f_0 * ratio_max * inharm_k);
 	auto omega = juce::MathConstants<double>::twoPi * f_k / srate;
 	auto alpha = juce::MathConstants<double>::twoPi / srate; // aprox 1 sec decay
-
-	auto decay_k = fmin(100.0, exp(log(decay) + vel * vel_decay * (log(100.0) - log(0.01)))); // normalize velocity contribution on a logarithmic scale
-	if (isRelease) 
-		decay_k *= rel;
 
 	auto damp_k = damp <= 0
 		? pow(f_0 / f_k, damp * 2.0)
@@ -47,7 +47,7 @@ void Partial::update(double f_0, double ratio, double ratio_max, double vel, boo
 
 double Partial::process(double input)
 {
-	auto output = a0 ? ((b0 * input + b2 * x2) - (a1 * y1 + a2 * y2)) / a0 : 0.0;
+	auto output = ((b0 * input + b2 * x2) - (a1 * y1 + a2 * y2)) / a0;
 	x2 = x1;
 	x1 = input;
 	y2 = y1;
