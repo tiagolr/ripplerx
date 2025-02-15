@@ -35,5 +35,5 @@ double Waveguide::process(double input)
 void Waveguide::clear()
 {
 	y = y1 = read_ptr = write_ptr = 0;
-	std::fill(std::begin(tube), std::end(tube), 0.0);
+	std::fill_n(tube.get(), tube_len, 0.0);
 }

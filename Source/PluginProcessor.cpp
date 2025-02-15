@@ -90,7 +90,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
     }
 
     for (int i = 0; i < globals::MAX_POLYPHONY; ++i) {
-        voices.push_back(Voice());
+        voices.push_back(std::make_unique<Voice>());
     }
 
     loadSettings();
@@ -310,7 +310,7 @@ float RipplerXAudioProcessor::normalizeVolSlider(float val)
 void RipplerXAudioProcessor::onNote(MIDIMsg msg)
 {
     auto srate = getSampleRate();
-    Voice& voice = voices[nvoice];
+    Voice& voice = *voices[nvoice];
     nvoice = (nvoice + 1) % polyphony;
 
     auto mallet_stiff = (double)params.getRawParameterValue("mallet_stiff")->load();
@@ -323,7 +323,7 @@ void RipplerXAudioProcessor::onNote(MIDIMsg msg)
 void RipplerXAudioProcessor::offNote(MIDIMsg msg)
 {
     for (int i = 0; i < polyphony; ++i) {
-        Voice& voice = voices[i];
+        Voice& voice = *voices[i];
         if (voice.note == msg.note) {
             voice.release();
         }
@@ -429,7 +429,7 @@ void RipplerXAudioProcessor::onSlider()
     else if (b_model == Models::Plate) Voice::recalcPlate(false, b_ratio);
 
     for (int i = 0; i < polyphony; i++) {
-        Voice& voice = voices[i];
+        Voice& voice = *voices[i];
         voice.noise.init(srate, noise_filter_mode, noise_filter_freq, noise_filter_q, noise_att, noise_dec, noise_sus, noise_rel);
         voice.resA.setParams(srate, a_on, a_model, a_partials, a_decay, a_damp, a_tone, a_hit, a_rel, a_inharm, a_cut, a_radius, vel_a_decay, vel_a_hit, vel_a_inharm);
         voice.resB.setParams(srate, b_on, b_model, b_partials, b_decay, b_damp, b_tone, b_hit, b_rel, b_inharm, b_cut, b_radius, vel_b_decay, vel_b_hit, vel_b_inharm);
@@ -520,7 +520,7 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
         double bOut = 0.0; // resonator B output
 
         for (int i = 0; i < polyphony; ++i) {
-            Voice& voice = voices[i];
+            Voice& voice = *voices[i];
             double resOut = 0.0;
 
             auto msample = voice.mallet.process(); // process mallet
@@ -575,7 +575,7 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
 void RipplerXAudioProcessor::clearVoices()
 {
     for (int i = 0; i < globals::MAX_POLYPHONY; ++i) {
-        Voice& voice = voices[i];
+        Voice& voice = *voices[i];
         voice.clear();
     }
 }

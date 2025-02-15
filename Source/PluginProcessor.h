@@ -99,7 +99,7 @@ private:
     bool paramChanged = false; // flag that triggers on any param change
     juce::ApplicationProperties settings;
     std::vector<MIDIMsg> midi;
-    std::vector<Voice> voices;
+    std::vector<std::unique_ptr<Voice>> voices;
     int nvoice = 0; // next voice to use
     Comb comb{};
     Limiter limiter{};
