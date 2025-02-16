@@ -73,6 +73,18 @@ void Voice::setCoupling(bool _couple, double _split) {
 	split = _split;
 }
 
+void Voice::setPitch(float a_coarse, float b_coarse, float a_fine, float b_fine)
+{
+	aPitchFactor = pow(2.0, (a_coarse + a_fine / 100.0) / 12.0);
+	bPitchFactor = pow(2.0, (b_coarse + b_fine / 100.0) / 12.0);
+}
+
+void Voice::applyPitch(std::array<double, 64>& model, double factor)
+{
+	for (double& ratio : model)
+		ratio *= factor;
+}
+
 double inline Voice::freqShift(double fa, double fb) const
 {
 	auto avg = (fa + fb) / 2.0;
@@ -85,12 +97,16 @@ double inline Voice::freqShift(double fa, double fb) const
 * When resonators are coupled in serial a frequency split is applied
 * using the formula f +-= (fa + fb) / 2 + sqrt(((fa - fb) / 2)**2 + k**2) where k is the coupling strength
 */
-std::tuple<std::array<double, 64>, std::array<double,64>> Voice::calcFrequencyShifts() const
+std::tuple<std::array<double, 64>, std::array<double,64>> Voice::calcFrequencyShifts()
 {
 	std::array<double, 64> aModel = aModels[resA.nmodel];
 	std::array<double, 64> bModel = bModels[resB.nmodel];
-	std::array<double, 64> aShifts = aModels[resA.nmodel];
-	std::array<double, 64> bShifts = bModels[resB.nmodel];
+
+	if (aPitchFactor != 1.0) applyPitch(aModel, aPitchFactor);
+	if (bPitchFactor != 1.0) applyPitch(bModel, bPitchFactor);
+
+	std::array<double, 64> aShifts = aModel;
+	std::array<double, 64> bShifts = bModel;
 
 	double fa, fb, shift;
 	for (int i = 0; i < 64; ++i) {
@@ -122,6 +138,8 @@ void Voice::updateResonators()
 	else {
 		aModel = aModels[resA.nmodel];
 		bModel = bModels[resB.nmodel];
+		if (aPitchFactor != 1.0) applyPitch(aModel, aPitchFactor);
+		if (bPitchFactor != 1.0) applyPitch(bModel, bPitchFactor);
 	}
 
 	if (resA.on) resA.update(freq, vel, isRelease, aModel);

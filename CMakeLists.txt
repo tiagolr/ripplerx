@@ -14,7 +14,7 @@ endif()
 add_subdirectory(libs/JUCE)
 
 set(plugin_formats
-    # Standalone
+    Standalone
     VST3
 )
 if(APPLE)
@@ -62,6 +62,8 @@ source_group(Source\\ui
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/ui/Rotary.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/ui/Meter.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Source/ui/Meter.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/ui/Pitch.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/ui/Pitch.cpp
 )
 
 source_group(Source\\dsp

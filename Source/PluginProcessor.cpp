@@ -32,6 +32,8 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("a_ratio", "A Ratio",juce::NormalisableRange<float>(0.1f, 10.0f, 0.01f, 0.3f), 1.0f),
         std::make_unique<juce::AudioParameterFloat>("a_cut", "A LowCut",juce::NormalisableRange<float>(20.0f, 20000.0f, 1.0f, 0.3f), 20.0f),
         std::make_unique<juce::AudioParameterFloat>("a_radius", "A Tube Radius", 0.0f, 1.0f, 0.5f),
+        std::make_unique<juce::AudioParameterFloat>("a_coarse", "A coarse pitch", juce::NormalisableRange<float>(-48.0f, 48.0f, 1.0f, 1.0f), 0.0f),
+        std::make_unique<juce::AudioParameterFloat>("a_fine", "A fine pitch", juce::NormalisableRange<float>(-99.0f, 99.0f, 1.0f, 1.0f), 0.0f),
 
         std::make_unique<juce::AudioParameterBool>("b_on", "B ON", false),
         std::make_unique<juce::AudioParameterChoice>("b_model", "B Model", StringArray { "String", "Beam", "Squared", "Membrane", "Plate", "Drumhead", "Marimba", "Open Tube", "Closed Tube" }, 0),
@@ -45,6 +47,8 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("b_ratio", "B Ratio",juce::NormalisableRange<float>(0.1f, 10.0f, 0.01f, 0.3f), 1.0f),
         std::make_unique<juce::AudioParameterFloat>("b_cut", "B LowCut",juce::NormalisableRange<float>(20.0f, 20000.0f, 1.0f, 0.3f), 20.0f),
         std::make_unique<juce::AudioParameterFloat>("b_radius", "B Tube Radius", 0.0f, 1.0f, 0.5f),
+        std::make_unique<juce::AudioParameterFloat>("b_coarse", "B coarse pitch", juce::NormalisableRange<float>(-48.0f, 48.0f, 1.0f, 1.0f), 0.0f),
+        std::make_unique<juce::AudioParameterFloat>("b_fine", "B fine pitch", juce::NormalisableRange<float>(-99.0f, 99.0f, 1.0f, 1.0f), 0.0f),
 
         std::make_unique<juce::AudioParameterFloat>("noise_mix", "Noise Mix", juce::NormalisableRange<float>(0.0f, 1.0f, 0.0001f, 0.3f), 0.0f),
         std::make_unique<juce::AudioParameterFloat>("noise_res", "Noise Resonance", juce::NormalisableRange<float>(0.0f, 1.0f, 0.0001f, 0.3f), 0.0f),
@@ -68,7 +72,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("vel_b_hit", "Vel B Hit", 0.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("vel_b_inharm", "Vel B Inharmonic", 0.0f, 1.0f, 0.0f),
 
-        std::make_unique<juce::AudioParameterChoice>("couple", "Coupling", StringArray {"A+B", "A>B"}, 1),
+        std::make_unique<juce::AudioParameterChoice>("couple", "Coupling", StringArray {"A+B", "A>B"}, 0),
         std::make_unique<juce::AudioParameterFloat>("ab_mix", "A+B Mix", 0.0f, 1.0f, 0.5f),
         std::make_unique<juce::AudioParameterFloat>("ab_split", "A>B Split", juce::NormalisableRange<float>(0.01f, 1.0f, 0.001f, 0.5f), 0.01f),
         std::make_unique<juce::AudioParameterFloat>("gain", "Res Gain", -24.0f, 24.0f, 0.0f),
@@ -374,6 +378,11 @@ void RipplerXAudioProcessor::onSlider()
     auto vel_b_hit = (double)params.getRawParameterValue("vel_b_hit")->load();
     auto vel_b_inharm = (double)params.getRawParameterValue("vel_b_inharm")->load();
 
+    auto a_coarse = (double)params.getRawParameterValue("a_coarse")->load();
+    auto a_fine = (double)params.getRawParameterValue("a_fine")->load();
+    auto b_coarse = (double)params.getRawParameterValue("b_coarse")->load();
+    auto b_fine = (double)params.getRawParameterValue("b_fine")->load();
+
     auto couple = (bool)params.getRawParameterValue("couple")->load();
     auto split = (double)params.getRawParameterValue("ab_split")->load() * 100.0;
 
@@ -431,6 +440,7 @@ void RipplerXAudioProcessor::onSlider()
     for (int i = 0; i < polyphony; i++) {
         Voice& voice = *voices[i];
         voice.noise.init(srate, noise_filter_mode, noise_filter_freq, noise_filter_q, noise_att, noise_dec, noise_sus, noise_rel);
+        voice.setPitch(a_coarse, b_coarse, a_fine, b_fine);
         voice.resA.setParams(srate, a_on, a_model, a_partials, a_decay, a_damp, a_tone, a_hit, a_rel, a_inharm, a_cut, a_radius, vel_a_decay, vel_a_hit, vel_a_inharm);
         voice.resB.setParams(srate, b_on, b_model, b_partials, b_decay, b_damp, b_tone, b_hit, b_rel, b_inharm, b_cut, b_radius, vel_b_decay, vel_b_hit, vel_b_inharm);
         voice.setCoupling(couple, split);

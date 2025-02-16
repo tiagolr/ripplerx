@@ -45,6 +45,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
         std::unique_ptr<juce::XmlElement>xml(state.createXml());
         juce::String xmlString = xml->toString();
         DBG(xmlString.toStdString());
+        DBG(audioProcessor.params.getParameter("b_coarse")->getValue());
     };
 #endif
 
@@ -57,13 +58,19 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
 
     addAndMakeVisible(sizeMenu);
     sizeMenu.addItem("100%", 1);
-    sizeMenu.addItem("150%", 2);
-    sizeMenu.addItem("200%", 3);
-    sizeMenu.setSelectedId(audioProcessor.scale == 1.0f ? 1 : audioProcessor.scale == 1.5f ? 2 : 3);
+    sizeMenu.addItem("125%", 2);
+    sizeMenu.addItem("150%", 3);
+    sizeMenu.addItem("175%", 4);
+    sizeMenu.addItem("200%", 5);
+    sizeMenu.setSelectedId(audioProcessor.scale == 1.0f ? 1 
+        : audioProcessor.scale == 1.25f ? 2
+        : audioProcessor.scale == 1.5f ? 3 
+        : audioProcessor.scale == 1.75f ? 4 
+        : 5, NotificationType::dontSendNotification);
     sizeMenu.onChange = [this]()
         {
             const int value = sizeMenu.getSelectedId();
-            auto scale = value == 1 ? 1.0f : value == 2 ? 1.5f : 2.0f;
+            auto scale = value == 1 ? 1.0f : value == 2 ? 1.25f : value == 3 ? 1.5f : value == 4 ? 1.75f : 2.0f;
             audioProcessor.setScale(scale);
             setScaleFactor(audioProcessor.scale);
         };
@@ -130,6 +137,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     presetMenu.addItem("Strings", 19);
     presetMenu.addItem("OldClock", 20);
     presetMenu.addItem("Crystal", 21);
+    //presetMenu.getRootMenu()->addColumnBreak();
     presetMenu.onChange = [this]()
         {
             const int value = presetMenu.getSelectedId();
@@ -439,6 +447,21 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     addAndMakeVisible(*abSplit);
     abSplit->setBounds(col,row,70,75);
 
+    addAndMakeVisible(pitchLabel);
+    pitchLabel.setColour(juce::Label::ColourIds::textColourId, Colour(globals::COLOR_NEUTRAL_LIGHT));
+    pitchLabel.setFont(FontOptions(15.0f));
+    pitchLabel.setJustificationType(Justification::centred);
+    pitchLabel.setText("Pitch", NotificationType::dontSendNotification);
+    pitchLabel.setBounds(col, row+85-2, 70, 20);
+
+    aPitch = std::make_unique<Pitch>(p, "A Pitch", "a_coarse", "a_fine");
+    addAndMakeVisible(*aPitch);
+    aPitch->setBounds(col+5,row+105,70-10,18);
+
+    bPitch = std::make_unique<Pitch>(p, "B Pitch", "b_coarse", "b_fine");
+    addAndMakeVisible(*bPitch);
+    bPitch->setBounds(col+5,row+130,70-10,18);
+
     gain = std::make_unique<Rotary>(p, "gain", "Gain", LabelFormat::dB, "", true);
     addAndMakeVisible(*gain);
     gain->setBounds(col, row+75*3+25+10, 70, 75);
@@ -541,6 +564,9 @@ void RipplerXAudioProcessorEditor::toggleUIComponents()
     abSplit.get()->setAlpha((a_on && b_on) ? 1.0f : 0.5f);
     abMix.get()->setVisible(!is_serial);
     abSplit.get()->setVisible(is_serial);
+
+    aPitch.get()->setAlpha(a_on ? 1.0f : 0.5f);
+    bPitch.get()->setAlpha(b_on ? 1.0f : 0.5f);
 
     juce::MemoryInputStream onInputStream(BinaryData::on_png, BinaryData::on_pngSize, false);
     juce::Image onImage = juce::ImageFileFormat::loadFrom(onInputStream);

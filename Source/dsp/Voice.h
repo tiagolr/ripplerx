@@ -31,8 +31,10 @@ public:
 	void trigger(double srate, int _note, double vel, double malletFreq);
 	void release();
 	void clear();
+	void setPitch(float a_coarse, float b_coarse, float a_fine, float b_fine);
+	void applyPitch(std::array<double, 64>& model, double factor);
 	double inline freqShift(double fa, double fb) const;
-	std::tuple<std::array<double, 64>, std::array<double, 64>> calcFrequencyShifts() const;
+	std::tuple<std::array<double, 64>, std::array<double, 64>> calcFrequencyShifts();
 	void setCoupling(bool _couple, double _split);
 	void updateResonators();
 
@@ -42,6 +44,9 @@ public:
 	bool isRelease = false;
 	bool couple = false;
 	double split = 0.0;
+
+	double aPitchFactor = 1.0;
+	double bPitchFactor = 1.0;
 
 	Mallet mallet{};
 	Noise noise{};

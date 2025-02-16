@@ -13,6 +13,7 @@
 #include "ui/Rotary.h"
 #include "ui/CustomLookAndFeel.h"
 #include "ui/Meter.h"
+#include "ui/Pitch.h"
 
 //==============================================================================
 /**
@@ -106,6 +107,9 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> coupleAttachment;
     std::unique_ptr<Rotary> abMix;
     std::unique_ptr<Rotary> abSplit;
+    std::unique_ptr<Pitch>aPitch;
+    std::unique_ptr<Pitch>bPitch;
+    Label pitchLabel;
     std::unique_ptr<Rotary> gain;
 
     TooltipWindow tooltipWindow;

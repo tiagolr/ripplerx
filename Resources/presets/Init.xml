@@ -25,7 +25,7 @@
   <PARAM id="b_ratio" value="0.7800000309944153"/>
   <PARAM id="b_rel" value="1.0"/>
   <PARAM id="b_tone" value="0.0"/>
-  <PARAM id="couple" value="1.0"/>
+  <PARAM id="couple" value="0.0"/>
   <PARAM id="gain" value="0.0"/>
   <PARAM id="mallet_mix" value="0.0"/>
   <PARAM id="mallet_res" value="0.7999999523162842"/>
