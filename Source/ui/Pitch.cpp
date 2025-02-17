@@ -41,8 +41,9 @@ void Pitch::paint(juce::Graphics& g) {
     g.fillRoundedRectangle(0.f, 0.f, (float)getWidth(), (float)getHeight(), 2.f);
     g.setFont(FontOptions(15.0f));
     g.setColour(Colours::white);
+    auto sign = coarse_val < 0 || fine_val < 0 ? -1.f : 1.f;
     std::stringstream ss;
-    ss << coarse_val << "." << std::setw(2) << std::setfill('0') << fine_val;
+    ss << sign * fabs(coarse_val) << "." << std::setw(2) << std::setfill('0') << fabs(fine_val);
 
     auto text = ss.str();
     g.drawText(text, 0, 0, getWidth()-15, getHeight(), Justification::centredRight, false);
@@ -52,6 +53,7 @@ void Pitch::mouseDown(const juce::MouseEvent& e)
 {
     e.source.enableUnboundedMouseMovement(true);
     is_coarse = e.getMouseDownX() < getWidth() / 2.f;
+    last_mouse_pos = e.getPosition();
     auto param = audioProcessor.params.getParameter(coarse_param_id);
     auto norm = param->getValue();
     auto val = param->convertFrom0to1(norm);
@@ -59,12 +61,10 @@ void Pitch::mouseDown(const juce::MouseEvent& e)
     param = audioProcessor.params.getParameter(fine_param_id);
     norm = param->getValue();
     val = param->convertFrom0to1(norm);
-    last_mouse_pos = e.getPosition();
     cur_fine = val;
     setMouseCursor(MouseCursor::NoCursor);
     start_mouse_pos = Desktop::getInstance().getMousePosition();
 }
-
 
 void Pitch::mouseWheelMove(const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel)
 {
@@ -128,12 +128,12 @@ void Pitch::applyChange(float change)
         last_mouse_pos = getMouseXYRelative();
         auto param = audioProcessor.params.getParameter(coarse_param_id);
         param->beginChangeGesture();
-        param->setValueNotifyingHost(param->convertTo0to1(std::floor(cur_coarse)));
+        param->setValueNotifyingHost(param->convertTo0to1(cur_coarse));
         param->endChangeGesture();
     }
 
     auto param = audioProcessor.params.getParameter(is_coarse ? coarse_param_id : fine_param_id);
-    auto norm = param->convertTo0to1(std::floor(is_coarse ? cur_coarse : cur_fine));
+    auto norm = param->convertTo0to1(std::trunc(is_coarse ? cur_coarse : cur_fine));
     param->beginChangeGesture();
     param->setValueNotifyingHost(norm);
     param->endChangeGesture();

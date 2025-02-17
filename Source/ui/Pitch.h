@@ -29,6 +29,7 @@ private:
     bool is_coarse = false;
     float cur_coarse = 0.0f;
     float cur_fine = 0.0f;
+    float pitch = 0.0f;
     juce::Point<int> last_mouse_pos;
     juce::Point<int> start_mouse_pos;
 };
