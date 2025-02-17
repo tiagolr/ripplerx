@@ -189,7 +189,7 @@ double RipplerXAudioProcessor::getTailLengthSeconds() const
 
 int RipplerXAudioProcessor::getNumPrograms()
 {
-    return 21;
+    return 28;
 }
 
 int RipplerXAudioProcessor::getCurrentProgram()
@@ -224,6 +224,13 @@ void RipplerXAudioProcessor::setCurrentProgram (int index)
     else if (index == 18) { data = BinaryData::Strings_xml; size = BinaryData::Strings_xmlSize; }
     else if (index == 19) { data = BinaryData::OldClock_xml; size = BinaryData::OldClock_xmlSize; }
     else if (index == 20) { data = BinaryData::Crystal_xml; size = BinaryData::Crystal_xmlSize; }
+    else if (index == 21) { data = BinaryData::Ride_xml; size = BinaryData::Ride_xmlSize; }
+    else if (index == 22) { data = BinaryData::Ride2_xml; size = BinaryData::Ride2_xmlSize; }
+    else if (index == 23) { data = BinaryData::Crash_xml; size = BinaryData::Crash_xmlSize; }
+    else if (index == 24) { data = BinaryData::Vibes_xml; size = BinaryData::Vibes_xmlSize; }
+    else if (index == 25) { data = BinaryData::Flute_xml; size = BinaryData::Flute_xmlSize; }
+    else if (index == 26) { data = BinaryData::Fifths_xml; size = BinaryData::Fifths_xmlSize; }
+    else if (index == 27) { data = BinaryData::Kalimba_xml; size = BinaryData::Kalimba_xmlSize; }
 
     auto xmlState = XmlDocument::parse (juce::String (data, size));
     if (xmlState.get() != nullptr)
@@ -256,6 +263,13 @@ const juce::String RipplerXAudioProcessor::getProgramName (int index)
     if (index == 18) return "Strings";
     if (index == 19) return "OldClock";
     if (index == 20) return "Crystal";
+    if (index == 21) return "Ride";
+    if (index == 22) return "Ride2";
+    if (index == 23) return "Crash";
+    if (index == 24) return "Vibes";
+    if (index == 25) return "Flute";
+    if (index == 26) return "Fifths";
+    if (index == 27) return "Kalimba";
     return "";
 }
 

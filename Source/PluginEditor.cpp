@@ -129,6 +129,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     presetMenu.addItem("Cans", 12);
     presetMenu.addItem("Gong", 13);
     presetMenu.addItem("Bong", 14);
+    presetMenu.getRootMenu()->addColumnBreak();
     presetMenu.addItem("Marimba", 15);
     presetMenu.addItem("Fight", 16);
     presetMenu.addItem("Tabla", 17);
@@ -136,7 +137,14 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     presetMenu.addItem("Strings", 19);
     presetMenu.addItem("OldClock", 20);
     presetMenu.addItem("Crystal", 21);
-    //presetMenu.getRootMenu()->addColumnBreak();
+    presetMenu.addItem("Ride", 22);
+    presetMenu.addItem("Ride2", 23);
+    presetMenu.addItem("Crash", 24);
+    presetMenu.addItem("Vibes", 25);
+    presetMenu.addItem("Flute", 26);
+    presetMenu.addItem("Fifths", 27);
+    presetMenu.addItem("Kalimba", 28);
+
     presetMenu.onChange = [this]()
         {
             const int value = presetMenu.getSelectedId();
