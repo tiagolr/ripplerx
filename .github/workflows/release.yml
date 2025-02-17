@@ -37,6 +37,8 @@ jobs:
             ./build/RipplerX_artefacts/Release/VST3
             !./build/RipplerX_artefacts/Release/VST3/*.exp
             !./build/RipplerX_artefacts/Release/VST3/*.lib
+            !./build/RipplerX_artefacts/Release/LV2/*.exp
+            !./build/RipplerX_artefacts/Release/LV2/*.lib
 
   build-macos:
     runs-on: macos-latest
