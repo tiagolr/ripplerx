@@ -39,8 +39,8 @@ RipplerX is a physically modeled synth, capable of sounds similar to AAS Chromap
 ### Download
 
 * [Download latest release](https://github.com/tiagolr/ripplerx/releases)
-* Current builds include LV2 (Linux), AU (macOS) and VST3 (Windows, Linux and macOS)
-* Clap is planned when there is official [JUCE support](https://juce.com/blog/juce-roadmap-update-q3-2024/)
+* Current builds include VST3 and LV2 for Windows, Linux and macOS plus AU for macOS.
+* Clap is planned when there is official [JUCE support](https://juce.com/blog/juce-roadmap-update-q3-2024/).
 
 ### About
 
