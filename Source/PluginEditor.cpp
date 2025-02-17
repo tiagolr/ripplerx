@@ -15,7 +15,6 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     audioProcessor.params.addParameterListener("a_model", this);
     audioProcessor.params.addParameterListener("b_model", this);
 
-    setLookAndFeel(&customLookAndFeel);
     setSize (650, 485);
     setScaleFactor(audioProcessor.scale);
     auto col = 10;
@@ -45,6 +44,9 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
         std::unique_ptr<juce::XmlElement>xml(state.createXml());
         juce::String xmlString = xml->toString();
         DBG(xmlString.toStdString());
+        audioProcessor.darkTheme = !audioProcessor.darkTheme;
+        loadTheme();
+        repaint();
     };
 #endif
 
@@ -272,6 +274,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     aModel.setColour(ComboBox::backgroundColourId, Colour(globals::COLOR_ACTIVE));
     aModel.setColour(ComboBox::arrowColourId, Colours::white);
     aModel.setColour(ComboBox::textColourId, Colours::white);
+    aModel.setColour(ComboBox::outlineColourId, Colours::transparentWhite);
     aModel.addItem("String", 1);
     aModel.addItem("Beam", 2);
     aModel.addItem("Squared", 3);
@@ -368,6 +371,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     bModel.setColour(ComboBox::backgroundColourId, Colour(globals::COLOR_ACTIVE));
     bModel.setColour(ComboBox::arrowColourId, Colours::white);
     bModel.setColour(ComboBox::textColourId, Colours::white);
+    bModel.setColour(ComboBox::outlineColourId, Colours::transparentWhite);
     bModel.addItem("String", 1);
     bModel.addItem("Beam", 2);
     bModel.addItem("Squared", 3);
@@ -438,6 +442,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     couple.setColour(ComboBox::backgroundColourId, Colour(globals::COLOR_ACTIVE));
     couple.setColour(ComboBox::arrowColourId, Colours::white);
     couple.setColour(ComboBox::textColourId, Colours::white);
+    couple.setColour(ComboBox::outlineColourId, Colours::transparentWhite);
     couple.addItem("A + B", 1);
     couple.addItem("A > B", 2);
     couple.setTooltip("Coupling: Parallel or Serial");
@@ -492,11 +497,13 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     meter->setBounds(bounds.getRight() - 85, 235, 60, 95);
 
     toggleUIComponents();
+    loadTheme();
 }
 
 RipplerXAudioProcessorEditor::~RipplerXAudioProcessorEditor()
 {
     setLookAndFeel(nullptr);
+    delete customLookAndFeel;
     audioProcessor.params.removeParameterListener("couple", this);
     audioProcessor.params.removeParameterListener("a_on", this);
     audioProcessor.params.removeParameterListener("b_on", this);
@@ -575,23 +582,89 @@ void RipplerXAudioProcessorEditor::toggleUIComponents()
     aPitch.get()->setAlpha(a_on ? 1.0f : 0.5f);
     bPitch.get()->setAlpha(b_on ? 1.0f : 0.5f);
 
-    juce::MemoryInputStream onInputStream(BinaryData::on_png, BinaryData::on_pngSize, false);
+    juce::MemoryInputStream onInputStream(
+        audioProcessor.darkTheme ? BinaryData::on_dark_png : BinaryData::on_png,
+        audioProcessor.darkTheme ? BinaryData::on_dark_pngSize : BinaryData::on_pngSize,
+        false
+    );
     juce::Image onImage = juce::ImageFileFormat::loadFrom(onInputStream);
-    juce::MemoryInputStream offInputStream(BinaryData::off_png, BinaryData::off_pngSize, false);
+
+    juce::MemoryInputStream offInputStream(
+        audioProcessor.darkTheme ? BinaryData::off_dark_png : BinaryData::off_png,
+        audioProcessor.darkTheme ? BinaryData::off_dark_pngSize : BinaryData::off_pngSize,
+        false
+    );
     juce::Image offImage = juce::ImageFileFormat::loadFrom(offInputStream);
+
+    juce::MemoryInputStream logoInputStream(
+        audioProcessor.darkTheme ? BinaryData::logo_dark_png : BinaryData::logo_png,
+        audioProcessor.darkTheme ? BinaryData::logo_dark_pngSize : BinaryData::logo_pngSize,
+        false
+    );
+    juce::Image logoImage = juce::ImageFileFormat::loadFrom(logoInputStream);
 
     if (onImage.isValid() && offImage.isValid())
     {
-        aOn.setImages(false, true, true, 
+        aOn.setImages(false, true, true,
             a_on ? onImage : offImage, 1.0f, juce::Colours::transparentBlack, 
             a_on ? onImage : offImage, 1.0f, juce::Colours::transparentBlack, 
             a_on ? onImage : offImage, 1.0f, juce::Colours::transparentBlack);
 
-        bOn.setImages(false, true, true, 
+        bOn.setImages(false, true, true,
             b_on ? onImage : offImage, 1.0f, juce::Colours::transparentBlack, 
             b_on ? onImage : offImage, 1.0f, juce::Colours::transparentBlack, 
             b_on ? onImage : offImage, 1.0f, juce::Colours::transparentBlack);
     }
+    if (logoImage.isValid()) {
+        logo.setImages(false, true, true,
+            logoImage, 1.0f, juce::Colours::transparentBlack,
+            logoImage, 1.0f, juce::Colours::transparentBlack,
+            logoImage, 1.0f, juce::Colours::transparentBlack
+       );
+    }
+}
+
+void RipplerXAudioProcessorEditor::loadTheme()
+{
+    auto isDark = audioProcessor.darkTheme;
+    COLOR_BACKGROUND = isDark ? COLOR_BACKGROUND_D : COLOR_BACKGROUND_L;
+    COLOR_ACTIVE = isDark ? COLOR_ACTIVE_D : COLOR_ACTIVE_L;
+    COLOR_NEUTRAL = isDark ? COLOR_NEUTRAL_D : COLOR_NEUTRAL_L;
+    COLOR_NEUTRAL_LIGHT = isDark ? COLOR_NEUTRAL_LIGHT_D : COLOR_NEUTRAL_LIGHT_L;
+    COLOR_VEL = isDark ? COLOR_VEL_D : COLOR_VEL_L;
+
+    bModel.setColour(ComboBox::backgroundColourId, Colour(COLOR_ACTIVE));
+    bModel.setColour(ComboBox::arrowColourId, isDark ? Colour(COLOR_BACKGROUND).darker(0.7f) : Colours::white);
+    bModel.setColour(ComboBox::textColourId, isDark ? Colour(COLOR_BACKGROUND).darker(0.7f) : Colours::white);
+
+    aModel.setColour(ComboBox::backgroundColourId, Colour(COLOR_ACTIVE));
+    aModel.setColour(ComboBox::arrowColourId, isDark ? Colour(COLOR_BACKGROUND).darker(0.7f) : Colours::white);
+    aModel.setColour(ComboBox::textColourId, isDark ? Colour(COLOR_BACKGROUND).darker(0.7f) : Colours::white);
+
+    couple.setColour(ComboBox::backgroundColourId, Colour(COLOR_ACTIVE));
+    couple.setColour(ComboBox::arrowColourId, isDark ? Colour(COLOR_BACKGROUND).darker(0.7f) : Colours::white);
+    couple.setColour(ComboBox::textColourId, isDark ? Colour(COLOR_BACKGROUND).darker(0.7f) : Colours::white);
+
+    noiseLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL_LIGHT));
+    malletLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL_LIGHT));
+    envelopeLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL_LIGHT));
+    sizeLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL_LIGHT));
+    pitchLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL));
+    polyLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL_LIGHT));
+    aLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL_LIGHT));
+    bLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL_LIGHT));
+    velButton.setColour(juce::TextButton::buttonColourId, Colour(COLOR_BACKGROUND));
+    velButton.setColour(juce::TextButton::buttonOnColourId, Colour(COLOR_VEL));
+    velButton.setColour(juce::TextButton::textColourOffId, Colour(COLOR_VEL));
+    velButton.setColour(juce::TextButton::textColourOnId, isDark ? Colour(COLOR_BACKGROUND).darker(0.7f) : Colour(COLOR_VEL));
+    velButton.setColour(juce::ComboBox::outlineColourId, Colour(COLOR_VEL));
+
+    setLookAndFeel(nullptr);
+    delete customLookAndFeel;
+    customLookAndFeel = new CustomLookAndFeel(isDark);
+    setLookAndFeel(customLookAndFeel);
+
+    toggleUIComponents();
 }
 
 //==============================================================================
@@ -599,7 +672,7 @@ void RipplerXAudioProcessorEditor::toggleUIComponents()
 void RipplerXAudioProcessorEditor::paint (Graphics& g)
 {
     g.fillAll(Colour(globals::COLOR_BACKGROUND));
-    g.setColour(Colour(globals::COLOR_NEUTRAL_LIGHT));
+    g.setColour(Colour(globals::COLOR_NEUTRAL_LIGHT).darker(audioProcessor.darkTheme ? 3.5f : 0.0f));
     g.drawVerticalLine(20+70+70, 100.0f, 380.0f); // noise div
     g.drawVerticalLine(20+70+70+20+70, 100.0f, 380.0f); // mallet div
     g.drawVerticalLine(40+70*3+70*4+20, 100.0f, 380.0f); // resonators div

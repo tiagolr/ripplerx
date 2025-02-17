@@ -37,10 +37,11 @@ void Pitch::paint(juce::Graphics& g) {
     norm = param->getValue();
     auto fine_val = param->convertFrom0to1(norm);
 
+    auto isDark = audioProcessor.darkTheme;
     g.setColour(Colour(globals::COLOR_ACTIVE));
     g.fillRoundedRectangle(0.f, 0.f, (float)getWidth(), (float)getHeight(), 2.f);
     g.setFont(FontOptions(15.0f));
-    g.setColour(Colours::white);
+    g.setColour(isDark ? Colour(globals::COLOR_BACKGROUND).darker(0.7f) : Colours::white);
     auto sign = coarse_val < 0 || fine_val < 0 ? -1.f : 1.f;
     std::stringstream ss;
     ss << sign * fabs(coarse_val) << "." << std::setw(2) << std::setfill('0') << fabs(fine_val);

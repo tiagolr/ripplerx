@@ -122,6 +122,7 @@ void RipplerXAudioProcessor::loadSettings ()
     if (auto* file = settings.getUserSettings()) {
         scale = (float)file->getDoubleValue("scale", 1.0f);
         polyphony = file->getIntValue("polyphony", 8);
+        darkTheme = file->getBoolValue("dark-theme", false);
     }
 }
 
@@ -130,6 +131,7 @@ void RipplerXAudioProcessor::saveSettings ()
     if (auto* file = settings.getUserSettings()) {
         file->setValue("scale", scale);
         file->setValue("polyphony", polyphony);
+        file->setValue("dark-theme", darkTheme);
     }
     settings.saveIfNeeded();
 }

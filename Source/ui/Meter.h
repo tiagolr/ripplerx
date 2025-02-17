@@ -1,6 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "../Globals.h"
 
 class RipplerXAudioProcessor;
 
@@ -12,6 +13,7 @@ public:
     void setOn(bool isOn);
 	bool isOn = false;
     int elapsed = 0;
+    bool isDark = false;
 	juce::Colour colour{};
 };
 

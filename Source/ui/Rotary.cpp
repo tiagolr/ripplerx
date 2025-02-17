@@ -36,6 +36,7 @@ void Rotary::parameterChanged(const juce::String& parameterID, float newValue)
 
 void Rotary::paint(juce::Graphics& g) {
     g.fillAll(Colour(globals::COLOR_BACKGROUND));
+    auto a = globals::COLOR_BACKGROUND;
 
     auto param = audioProcessor.params.getParameter(paramId);
     auto normValue = param->getValue();
@@ -151,7 +152,7 @@ void Rotary::draw_rotary_slider(juce::Graphics& g, float slider_pos) {
     const float radius = 16.0f;
     const float angle = -deg130 + slider_pos * (deg130 - -deg130);
 
-    juce::DropShadow shadow(Colour(0xff888888), 15, {4, 4}); // (Color, Blur Radius, Offset)
+    juce::DropShadow shadow(Colour(audioProcessor.darkTheme ? 0xff000000 : 0xff888888), 15, {4, 4}); // (Color, Blur Radius, Offset)
     juce::Path circlePath;
     circlePath.addEllipse(bounds.getWidth()/2.0f-radius, bounds.getHeight()/2.0f-radius-4.0f, radius*2.0f, radius*2.0f); // x, y, width, height
     shadow.drawForPath(g, circlePath);

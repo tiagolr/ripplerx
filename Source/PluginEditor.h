@@ -15,6 +15,7 @@
 #include "ui/Meter.h"
 #include "ui/Pitch.h"
 
+using namespace globals;
 //==============================================================================
 /**
 */
@@ -27,13 +28,14 @@ public:
     //==============================================================================
     void parameterChanged (const juce::String& parameterID, float newValue) override;
     void toggleUIComponents ();
+    void loadTheme();
     void paint (juce::Graphics&) override;
     void resized() override;
     void repaintVelSliders ();
 
 private:
     RipplerXAudioProcessor& audioProcessor;
-    CustomLookAndFeel customLookAndFeel;
+    CustomLookAndFeel* customLookAndFeel = nullptr;
 
     Label noiseLabel;
     Label envelopeLabel;

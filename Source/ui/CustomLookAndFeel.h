@@ -6,8 +6,9 @@
 class CustomLookAndFeel : public juce::LookAndFeel_V4
 {
 public:
-    CustomLookAndFeel();
+    CustomLookAndFeel(bool isDark);
     juce::Typeface::Ptr getTypefaceForFont(const juce::Font&) override;
+    int getPopupMenuBorderSize() override;
 
 private:
     juce::Typeface::Ptr typeface;

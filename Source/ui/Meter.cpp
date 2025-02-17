@@ -23,8 +23,11 @@ void Meter::paint(Graphics& g)
 	// other gimmicks gimmicks like pow(0.25) and (totalBulbs + 1) kinda makes the meter decent
 	// but still totally inaccurate
 	auto const rms = pow(fmin(1.0f, audioProcessor.rmsValue.load(std::memory_order_acquire)), 0.25f);
-	for (auto i = 0; i < totalBulbs; i++)
+	auto isDark = audioProcessor.darkTheme;
+	for (auto i = 0; i < totalBulbs; i++) {
+		bulbs[i]->isDark = isDark;
 		bulbs[i]->setOn(rms >= static_cast<float>(i + 1) / (totalBulbs + 1) || rms >= 0.8f);
+	}
 }
 
 void Meter::resized()
@@ -61,13 +64,13 @@ void Bulb::setOn(bool _isOn)
 }
 
 void Bulb::paint(Graphics& g) {
-	g.setColour(isOn ? colour : Colours::darkgrey);
+	g.setColour(isOn ? colour : isDark ? Colour(globals::COLOR_BACKGROUND).darker(1.f) : Colours::darkgrey);
 	const auto delta = 3.f;
 	const auto bounds = getLocalBounds().toFloat().reduced(delta);
 	const auto side = jmin(bounds.getWidth(), bounds.getHeight());
 	const auto bulbFillBounds = Rectangle<float>{ bounds.getX() + bounds.getWidth() / 2.0f - side / 2.0f, bounds.getY(), side, side };
 	g.fillEllipse(bulbFillBounds);
-	g.setColour(Colours::lightgrey);
+	g.setColour(isDark ? Colours::transparentBlack : Colours::lightgrey);
 	g.drawEllipse(bulbFillBounds, 1.f);
 	if (isOn)
 	{
