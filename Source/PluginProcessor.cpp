@@ -334,7 +334,7 @@ void RipplerXAudioProcessor::onNote(MIDIMsg msg)
 
     auto mallet_stiff = (double)params.getRawParameterValue("mallet_stiff")->load();
     auto vel_mallet_stiff = (double)params.getRawParameterValue("vel_mallet_stiff")->load();
-    auto malletFreq = fmin(5000.0, exp(log(mallet_stiff) + msg.vel / 127.0 * vel_mallet_stiff * (log(5000.0) - log(40.0))));
+    auto malletFreq = fmin(5000.0, exp(log(mallet_stiff) + msg.vel / 127.0 * vel_mallet_stiff * (log(5000.0) - log(100.0))));
 
     voice.trigger(srate, msg.note, msg.vel / 127.0, malletFreq);
 }
@@ -491,10 +491,14 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
     auto mallet_res = (double)params.getRawParameterValue("mallet_res")->load();
     auto vel_mallet_mix = (double)params.getRawParameterValue("vel_mallet_mix")->load();
     auto vel_mallet_res = (double)params.getRawParameterValue("vel_mallet_res")->load();
-    auto noise_mix = (double)params.getRawParameterValue("noise_mix")->load();
-    auto noise_res = (double)params.getRawParameterValue("noise_res")->load();
-    auto vel_noise_mix = (double)params.getRawParameterValue("vel_noise_mix")->load();
-    auto vel_noise_res = (double)params.getRawParameterValue("vel_noise_res")->load();
+    auto noise_mix = params.getRawParameterValue("noise_mix")->load();
+    auto noise_mix_range = params.getParameter("noise_mix")->getNormalisableRange();
+    noise_mix = noise_mix_range.convertTo0to1(noise_mix);
+    auto noise_res = params.getRawParameterValue("noise_res")->load();
+    auto noise_res_range = params.getParameter("noise_res")->getNormalisableRange();
+    noise_res = noise_res_range.convertTo0to1(noise_res);
+    auto vel_noise_mix = params.getRawParameterValue("vel_noise_mix")->load();
+    auto vel_noise_res = params.getRawParameterValue("vel_noise_res")->load();
     auto serial = (bool)params.getRawParameterValue("couple")->load();
     auto ab_mix = (double)params.getRawParameterValue("ab_mix")->load();
     auto gain = (double)params.getRawParameterValue("gain")->load();
@@ -556,8 +560,8 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
 
             auto nsample = voice.noise.process(); // process noise
             if (nsample) {
-                dirOut += nsample * fmin(1.0, noise_mix + vel_noise_mix * voice.vel);
-                resOut += nsample * fmin(1.0, noise_res + vel_noise_res * voice.vel);
+                dirOut += nsample * (double)noise_mix_range.convertFrom0to1(fmin(1.f, noise_mix + vel_noise_mix * (float)voice.vel));
+                resOut += nsample * (double)noise_res_range.convertFrom0to1(fmin(1.f, noise_res + vel_noise_res * (float)voice.vel));
             }
 
             auto out_from_a = 0.0; // output from voice A into B in case of resonator serial coupling

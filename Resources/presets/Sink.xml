@@ -49,5 +49,9 @@
   <PARAM id="vel_mallet_res" value="1.0"/>
   <PARAM id="vel_mallet_stiff" value="0.0"/>
   <PARAM id="vel_noise_mix" value="0.0"/>
-  <PARAM id="vel_noise_res" value="0.2899999916553497"/>
+  <PARAM id="vel_noise_res" value="0.4799999892711639"/>
+  <PARAM id="a_coarse"/>
+  <PARAM id="a_fine"/>
+  <PARAM id="b_coarse"/>
+  <PARAM id="b_fine"/>
 </PARAMETERS>
