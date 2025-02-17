@@ -16,12 +16,9 @@ add_subdirectory(libs/JUCE)
 set(plugin_formats
     # Standalone
     VST3
+    LV2
+    AU
 )
-if(APPLE)
-    list(APPEND plugin_formats AU)
-elseif(UNIX AND NOT APPLE)
-    list(APPEND plugin_formats LV2)
-endif()
 
 juce_add_plugin(${PROJECT_NAME}
         COMPANY_NAME Tilr
