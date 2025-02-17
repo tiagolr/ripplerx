@@ -45,7 +45,6 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
         std::unique_ptr<juce::XmlElement>xml(state.createXml());
         juce::String xmlString = xml->toString();
         DBG(xmlString.toStdString());
-        DBG(audioProcessor.params.getParameter("b_coarse")->getValue());
     };
 #endif
 
@@ -439,7 +438,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
 
     row += 25;
 
-    abMix = std::make_unique<Rotary>(p, "ab_mix", "A+B", LabelFormat::ABMix, "", true);
+    abMix = std::make_unique<Rotary>(p, "ab_mix", "A:B", LabelFormat::ABMix, "", true);
     addAndMakeVisible(*abMix);
     abMix->setBounds(col,row,70,75);
 
@@ -448,7 +447,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     abSplit->setBounds(col,row,70,75);
 
     addAndMakeVisible(pitchLabel);
-    pitchLabel.setColour(juce::Label::ColourIds::textColourId, Colour(globals::COLOR_NEUTRAL_LIGHT));
+    pitchLabel.setColour(juce::Label::ColourIds::textColourId, Colour(globals::COLOR_NEUTRAL));
     pitchLabel.setFont(FontOptions(15.0f));
     pitchLabel.setJustificationType(Justification::centred);
     pitchLabel.setText("Pitch", NotificationType::dontSendNotification);
@@ -456,11 +455,11 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
 
     aPitch = std::make_unique<Pitch>(p, "A Pitch", "a_coarse", "a_fine");
     addAndMakeVisible(*aPitch);
-    aPitch->setBounds(col+5,row+105,70-10,18);
+    aPitch->setBounds(col+5,row+105,70-10,20);
 
     bPitch = std::make_unique<Pitch>(p, "B Pitch", "b_coarse", "b_fine");
     addAndMakeVisible(*bPitch);
-    bPitch->setBounds(col+5,row+130,70-10,18);
+    bPitch->setBounds(col+5,row+130,70-10,20);
 
     gain = std::make_unique<Rotary>(p, "gain", "Gain", LabelFormat::dB, "", true);
     addAndMakeVisible(*gain);

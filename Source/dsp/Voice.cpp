@@ -73,7 +73,7 @@ void Voice::setCoupling(bool _couple, double _split) {
 	split = _split;
 }
 
-void Voice::setPitch(float a_coarse, float b_coarse, float a_fine, float b_fine)
+void Voice::setPitch(double a_coarse, double b_coarse, double a_fine, double b_fine)
 {
 	aPitchFactor = pow(2.0, (a_coarse + a_fine / 100.0) / 12.0);
 	bPitchFactor = pow(2.0, (b_coarse + b_fine / 100.0) / 12.0);

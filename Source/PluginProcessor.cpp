@@ -142,6 +142,7 @@ void RipplerXAudioProcessor::setPolyphony(int value)
     onSlider();
 }
 
+// Set UI scale factor
 void RipplerXAudioProcessor::setScale(float value)
 {
     scale = value;
@@ -580,6 +581,7 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
 
     float rms = (float)buffer.getRMSLevel(0, 0, buffer.getNumSamples());
     rmsValue.store(rms, std::memory_order_release);
+    midiMessages.clear(); // FIX avoid rare crash when clicking the piano keys
 }
 
 void RipplerXAudioProcessor::clearVoices()

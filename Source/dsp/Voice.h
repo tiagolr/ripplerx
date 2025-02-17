@@ -31,7 +31,7 @@ public:
 	void trigger(double srate, int _note, double vel, double malletFreq);
 	void release();
 	void clear();
-	void setPitch(float a_coarse, float b_coarse, float a_fine, float b_fine);
+	void setPitch(double a_coarse, double b_coarse, double a_fine, double b_fine);
 	void applyPitch(std::array<double, 64>& model, double factor);
 	double inline freqShift(double fa, double fb) const;
 	std::tuple<std::array<double, 64>, std::array<double, 64>> calcFrequencyShifts();

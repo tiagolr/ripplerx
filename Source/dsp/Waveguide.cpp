@@ -5,6 +5,7 @@
 void Waveguide::update(double f_0, double vel, bool isRelease)
 {
 	auto tlen = srate / f_0;
+	if (is_closed) tlen *= 0.5; // fix closed tube one octave lower
 	read_ptr = (int)(write_ptr - tlen + tube_len) % tube_len;
 
 	auto decay_k = fmin(100.0, exp(log(decay) + vel * vel_decay * (log(100) - log(0.01))));

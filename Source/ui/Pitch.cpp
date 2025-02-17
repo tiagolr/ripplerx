@@ -37,7 +37,7 @@ void Pitch::paint(juce::Graphics& g) {
     norm = param->getValue();
     auto fine_val = param->convertFrom0to1(norm);
 
-    g.setColour(Colour(globals::COLOR_NEUTRAL).brighter(0.2));
+    g.setColour(Colour(globals::COLOR_ACTIVE));
     g.fillRoundedRectangle(0.f, 0.f, (float)getWidth(), (float)getHeight(), 2.f);
     g.setFont(FontOptions(15.0f));
     g.setColour(Colours::white);
@@ -52,17 +52,17 @@ void Pitch::mouseDown(const juce::MouseEvent& e)
 {
     e.source.enableUnboundedMouseMovement(true);
     is_coarse = e.getMouseDownX() < getWidth() / 2.f;
-    auto param = audioProcessor.params.getParameter(is_coarse ? coarse_param_id : fine_param_id);
+    auto param = audioProcessor.params.getParameter(coarse_param_id);
     auto norm = param->getValue();
     auto val = param->convertFrom0to1(norm);
-    if (is_coarse)
-        cur_coarse = val;
-    else
-        cur_fine = val;
+    cur_coarse = val;
+    param = audioProcessor.params.getParameter(fine_param_id);
+    norm = param->getValue();
+    val = param->convertFrom0to1(norm);
     last_mouse_pos = e.getPosition();
+    cur_fine = val;
     setMouseCursor(MouseCursor::NoCursor);
     start_mouse_pos = Desktop::getInstance().getMousePosition();
-    repaint();
 }
 
 
@@ -73,13 +73,10 @@ void Pitch::mouseWheelMove(const juce::MouseEvent& event, const juce::MouseWheel
     applyChange(slider_change);
 }
 
-
-
 void Pitch::mouseUp(const juce::MouseEvent& e) {
     setMouseCursor(MouseCursor::NormalCursor);
     e.source.enableUnboundedMouseMovement(false);
     Desktop::getInstance().setMousePosition(start_mouse_pos);
-    repaint();
 }
 
 void Pitch::mouseDoubleClick(const juce::MouseEvent& e) {
@@ -93,7 +90,7 @@ void Pitch::mouseDoubleClick(const juce::MouseEvent& e) {
 void Pitch::mouseDrag(const juce::MouseEvent& e) {
     auto change = e.getPosition() - last_mouse_pos;
     last_mouse_pos = e.getPosition();
-    auto speed = (e.mods.isCtrlDown() ? 40.0f : 4.0f) * 20.0f;
+    auto speed = (e.mods.isCtrlDown() ? 40.0f : 4.0f) * 10.0f;
     auto slider_change = float(-change.getY()) / speed;
     applyChange(slider_change);
 }
@@ -105,17 +102,39 @@ void Pitch::applyChange(float change)
     else
         cur_fine += change;
 
-    if (!is_coarse && cur_fine < 0.0f || cur_fine > 99.f) {
-        cur_fine = cur_fine < 0.0f ? 99.f : 0.f;
+    if (!is_coarse && (
+        (cur_fine >= 100.f) || 
+        (cur_fine <= -100.f) || 
+        (std::trunc(cur_coarse) < 0.f && cur_fine >= 1.f) || 
+        (std::trunc(cur_coarse) > 0.f && cur_fine < 0))) 
+    {
+        cur_coarse = std::trunc(cur_coarse);
+        if (cur_fine >= 100.f) {
+            cur_coarse += 1.f;
+            cur_fine = 0.f;
+        }
+        else if (cur_fine <= -100.f) {
+            cur_coarse -= 1.f;
+            cur_fine = 0.f;
+        }
+        else if (cur_coarse > 0.f) {
+            cur_coarse += cur_fine >= 100.f ? 1.f : -1.f;
+            cur_fine = cur_fine < 0.f ? 99.f : 0.f;
+        } else {
+            cur_coarse += cur_fine <= -100.f ? -1.f : 1.f;
+            cur_fine = cur_fine < -99.f ? 0.f : -99.f;
+        }
+
+        last_mouse_pos = getMouseXYRelative();
         auto param = audioProcessor.params.getParameter(coarse_param_id);
-        auto val = param->convertFrom0to1(param->getValue());
         param->beginChangeGesture();
-        param->setValueNotifyingHost(param->convertTo0to1(val + (!cur_fine ? 1.0f : -1.0f)));
+        param->setValueNotifyingHost(param->convertTo0to1(std::floor(cur_coarse)));
         param->endChangeGesture();
     }
 
     auto param = audioProcessor.params.getParameter(is_coarse ? coarse_param_id : fine_param_id);
+    auto norm = param->convertTo0to1(std::floor(is_coarse ? cur_coarse : cur_fine));
     param->beginChangeGesture();
-    param->setValueNotifyingHost(param->convertTo0to1(is_coarse ? cur_coarse : cur_fine));
+    param->setValueNotifyingHost(norm);
     param->endChangeGesture();
 }
