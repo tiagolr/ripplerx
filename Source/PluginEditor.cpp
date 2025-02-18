@@ -62,7 +62,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
         audioProcessor.toggleTheme();
         loadTheme();
         repaint();
-        };
+    };
 
     addAndMakeVisible(moon);
     juce::MemoryInputStream moonStream(BinaryData::moon_png, BinaryData::moon_pngSize, false);
@@ -687,7 +687,7 @@ void RipplerXAudioProcessorEditor::loadTheme()
     velButton.setColour(juce::TextButton::buttonColourId, Colour(COLOR_BACKGROUND));
     velButton.setColour(juce::TextButton::buttonOnColourId, Colour(COLOR_VEL));
     velButton.setColour(juce::TextButton::textColourOffId, Colour(COLOR_VEL));
-    velButton.setColour(juce::TextButton::textColourOnId, isDark ? Colour(COLOR_BACKGROUND).darker(0.7f) : Colour(COLOR_VEL));
+    velButton.setColour(juce::TextButton::textColourOnId, isDark ? Colour(COLOR_BACKGROUND).darker(0.7f) : Colours::white);
     velButton.setColour(juce::ComboBox::outlineColourId, Colour(COLOR_VEL));
 
     moon.setVisible(!isDark);
