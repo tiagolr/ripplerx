@@ -28,7 +28,7 @@ RipplerX is a physically modeled synth, capable of sounds similar to AAS Chromap
 
 </div>
 
-### Features
+## Features
 
   * **Cross-platform** available on Windows, Linux and macOS.
   * **Dual resonators** with serial and parallel coupling.
@@ -37,14 +37,14 @@ RipplerX is a physically modeled synth, capable of sounds similar to AAS Chromap
   * **Noise and mallet** generators.
   * Up to **64 partials** per resonator.
   * Built with **JUCE**.
-
-### Download
+    
+## Download
 
 * [Download latest release](https://github.com/tiagolr/ripplerx/releases)
 * Current builds include VST3 and LV2 for Windows, Linux and macOS plus AU for macOS.
 * Clap is planned when there is official [JUCE support](https://juce.com/blog/juce-roadmap-update-q3-2024/).
 
-### About
+## About
 
 RipplerX is a port of [Rippler2](https://github.com/tiagolr/tilr_jsfx?tab=readme-ov-file#rippler-2)
 for the Reaper DAW, it started as a research project into physically modelled drums and ended up a
@@ -67,7 +67,7 @@ it also provides an entry point for developers or researchers into physical mode
 * Nathan Ho and others for articles about [modal synthesis](https://nathan.ho.name/posts/exploring-modal-synthesis).
 * DSP coders like Tale and Scott Stillwell for providing open source JSFXs and libs.
 
-### MacOS
+## MacOS
 
 MacOS builds are untested and unsigned, please let me know of any issues by opening a ticket, don't expect a promptly fix as I don't have access to that OS.
 
@@ -80,7 +80,15 @@ sudo xattr -dr com.apple.quarantine RipplerX.vst3
 
 The command above will recursively remove the quarantine flag from the files.
 
-### Build
+## Microtunning
+
+Microtunning is supported via MTS-ESP, you can install a player like [MTS-ESP MINI](https://oddsound.com/mtsespmini.php) and run it along side RipplerX, the two plugins will communicate and automatically tune Rippler to the config file loaded.
+
+Tunning files can be found for example at https://www.huygens-fokker.org/docs/scales.zip
+
+For more details and a list of players also check this section of [surge tunning guide](https://surge-synthesizer.github.io/tuning-guide/#mts-esp).
+
+## Build
 
 ```bash
 git clone --recurse-submodules https://github.com/tiagolr/ripplerx.git
