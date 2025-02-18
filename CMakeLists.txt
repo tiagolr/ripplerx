@@ -6,7 +6,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 
 # Change to your project name
-project(RipplerX VERSION 1.3.5)
+project(RipplerX VERSION 1.3.6)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_XCODE_GENERATE_SCHEME OFF)
@@ -132,5 +132,5 @@ if(APPLE)
     # but I do not see how to detect the target architecture
     # during CMake generation time. So this will cause warnings when
     # compiling for arm64.
-    target_compile_options(${PROJECT_NAME} PRIVATE "-mfma")
+    #target_compile_options(${PROJECT_NAME} PRIVATE "-mfma")
 endif()
