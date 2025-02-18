@@ -1,22 +1,24 @@
 cmake_minimum_required(VERSION 3.22.1)
 
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STRING "Runtime Library")
+set(CMAKE_OSX_DEPLOYMENT_TARGET 10.13 CACHE STRING "Build for 10.13")
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+
 # Change to your project name
 project(RipplerX VERSION 1.3.4)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_XCODE_GENERATE_SCHEME OFF)
-set(CMAKE_OSX_DEPLOYMENT_TARGET 10.14 CACHE STRING "Build for 10.14")
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-if(MSVC)
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STRING "Runtime Library")
-endif()
-
 add_subdirectory(libs/JUCE)
-# OddSound doesn't have a cmake so...
+
 add_library(mts-esp-client STATIC libs/MTS-ESP/Client/libMTSClient.cpp)
 target_include_directories(mts-esp-client PUBLIC libs/MTS-ESP/Client)
-
+if (UNIX AND NOT APPLE)
+     target_link_libraries(mts-esp-client PUBLIC dl)
+endif ()
 
 
 set(plugin_formats
