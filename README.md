@@ -80,9 +80,9 @@ sudo xattr -dr com.apple.quarantine RipplerX.vst3
 
 The command above will recursively remove the quarantine flag from the files.
 
-## Microtunning
+## Microtuning
 
-Microtunning is supported via MTS-ESP, you can install a player like [MTS-ESP MINI](https://oddsound.com/mtsespmini.php) and run it along side RipplerX, the two plugins will communicate and automatically tune Rippler to the config file loaded.
+Microtuning is supported via MTS-ESP, you can install a player like [MTS-ESP MINI](https://oddsound.com/mtsespmini.php) and run it along side RipplerX, the two plugins will communicate and automatically tune Rippler to the config file loaded.
 
 Tunning files can be found for example at https://www.huygens-fokker.org/docs/scales.zip
 
