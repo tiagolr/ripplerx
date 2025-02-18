@@ -151,6 +151,12 @@ void RipplerXAudioProcessor::setScale(float value)
     saveSettings();
 }
 
+void RipplerXAudioProcessor::toggleTheme()
+{
+    darkTheme = !darkTheme;
+    saveSettings();
+}
+
 //==============================================================================
 const juce::String RipplerXAudioProcessor::getName() const
 {

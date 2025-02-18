@@ -63,6 +63,7 @@ public:
     template <typename FloatType>
     void processBlockByType(AudioBuffer<FloatType>& buffer, MidiBuffer& midiMessages);
     void clearVoices();
+    void toggleTheme();
     //==============================================================================
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override;

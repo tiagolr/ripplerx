@@ -43,6 +43,8 @@ private:
 
     // Top bar
     ImageButton logo;
+    ImageButton sun;
+    ImageButton moon;
     Label sizeLabel;
     ComboBox sizeMenu;
     Label polyLabel;

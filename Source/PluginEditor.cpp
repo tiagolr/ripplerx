@@ -44,11 +44,42 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
         std::unique_ptr<juce::XmlElement>xml(state.createXml());
         juce::String xmlString = xml->toString();
         DBG(xmlString.toStdString());
-        audioProcessor.darkTheme = !audioProcessor.darkTheme;
+    };
+#endif
+
+    addAndMakeVisible(sun);
+    juce::MemoryInputStream sunStream(BinaryData::sun_png, BinaryData::sun_pngSize, false);
+    juce::Image sunImage = juce::ImageFileFormat::loadFrom(sunStream);
+    if (sunImage.isValid())
+    {
+        sun.setImages(false, true, true, 
+            sunImage, 1.0f, juce::Colours::transparentBlack, 
+            sunImage, 1.0f, juce::Colours::transparentBlack, 
+            sunImage, 1.0f, juce::Colours::transparentBlack);
+    }
+    sun.setBounds(col+133, row+3, 20, 20);
+    sun.onClick = [this] {
+        audioProcessor.toggleTheme();
+        loadTheme();
+        repaint();
+        };
+
+    addAndMakeVisible(moon);
+    juce::MemoryInputStream moonStream(BinaryData::moon_png, BinaryData::moon_pngSize, false);
+    juce::Image moonImage = juce::ImageFileFormat::loadFrom(moonStream);
+    if (moonImage.isValid())
+    {
+        moon.setImages(false, true, true, 
+            moonImage, 1.0f, juce::Colours::transparentBlack, 
+            moonImage, 1.0f, juce::Colours::transparentBlack, 
+            moonImage, 1.0f, juce::Colours::transparentBlack);
+    }
+    moon.setBounds(col+133, row+3, 20, 20);
+    moon.onClick = [this] {
+        audioProcessor.toggleTheme();
         loadTheme();
         repaint();
     };
-#endif
 
     col += 160;
     addAndMakeVisible(sizeLabel);
@@ -658,6 +689,9 @@ void RipplerXAudioProcessorEditor::loadTheme()
     velButton.setColour(juce::TextButton::textColourOffId, Colour(COLOR_VEL));
     velButton.setColour(juce::TextButton::textColourOnId, isDark ? Colour(COLOR_BACKGROUND).darker(0.7f) : Colour(COLOR_VEL));
     velButton.setColour(juce::ComboBox::outlineColourId, Colour(COLOR_VEL));
+
+    moon.setVisible(!isDark);
+    sun.setVisible(isDark);
 
     setLookAndFeel(nullptr);
     delete customLookAndFeel;

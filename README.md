@@ -24,6 +24,8 @@ RipplerX is a physically modeled synth, capable of sounds similar to AAS Chromap
 
 ![Screenshot](./doc/ripplerx.png)
 
+![Screenshot](./doc/ripplerx-dark.png)
+
 </div>
 
 ### Features
