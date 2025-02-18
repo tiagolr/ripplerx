@@ -13,6 +13,11 @@ if(MSVC)
 endif()
 
 add_subdirectory(libs/JUCE)
+# OddSound doesn't have a cmake so...
+add_library(mts-esp-client STATIC libs/MTS-ESP/Client/libMTSClient.cpp)
+target_include_directories(mts-esp-client PUBLIC libs/MTS-ESP/Client)
+
+
 
 set(plugin_formats
     # Standalone
@@ -105,6 +110,7 @@ target_link_libraries(${PROJECT_NAME}
         juce::juce_graphics
         juce::juce_gui_basics
         juce::juce_audio_utils
+        mts-esp-client
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
