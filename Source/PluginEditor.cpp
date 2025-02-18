@@ -48,6 +48,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
 #endif
 
     addAndMakeVisible(sun);
+    sun.setAlpha(0.9f);
     juce::MemoryInputStream sunStream(BinaryData::sun_png, BinaryData::sun_pngSize, false);
     juce::Image sunImage = juce::ImageFileFormat::loadFrom(sunStream);
     if (sunImage.isValid())
@@ -57,7 +58,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
             sunImage, 1.0f, juce::Colours::transparentBlack, 
             sunImage, 1.0f, juce::Colours::transparentBlack);
     }
-    sun.setBounds(col+135, row+3, 20, 20);
+    sun.setBounds(col+138, row+3, 20, 20);
     sun.onClick = [this] {
         audioProcessor.toggleTheme();
         loadTheme();
@@ -65,6 +66,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     };
 
     addAndMakeVisible(moon);
+    moon.setAlpha(0.9f);
     juce::MemoryInputStream moonStream(BinaryData::moon_png, BinaryData::moon_pngSize, false);
     juce::Image moonImage = juce::ImageFileFormat::loadFrom(moonStream);
     if (moonImage.isValid())
@@ -74,7 +76,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
             moonImage, 1.0f, juce::Colours::transparentBlack, 
             moonImage, 1.0f, juce::Colours::transparentBlack);
     }
-    moon.setBounds(col+135, row+3, 20, 20);
+    moon.setBounds(col+138, row+3, 20, 20);
     moon.onClick = [this] {
         audioProcessor.toggleTheme();
         loadTheme();
