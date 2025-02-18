@@ -68,9 +68,9 @@ jobs:
         with:
           name: ripplerx-macos
           path: |
-            ./build/RipplerX_artefacts/Release/LV2
-            ./build/RipplerX_artefacts/Release/AU
-            ./build/RipplerX_artefacts/Release/VST3
+            ./build/RipplerX_artefacts/Release/LV2/*
+            ./build/RipplerX_artefacts/Release/AU/*
+            ./build/RipplerX_artefacts/Release/VST3/*
             ./doc/macos-readme.txt
             !./build/RipplerX_artefacts/Release/VST3/*.exp
             !./build/RipplerX_artefacts/Release/VST3/*.lib
