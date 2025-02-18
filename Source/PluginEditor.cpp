@@ -100,7 +100,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
         : audioProcessor.scale == 1.25f ? 2
         : audioProcessor.scale == 1.5f ? 3 
         : audioProcessor.scale == 1.75f ? 4 
-        : 5, NotificationType::dontSendNotification);
+        : 5);
     sizeMenu.onChange = [this]()
         {
             const int value = sizeMenu.getSelectedId();
