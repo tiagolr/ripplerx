@@ -40,7 +40,7 @@ double Voice::note2freq(int _note, MTSClient *mts)
     }
     else
     {
-        return MTS_NoteToFrequency(mts, _note, -1);
+        return MTS_NoteToFrequency(mts, static_cast<char>(_note), -1);
     }
 }
 
