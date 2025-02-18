@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.22.1)
 
 # Change to your project name
-project(RipplerX VERSION 1.3.1)
+project(RipplerX VERSION 1.3.2)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_XCODE_GENERATE_SCHEME OFF)
+set(CMAKE_OSX_DEPLOYMENT_TARGET 10.14 CACHE STRING "Build for 10.14")
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 if(MSVC)

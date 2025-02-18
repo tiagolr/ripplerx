@@ -57,7 +57,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
             sunImage, 1.0f, juce::Colours::transparentBlack, 
             sunImage, 1.0f, juce::Colours::transparentBlack);
     }
-    sun.setBounds(col+133, row+3, 20, 20);
+    sun.setBounds(col+135, row+3, 20, 20);
     sun.onClick = [this] {
         audioProcessor.toggleTheme();
         loadTheme();
@@ -74,7 +74,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
             moonImage, 1.0f, juce::Colours::transparentBlack, 
             moonImage, 1.0f, juce::Colours::transparentBlack);
     }
-    moon.setBounds(col+133, row+3, 20, 20);
+    moon.setBounds(col+135, row+3, 20, 20);
     moon.onClick = [this] {
         audioProcessor.toggleTheme();
         loadTheme();
