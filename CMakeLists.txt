@@ -6,7 +6,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 
 # Change to your project name
-project(RipplerX VERSION 1.3.4)
+project(RipplerX VERSION 1.3.5)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_XCODE_GENERATE_SCHEME OFF)
