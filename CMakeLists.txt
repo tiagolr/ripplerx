@@ -15,7 +15,7 @@ endif()
 add_subdirectory(libs/JUCE)
 
 set(plugin_formats
-    # Standalone
+    Standalone
     VST3
     LV2
     AU

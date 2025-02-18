@@ -44,6 +44,7 @@ void Voice::trigger(double srate, int _note, double _vel, double malletFreq)
 	resB.clear();
 	note = _note;
 	isRelease = false;
+	isPressed = true;
 	vel = _vel;
 	freq = note2freq(note);
 	mallet.trigger(srate, malletFreq);
@@ -56,6 +57,7 @@ void Voice::trigger(double srate, int _note, double _vel, double malletFreq)
 void Voice::release()
 {
 	isRelease = true;
+	isPressed = false;
 	noise.release();
 	updateResonators();
 }

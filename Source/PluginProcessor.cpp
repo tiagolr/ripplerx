@@ -7,13 +7,9 @@
 RipplerXAudioProcessor::RipplerXAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
      : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
                        .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                      #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
-                       )
+     )
     , settings{}
     , params(*this, &undoManager, "PARAMETERS", {
         std::make_unique<juce::AudioParameterFloat>("mallet_mix", "Mallet Mix", 0.0f, 1.0f, 0.0f),
@@ -555,6 +551,7 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
         double dirOut = 0.0; // direct output
         double aOut = 0.0; // resonator A output
         double bOut = 0.0; // resonator B output
+        auto audioIn = (buffer.getSample(0, sample) + buffer.getSample(1, sample)) / 2.0;
 
         for (int i = 0; i < polyphony; ++i) {
             Voice& voice = *voices[i];
@@ -565,6 +562,9 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
                 dirOut += msample * fmin(1.0, mallet_mix + vel_mallet_mix * voice.vel);
                 resOut += msample * fmin(1.0, mallet_res + vel_mallet_res * voice.vel);
             }
+
+            if (audioIn && voice.isPressed)
+                resOut += audioIn;
 
             auto nsample = voice.noise.process(); // process noise
             if (nsample) {
@@ -607,7 +607,7 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
 
     float rms = (float)buffer.getRMSLevel(0, 0, buffer.getNumSamples());
     rmsValue.store(rms, std::memory_order_release);
-    midiMessages.clear(); // FIX avoid rare crash when clicking the piano keys
+    midiMessages.clear(); // attempt fix rare crash when clicking the piano keys
 }
 
 void RipplerXAudioProcessor::clearVoices()

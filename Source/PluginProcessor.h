@@ -25,7 +25,7 @@ struct MIDIMsg {
 //==============================================================================
 /**
 */
-class RipplerXAudioProcessor  : public juce::AudioProcessor, public juce::AudioProcessorParameter::Listener
+class RipplerXAudioProcessor  : public juce::AudioProcessor, public juce::AudioProcessorParameter::Listener, public juce::VST3ClientExtensions
 {
 public:
     float scale = 1.0f; // UI scale
@@ -49,6 +49,7 @@ public:
     void parameterValueChanged (int parameterIndex, float newValue) override;
     void parameterGestureChanged (int parameterIndex, bool gestureIsStarting) override;
     bool supportsDoublePrecisionProcessing() const override;
+    bool getPluginHasMainInput() const override { return false; }
 
    #ifndef JucePlugin_PreferredChannelConfigurations
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
