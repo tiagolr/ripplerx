@@ -60,6 +60,10 @@ jobs:
         run: |
          cmake --build ./build --config Release
 
+      - name: Copy readme
+        run: |
+          cp ./doc/macos-readme.txt ./build/RipplerX_artefacts/Release/
+
       - name: List errors
         run: cat "./build/CMakeFiles/CMakeError.log" || true
 
@@ -68,10 +72,10 @@ jobs:
         with:
           name: ripplerx-macos
           path: |
-            ./build/RipplerX_artefacts/Release/LV2/*
-            ./build/RipplerX_artefacts/Release/AU/*
-            ./build/RipplerX_artefacts/Release/VST3/*
-            ./doc/macos-readme.txt
+            ./build/RipplerX_artefacts/Release/LV2
+            ./build/RipplerX_artefacts/Release/AU
+            ./build/RipplerX_artefacts/Release/VST3
+            ./build/RipplerX_artefacts/Release/macos-readme.txt
             !./build/RipplerX_artefacts/Release/VST3/*.exp
             !./build/RipplerX_artefacts/Release/VST3/*.lib
 
