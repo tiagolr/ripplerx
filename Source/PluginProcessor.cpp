@@ -491,6 +491,7 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
 {
     juce::ScopedNoDenormals disableDenormals;
     auto totalNumOutputChannels = getTotalNumOutputChannels();
+    auto totalNumInputChannels = getTotalNumInputChannels();
     auto numSamples = buffer.getNumSamples();
 
     auto a_on = (bool)params.getRawParameterValue("a_on")->load();
@@ -555,7 +556,12 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
         double dirOut = 0.0; // direct output
         double aOut = 0.0; // resonator A output
         double bOut = 0.0; // resonator B output
-        auto audioIn = (buffer.getSample(0, sample) + buffer.getSample(1, sample)) / 2.0;
+        auto audioIn = 0.0;
+        for (int i = 0; i < totalNumInputChannels; ++i)
+            audioIn += (double)buffer.getSample(i, sample);
+        
+        if (totalNumInputChannels) 
+            audioIn /= (double)totalNumInputChannels;
 
         for (int i = 0; i < polyphony; ++i) {
             Voice& voice = *voices[i];
