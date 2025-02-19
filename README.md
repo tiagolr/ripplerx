@@ -81,6 +81,20 @@ sudo xattr -dr com.apple.quarantine /path/to/your/plugins/RipplerX.lv3
 
 The commands above will recursively remove the quarantine flag from the plugins.
 
+## Audio In
+
+From version 1.4.0 Rippler supports Audio In, this means that you can feed an audio signal into the plugin resonators and excite them when pressing keys.
+
+This feature works in many DAWs *but not all*, here are some working examples:
+
+- **Reaper** - Play an audio clip in the same track as Rippler, the sound will only go through when pressing keys.
+- **Ableton Live** - Add an audio clip, on the mixer click the button bellow **Audio to** and send it to the plugin.
+- **Bitwig** - Add an audio clip, on the Rippler device window click **Show plug-in sidechain** and select the clip track.
+- **Cubase** - This is done by track sidechaining, unfortunately I can no longer find the video for this tutorial.
+- **Logic** - Track sidechaining should also work for AU version.
+
+Because not all DAWs support this feature (Looking at you *FL Studio*) an FX version may be added in the future. Meanwhile sidechaning into the synth is the simplest way to use this.
+
 ## Microtuning
 
 Microtuning is supported via MTS-ESP, you can install a player like [MTS-ESP MINI](https://oddsound.com/mtsespmini.php) and run it along side RipplerX, the two plugins will communicate and automatically tune Rippler to the config file loaded.
