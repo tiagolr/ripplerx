@@ -32,6 +32,9 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     }
     addAndMakeVisible(logo);
     logo.setBounds(col, row+5, 120, 16);
+    logo.onClick = [this] {
+        about->setVisible(true);
+    };
 
 #if defined(DEBUG)
     addAndMakeVisible(presetExport);
@@ -528,6 +531,12 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     meter = std::make_unique<Meter>(p);
     addAndMakeVisible(*meter);
     meter->setBounds(bounds.getRight() - 85, 235, 60, 95);
+
+    // ABOUT
+    about = std::make_unique<About>();
+    addAndMakeVisible(*about);
+    about->setBounds(getBounds());
+    about->setVisible(false);
 
     toggleUIComponents();
     loadTheme();

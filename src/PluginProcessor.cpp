@@ -556,10 +556,10 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
         double dirOut = 0.0; // direct output
         double aOut = 0.0; // resonator A output
         double bOut = 0.0; // resonator B output
+
         auto audioIn = 0.0;
         for (int i = 0; i < totalNumInputChannels; ++i)
             audioIn += (double)buffer.getSample(i, sample);
-        
         if (totalNumInputChannels) 
             audioIn /= (double)totalNumInputChannels;
 

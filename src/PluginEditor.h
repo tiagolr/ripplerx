@@ -14,6 +14,7 @@
 #include "ui/CustomLookAndFeel.h"
 #include "ui/Meter.h"
 #include "ui/Pitch.h"
+#include "ui/About.h"
 
 using namespace globals;
 //==============================================================================
@@ -40,6 +41,7 @@ private:
     Label noiseLabel;
     Label envelopeLabel;
     Label malletLabel;
+    std::unique_ptr<About> about;
 
     // Top bar
     ImageButton logo;
