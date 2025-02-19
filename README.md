@@ -37,7 +37,7 @@ RipplerX is a physically modeled synth, capable of sounds similar to AAS Chromap
   * **Noise and mallet** generators.
   * Up to **64 partials** per resonator.
   * Built with **JUCE**.
-    
+
 ## Download
 
 * [Download latest release](https://github.com/tiagolr/ripplerx/releases)
@@ -71,14 +71,15 @@ it also provides an entry point for developers or researchers into physical mode
 
 MacOS builds are untested and unsigned, please let me know of any issues by opening a ticket, don't expect a promptly fix as I don't have access to that OS.
 
-Because the builds are unsigned you may have to run the following command:
+Because the builds are unsigned you may have to run the following commands:
 
 ```bash
-sudo xattr -dr com.apple.quarantine RipplerX.component
-sudo xattr -dr com.apple.quarantine RipplerX.vst3
+sudo xattr -dr com.apple.quarantine /path/to/your/plugins/RipplerX.component
+sudo xattr -dr com.apple.quarantine /path/to/your/plugins/RipplerX.vst3
+sudo xattr -dr com.apple.quarantine /path/to/your/plugins/RipplerX.lv3
 ```
 
-The command above will recursively remove the quarantine flag from the files.
+The commands above will recursively remove the quarantine flag from the plugins.
 
 ## Microtuning
 
