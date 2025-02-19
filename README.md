@@ -85,7 +85,7 @@ The commands above will recursively remove the quarantine flag from the plugins.
 
 From version 1.4.0 Rippler supports Audio In, this means that you can feed an audio signal into the plugin resonators and excite them when pressing keys.
 
-This feature works in many DAWs *but not all*, some working examples:
+This feature works in many DAWs *but not all*, here are some working examples:
 
 - **Reaper** - Play an audio clip in the same track as Rippler, the sound will only go through when pressing keys.
 - **Ableton Live** - Add an audio clip, on the mixer click the button bellow **Audio to** and send it to the plugin.
