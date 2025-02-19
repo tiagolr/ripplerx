@@ -43,6 +43,7 @@ public:
 	double freq = 0.0;
 	double vel = 0.0;
 	bool isRelease = false;
+	bool isPressed = false; // used for audioIn
 	bool couple = false;
 	double split = 0.0;
 
