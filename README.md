@@ -88,8 +88,8 @@ From version 1.4.0 Rippler supports Audio In, this means that you can feed an au
 This feature works in many DAWs *but not all*, some working examples:
 
 - **Reaper** - Play an audio clip in the same track as Rippler, the sound will only go through when pressing keys.
-- **Ableton Live** - Add an audio clip to a track, on the mixer click the button bellow **Audio to** and send it to the plugin.
-- **Bitwig** - Add an audio clip to a track, on the Rippler device window click **Show plug-in sidechain** and select that track.
+- **Ableton Live** - Add an audio clip, on the mixer click the button bellow **Audio to** and send it to the plugin.
+- **Bitwig** - Add an audio clip, on the Rippler device window click **Show plug-in sidechain** and select the clip track.
 - **Cubase** - This is done by track sidechaining, unfortunately I can no longer find the video for this tutorial.
 - **Logic** - Track sidechaining should also work for AU version.
 
