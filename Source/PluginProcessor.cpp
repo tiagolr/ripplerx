@@ -72,7 +72,8 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("ab_mix", "A+B Mix", 0.0f, 1.0f, 0.5f),
         std::make_unique<juce::AudioParameterFloat>("ab_split", "A>B Split", juce::NormalisableRange<float>(0.01f, 1.0f, 0.001f, 0.5f), 0.01f),
         std::make_unique<juce::AudioParameterFloat>("gain", "Res Gain", -24.0f, 24.0f, 0.0f),
-    })
+    }),
+    mtsClientPtr{nullptr}
 #endif
 {
     juce::PropertiesFile::Options options{};
@@ -92,7 +93,9 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
     for (int i = 0; i < globals::MAX_POLYPHONY; ++i) {
         voices.push_back(std::make_unique<Voice>());
     }
-
+    
+    mtsClientPtr = MTS_RegisterClient();
+    
     loadSettings();
 }
 
@@ -111,6 +114,7 @@ void RipplerXAudioProcessor::parameterGestureChanged (int parameterIndex, bool g
 
 RipplerXAudioProcessor::~RipplerXAudioProcessor()
 {
+    MTS_DeregisterClient(mtsClientPtr);
 }
 
 void RipplerXAudioProcessor::loadSettings ()
@@ -340,7 +344,7 @@ void RipplerXAudioProcessor::onNote(MIDIMsg msg)
     auto vel_mallet_stiff = (double)params.getRawParameterValue("vel_mallet_stiff")->load();
     auto malletFreq = fmin(5000.0, exp(log(mallet_stiff) + msg.vel / 127.0 * vel_mallet_stiff * (log(5000.0) - log(100.0))));
 
-    voice.trigger(srate, msg.note, msg.vel / 127.0, malletFreq);
+    voice.trigger(srate, msg.note, msg.vel / 127.0, malletFreq, mtsClientPtr);
 }
 
 void RipplerXAudioProcessor::offNote(MIDIMsg msg)

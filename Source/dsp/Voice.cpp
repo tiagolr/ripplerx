@@ -32,13 +32,20 @@ std::array<std::array<double, 64>, 9> Voice::aModels = {{
 }};
 std::array<std::array<double, 64>, 9> Voice::bModels = aModels;
 
-double Voice::note2freq(int _note) 
+double Voice::note2freq(int _note, MTSClient *mts)
 {
-	return 440 * pow(2.0, (_note - 69) / 12.0); 
+    if (mts == nullptr)
+    {
+        return 440 * pow(2.0, (_note - 69) / 12.0);
+    }
+    else
+    {
+        return MTS_NoteToFrequency(mts, static_cast<char>(_note), -1);
+    }
 }
 
 // Triggers mallet and noise generator
-void Voice::trigger(double srate, int _note, double _vel, double malletFreq)
+void Voice::trigger(double srate, int _note, double _vel, double malletFreq, MTSClient *mts)
 {
 	resA.clear();
 	resB.clear();
@@ -46,7 +53,7 @@ void Voice::trigger(double srate, int _note, double _vel, double malletFreq)
 	isRelease = false;
 	isPressed = true;
 	vel = _vel;
-	freq = note2freq(note);
+	freq = note2freq(note, mts);
 	mallet.trigger(srate, malletFreq);
 	noise.attack(1.0);
 	if (resA.on) resA.activate();

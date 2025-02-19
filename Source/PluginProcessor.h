@@ -14,6 +14,7 @@
 #include "dsp/Limiter.h"
 #include "dsp/Comb.h"
 #include "dsp/Resonator.h"
+#include "libMTSClient.h"
 
 struct MIDIMsg {
     int offset;
@@ -38,6 +39,7 @@ public:
     int last_b_partials = -1;
     int currentProgram = -1;
     std::atomic<float> rmsValue { 0.0f };
+    MTSClient *mtsClientPtr;
 
     //==============================================================================
     RipplerXAudioProcessor();
@@ -106,6 +108,8 @@ private:
     int nvoice = 0; // next voice to use
     Comb comb{};
     Limiter limiter{};
+    
+
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RipplerXAudioProcessor)

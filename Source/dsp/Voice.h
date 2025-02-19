@@ -10,6 +10,7 @@
 #include "Noise.h"
 #include "Resonator.h"
 #include "tuple"
+#include "libMTSClient.h"
 
 class Voice
 {
@@ -27,8 +28,8 @@ public:
 	void static recalcMembrane(bool resA, double ratio);
 	void static recalcPlate(bool resA, double ratio);
 
-	double note2freq(int _note);
-	void trigger(double srate, int _note, double vel, double malletFreq);
+	double note2freq(int _note, MTSClient *mts);
+	void trigger(double srate, int _note, double vel, double malletFreq, MTSClient *mts);
 	void release();
 	void clear();
 	void setPitch(double a_coarse, double b_coarse, double a_fine, double b_fine);
