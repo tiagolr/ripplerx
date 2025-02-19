@@ -7,8 +7,8 @@
 RipplerXAudioProcessor::RipplerXAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
      : AudioProcessor (BusesProperties()
-                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
+         .withInput("Sidechain", juce::AudioChannelSet::stereo(), true)
+         .withOutput("Output", juce::AudioChannelSet::stereo(), true)
      )
     , settings{}
     , params(*this, &undoManager, "PARAMETERS", {
