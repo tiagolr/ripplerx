@@ -60,7 +60,7 @@ If you like this synth you should definetly check it out.
 The value of RipplerX is as an open source alternative to AAS plugins,
 it also provides an entry point for developers or researchers into physical modelling.
 
-A final note on Chromaphone, what really sets it appart is its coupling system, I don't think I will be able to figure it out judging by the time I put into it already, the AAS plugin remains unparallel in that aspect.
+A final note on Chromaphone, what really sets it appart is its coupling system, I don't think I will be able to figure it out judging by the time I spent on that already, the AAS plugin remains unparallel in that aspect.
 
 **Acknowledgments**
 
