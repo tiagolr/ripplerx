@@ -182,13 +182,18 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     presetMenu.addItem("Flute", 26);
     presetMenu.addItem("Fifths", 27);
     presetMenu.addItem("Kalimba", 28);
+    if (audioProcessor.currentProgram > -1) {
+        presetMenu.setSelectedId(audioProcessor.currentProgram + 1, NotificationType::dontSendNotification);
+    }
 
     presetMenu.onChange = [this]()
         {
             const int value = presetMenu.getSelectedId();
-            MessageManager::callAsync([this, value] {
-                audioProcessor.setCurrentProgram(value - 1);
-            });
+            if (value > 0) {
+                MessageManager::callAsync([this, value] {
+                    audioProcessor.setCurrentProgram(value - 1);
+                });
+            }
         };
     presetMenu.setBounds(getWidth() - 110, row, 100, 25);
 

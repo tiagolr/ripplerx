@@ -207,6 +207,7 @@ int RipplerXAudioProcessor::getCurrentProgram()
 
 void RipplerXAudioProcessor::setCurrentProgram (int index)
 {
+    if (currentProgram == index) return;
     currentProgram = index;
     auto data = BinaryData::Init_xml;
     auto size = BinaryData::Init_xmlSize;
@@ -643,6 +644,7 @@ juce::AudioProcessorEditor* RipplerXAudioProcessor::createEditor()
 void RipplerXAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
     auto state = params.copyState();
+    state.setProperty("currentProgram", currentProgram, nullptr);
     std::unique_ptr<juce::XmlElement>xml(state.createXml());
     copyXmlToBinary(*xml, destData);
 }
@@ -651,8 +653,13 @@ void RipplerXAudioProcessor::setStateInformation (const void* data, int sizeInBy
 {
     std::unique_ptr<juce::XmlElement>xmlState (getXmlFromBinary (data, sizeInBytes));
     if (xmlState.get() != nullptr)
-        if (xmlState->hasTagName(params.state.getType()))
-            params.replaceState(juce::ValueTree::fromXml (*xmlState));
+        if (xmlState->hasTagName(params.state.getType())) {
+            auto state = juce::ValueTree::fromXml (*xmlState);
+            if (state.hasProperty("currentProgram")) {
+                currentProgram = static_cast<int>(state.getProperty("currentProgram"));
+            }
+            params.replaceState(state);
+        }
 
     onProgramChange();
 }
@@ -660,14 +667,10 @@ void RipplerXAudioProcessor::setStateInformation (const void* data, int sizeInBy
 void RipplerXAudioProcessor::onProgramChange()
 {
     // init last params so they don't trigger ratio changes onSlider()
-    auto a_model = (int)params.getRawParameterValue("a_model")->load();
-    auto a_partials = (int)params.getRawParameterValue("a_partials")->load();
-    auto b_model = (int)params.getRawParameterValue("a_model")->load();
-    auto b_partials = (int)params.getRawParameterValue("a_partials")->load();
-    last_a_model = a_model;
-    last_b_model = b_model;
-    last_a_partials = a_partials;
-    last_b_partials = b_partials;
+    last_a_model = (int)params.getRawParameterValue("a_model")->load();
+    last_a_partials = (int)params.getRawParameterValue("a_partials")->load();
+    last_b_model = (int)params.getRawParameterValue("a_model")->load();
+    last_b_partials = (int)params.getRawParameterValue("a_partials")->load();
     clearVoices();
 }
 
