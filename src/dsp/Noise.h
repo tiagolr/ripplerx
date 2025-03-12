@@ -10,13 +10,14 @@ public:
 	Noise() {};
 	~Noise() {};
 
-	void init(double srate, int filterMode, double freq, double q, double att, double dec, double sus, double rel);
+	void init(double srate, int filterMode, double freq, double q, double att, double dec, double sus, double rel, double noise_density);
 	double process();
 	void attack(double vel);
 	void release();
 	void clear();
 
 	double vel = 0.0;
+	double noise_density = 0.0;
 private:
 	Filter filter{};
 	Envelope env{};

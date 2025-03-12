@@ -238,6 +238,14 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     addAndMakeVisible(envelopeLabel);
     envelopeLabel.setText("ADSR", NotificationType::dontSendNotification);
     envelopeLabel.setBounds(col+10, row, 60, 25);
+
+    addAndMakeVisible(noiseDensity);
+    noiseDensityAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.params, "noise_density", noiseDensity);
+    noiseDensity.setSliderStyle(Slider::LinearBar);
+    noiseDensity.setTooltip("Noise density, lower values means more sparse noise.");
+    noiseDensity.setTextBoxIsEditable(false);
+    noiseDensity.setBounds(col+70, row, 70, 25);
+
     row += 25;
 
     noiseA = std::make_unique<Rotary>(p, "noise_att", "Attack", LabelFormat::millis);

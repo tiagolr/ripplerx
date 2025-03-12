@@ -38,7 +38,7 @@ public:
     int last_a_partials = -1;
     int last_b_partials = -1;
     int currentProgram = -1;
-    std::atomic<float> rmsValue { 0.0f };
+    std::atomic<double> rmsValue { 0.0f };
     MTSClient *mtsClientPtr;
 
     //==============================================================================

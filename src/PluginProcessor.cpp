@@ -48,6 +48,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
 
         std::make_unique<juce::AudioParameterFloat>("noise_mix", "Noise Mix", juce::NormalisableRange<float>(0.0f, 1.0f, 0.0001f, 0.3f), 0.0f),
         std::make_unique<juce::AudioParameterFloat>("noise_res", "Noise Resonance", juce::NormalisableRange<float>(0.0f, 1.0f, 0.0001f, 0.3f), 0.0f),
+        std::make_unique<juce::AudioParameterFloat>("noise_density", "Noise Density", juce::NormalisableRange<float>(0.0001f, 1.0f, 0.0001f, 0.3f), 1.0f),
         std::make_unique<juce::AudioParameterChoice>("noise_filter_mode", "Noise Filter Mode", StringArray {"LP", "BP", "HP"}, 2),
         std::make_unique<juce::AudioParameterFloat>("noise_filter_freq", "Noise Filter Freq",juce::NormalisableRange<float>(20.0f, 20000.0f, 1.0f, 0.3f), 20.0f),
         std::make_unique<juce::AudioParameterFloat>("noise_filter_q", "Noise Filter Q", 0.707f, 4.0f, 0.707f),
@@ -361,6 +362,7 @@ void RipplerXAudioProcessor::offNote(MIDIMsg msg)
 void RipplerXAudioProcessor::onSlider()
 {
     auto srate = getSampleRate();
+    auto noise_density = (double)params.getRawParameterValue("noise_density")->load();
     auto noise_filter_freq = (double)params.getRawParameterValue("noise_filter_freq")->load();
     auto noise_filter_mode = (int)params.getRawParameterValue("noise_filter_mode")->load();
     auto noise_filter_q = (double)params.getRawParameterValue("noise_filter_q")->load();
@@ -463,7 +465,7 @@ void RipplerXAudioProcessor::onSlider()
 
     for (int i = 0; i < polyphony; i++) {
         Voice& voice = *voices[i];
-        voice.noise.init(srate, noise_filter_mode, noise_filter_freq, noise_filter_q, noise_att, noise_dec, noise_sus, noise_rel);
+        voice.noise.init(srate, noise_filter_mode, noise_filter_freq, noise_filter_q, noise_att, noise_dec, noise_sus, noise_rel, noise_density);
         voice.setPitch(a_coarse, b_coarse, a_fine, b_fine);
         voice.resA.setParams(srate, a_on, a_model, a_partials, a_decay, a_damp, a_tone, a_hit, a_rel, a_inharm, a_cut, a_radius, vel_a_decay, vel_a_hit, vel_a_inharm);
         voice.resB.setParams(srate, b_on, b_model, b_partials, b_decay, b_damp, b_tone, b_hit, b_rel, b_inharm, b_cut, b_radius, vel_b_decay, vel_b_hit, vel_b_inharm);
@@ -513,6 +515,7 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
     auto ab_mix = (double)params.getRawParameterValue("ab_mix")->load();
     auto gain = (double)params.getRawParameterValue("gain")->load();
     auto couple = (bool)params.getRawParameterValue("couple")->load();
+    double rms = 0.0;
     gain = pow(10.0, gain / 20.0);
 
     // remove midi messages that have been processed
@@ -607,6 +610,7 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
             resOut = aOut + bOut; // one of them is turned off, just sum the two
 
         double totalOut = dirOut + resOut * gain;
+        rms += totalOut * totalOut;
         auto [spl0, spl1] = comb.process(totalOut);
         auto [left, right] = limiter.process(spl0, spl1);
 
@@ -616,7 +620,7 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
         }
     }
 
-    float rms = (float)buffer.getRMSLevel(0, 0, buffer.getNumSamples());
+    rms = sqrt(rms / (numSamples > 0 ? numSamples : 1.0));
     rmsValue.store(rms, std::memory_order_release);
     midiMessages.clear(); // attempt fix rare crash when clicking the piano keys
 }

@@ -19,14 +19,13 @@ void Meter::timerCallback()
 void Meter::paint(Graphics& g)
 {
 	(void)g;
-	// there is a limiter that prevents high volumes so rms is compared with 0.8 to light all bulbs
-	// other gimmicks gimmicks like pow(0.25) and (totalBulbs + 1) kinda makes the meter decent
+	// gimmicks like pow(0.25) and (totalBulbs + 1) kinda makes the meter decent
 	// but still totally inaccurate
 	auto const rms = pow(fmin(1.0f, audioProcessor.rmsValue.load(std::memory_order_acquire)), 0.25f);
 	auto isDark = audioProcessor.darkTheme;
 	for (auto i = 0; i < totalBulbs; i++) {
 		bulbs[i]->isDark = isDark;
-		bulbs[i]->setOn(rms >= static_cast<float>(i + 1) / (totalBulbs + 1) || rms >= 0.8f);
+		bulbs[i]->setOn(rms >= static_cast<double>(i + 1) / (totalBulbs + 1) || rms >= 0.8);
 	}
 }
 

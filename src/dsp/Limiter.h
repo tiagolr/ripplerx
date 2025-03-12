@@ -35,7 +35,7 @@ public:
 	Limiter() {};
 	~Limiter() {};
 
-	void init(double srate, double _thresh = 0.0, double _bias = 70.0, double rms_win = 100.0, double makeup = 0.0)
+	void init(double srate, double _thresh = -6.0, double _bias = 70.0, double rms_win = 100.0, double makeup = 0.0)
 	{
 		threshv = exp(_thresh * db2log);
 		ratio = 20.0;
