@@ -243,11 +243,13 @@ void RipplerXAudioProcessor::setCurrentProgram (int index)
     else if (index == 27) { data = BinaryData::Kalimba_xml; size = BinaryData::Kalimba_xmlSize; }
 
     auto xmlState = XmlDocument::parse (juce::String (data, size));
-    if (xmlState.get() != nullptr)
+    if (xmlState.get() != nullptr) {
         if (xmlState->hasTagName(params.state.getType())) {
             clearVoices();
             params.replaceState(juce::ValueTree::fromXml (*xmlState));
+            resetLastModels();
         }
+    }
 }
 
 const juce::String RipplerXAudioProcessor::getProgramName (int index)
@@ -295,6 +297,7 @@ void RipplerXAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
     (void)samplesPerBlock;
     comb.init(sampleRate);
     limiter.init(sampleRate);
+    resetLastModels(); // FIX - ableton initial load causes async value reset that overrides loaded patch value for a_model and b_model
     clearVoices();
     onSlider();
 }
@@ -656,7 +659,7 @@ void RipplerXAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 void RipplerXAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     std::unique_ptr<juce::XmlElement>xmlState (getXmlFromBinary (data, sizeInBytes));
-    if (xmlState.get() != nullptr)
+    if (xmlState.get() != nullptr) {
         if (xmlState->hasTagName(params.state.getType())) {
             auto state = juce::ValueTree::fromXml (*xmlState);
             if (state.hasProperty("currentProgram")) {
@@ -664,18 +667,19 @@ void RipplerXAudioProcessor::setStateInformation (const void* data, int sizeInBy
             }
             params.replaceState(state);
         }
+    }
 
-    onProgramChange();
+    resetLastModels();
+    clearVoices();
 }
 
-void RipplerXAudioProcessor::onProgramChange()
+// Reset last models and last partials so they don't trigger changes onSlider()
+void RipplerXAudioProcessor::resetLastModels()
 {
-    // init last params so they don't trigger ratio changes onSlider()
     last_a_model = (int)params.getRawParameterValue("a_model")->load();
     last_a_partials = (int)params.getRawParameterValue("a_partials")->load();
-    last_b_model = (int)params.getRawParameterValue("a_model")->load();
-    last_b_partials = (int)params.getRawParameterValue("a_partials")->load();
-    clearVoices();
+    last_b_model = (int)params.getRawParameterValue("b_model")->load();
+    last_b_partials = (int)params.getRawParameterValue("b_partials")->load();
 }
 
 //==============================================================================
