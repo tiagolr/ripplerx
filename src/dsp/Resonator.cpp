@@ -45,7 +45,7 @@ void Resonator::setParams(double _srate, bool _on, int model, int _partials, dou
 
 void Resonator::update(double freq, double vel, bool isRelease, std::array<double,64> model)
 {
-	if (nmodel < 7) {
+	if (nmodel < 7 || nmodel >= 9) { // if model is not a tube model
 		for (Partial& partial : partials) {
 			auto idx = partial.k - 1; // clears lnt-arithmetic-overflow warning when accessing _model[k-1] directly
 			partial.update(freq, model[idx], model[model.size() - 1], vel, isRelease);
@@ -66,7 +66,7 @@ double Resonator::process(double input)
 	double out = 0.0;
 
 	if (active) { // use active and silence to turn off strings process if not in use
-		if (nmodel < 7) {
+		if (nmodel < 7 || nmodel >= 9) { // if model is not a tube model
 			for (int p = 0; p < npartials; ++p) {
 				out += partials[p].process(input);
 			}

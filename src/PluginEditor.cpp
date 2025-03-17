@@ -333,6 +333,9 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     aModel.addItem("Marimba", 7);
     aModel.addItem("Open Tube", 8);
     aModel.addItem("Closed Tube", 9);
+    aModel.addItem("Marimba2", 10);
+    aModel.addItem("Bell", 11);
+    aModel.addItem("Bell Church", 12);
     aModelAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.params, "a_model", aModel);
     aModel.setBounds(col+50+40-5, row, 100, 25);
 
@@ -609,7 +612,7 @@ void RipplerXAudioProcessorEditor::toggleUIComponents()
     bCut.get()->setAlpha(alpha);
     bRadius.get()->setAlpha(alpha);
 
-    bool is_tube = a_model >= 7;
+    bool is_tube = a_model >= 7 && a_model < 9;
     aDamp.get()->setVisible(!is_tube);
     aTone.get()->setVisible(!is_tube);
     aHit.get()->setVisible(!is_tube);
@@ -617,7 +620,7 @@ void RipplerXAudioProcessorEditor::toggleUIComponents()
     aRatio.get()->setVisible(!is_tube && (a_model == Models::Beam || a_model == Models::Membrane || a_model == Models::Plate));
     aRadius.get()->setVisible(is_tube);
 
-    is_tube = b_model >= 7;
+    is_tube = b_model >= 7 && a_model < 9;
     bDamp.get()->setVisible(!is_tube);
     bTone.get()->setVisible(!is_tube);
     bHit.get()->setVisible(!is_tube);
@@ -625,8 +628,8 @@ void RipplerXAudioProcessorEditor::toggleUIComponents()
     bRatio.get()->setVisible(!is_tube && (b_model == Models::Beam || b_model == Models::Membrane || b_model == Models::Plate));
     bRadius.get()->setVisible(is_tube);
 
-    aPartials.setVisible(a_model < 7);
-    bPartials.setVisible(b_model < 7);
+    aPartials.setVisible(a_model < 7 || a_model >= 9);
+    bPartials.setVisible(b_model < 7 || a_model >= 9);
 
     couple.setAlpha((a_on && b_on) ? 1.0f : 0.5f);
     abMix.get()->setAlpha((a_on && b_on) ? 1.0f : 0.5f);

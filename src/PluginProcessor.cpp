@@ -17,7 +17,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("mallet_stiff", "Mallet Stifness",juce::NormalisableRange<float>(100.0f, 5000.0f, 1.0f, 0.3f) , 600.0f),
 
         std::make_unique<juce::AudioParameterBool>("a_on", "A ON", true),
-        std::make_unique<juce::AudioParameterChoice>("a_model", "A Model", StringArray { "String", "Beam", "Squared", "Membrane", "Plate", "Drumhead", "Marimba", "Open Tube", "Closed Tube" }, 0),
+        std::make_unique<juce::AudioParameterChoice>("a_model", "A Model", StringArray { "String", "Beam", "Squared", "Membrane", "Plate", "Drumhead", "Marimba", "Open Tube", "Closed Tube", "Marimba2", "Bell", "BellChurch" }, 0),
         std::make_unique<juce::AudioParameterChoice>("a_partials", "A Partials", StringArray { "4", "8", "16", "32", "64" }, 3),
         std::make_unique<juce::AudioParameterFloat>("a_decay", "A Decay",juce::NormalisableRange<float>(0.01f, 100.0f, 0.01f, 0.2f) , 1.0f),
         std::make_unique<juce::AudioParameterFloat>("a_damp", "A Material", -1.0f, 1.0f, 0.0f),
@@ -32,7 +32,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("a_fine", "A fine pitch", juce::NormalisableRange<float>(-99.0f, 99.0f, 1.0f, 1.0f), 0.0f),
 
         std::make_unique<juce::AudioParameterBool>("b_on", "B ON", false),
-        std::make_unique<juce::AudioParameterChoice>("b_model", "B Model", StringArray { "String", "Beam", "Squared", "Membrane", "Plate", "Drumhead", "Marimba", "Open Tube", "Closed Tube" }, 0),
+        std::make_unique<juce::AudioParameterChoice>("b_model", "B Model", StringArray { "String", "Beam", "Squared", "Membrane", "Plate", "Drumhead", "Marimba", "Open Tube", "Closed Tube", "Marimba2", "Bell", "BellChurch" }, 0),
         std::make_unique<juce::AudioParameterChoice>("b_partials", "B Partials", StringArray { "4", "8", "16", "32", "64" }, 3),
         std::make_unique<juce::AudioParameterFloat>("b_decay", "B Decay",juce::NormalisableRange<float>(0.01f, 100.0f, 0.01f, 0.2f), 1.0f),
         std::make_unique<juce::AudioParameterFloat>("b_damp", "B Material", -1.0f, 1.0f, 0.0f),

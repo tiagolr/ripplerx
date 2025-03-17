@@ -20,8 +20,8 @@ public:
 
 	// static ratio models shared by voices, definition in .cpp
 	static std::array<double, 64> bFree;
-	static std::array<std::array<double, 64>, 9> aModels;
-	static std::array<std::array<double, 64>, 9> bModels;
+	static std::array<std::array<double, 64>, 12> aModels;
+	static std::array<std::array<double, 64>, 12> bModels;
 
 	// triggered on model ratio param changes
 	void static recalcBeam(bool resA, double ratio);
