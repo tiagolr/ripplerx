@@ -4,7 +4,7 @@
 #include <cmath>
 #include <JuceHeader.h>
 
-void Partial::update(double f_0, double ratio, double ratio_max, double vel, bool isRelease)
+void Partial::update(double f_0, double ratio, double ratio_max, double vel, bool isRelease, double modalGain)
 {
 	auto inharm_k = fmin(1.0, exp(log(inharm) + vel * vel_inharm * -log(0.0001))) - 0.0001; // normalize velocity contribution on a logarithmic scale
 	inharm_k = sqrt(1 + inharm_k * (ratio - 1) * (ratio - 1));
@@ -36,6 +36,7 @@ void Partial::update(double f_0, double ratio, double ratio_max, double vel, boo
 
 	auto amp_k = fabs(sin(juce::MathConstants<double>::pi * k * fmin(.5, hit + vel_hit * vel / 2.0)));
 	amp_k *= 35.0;
+	amp_k *= modalGain;
 
 	// Bandpass filter coefficients (normalized)
 	b0 = alpha * tone_gain * amp_k;

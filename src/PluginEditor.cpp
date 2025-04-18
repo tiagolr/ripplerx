@@ -335,7 +335,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     aModel.addItem("Closed Tube", 9);
     aModel.addItem("Marimba2", 10);
     aModel.addItem("Bell", 11);
-    aModel.addItem("Bell Church", 12);
+    aModel.addItem("Glass", 12);
     aModelAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.params, "a_model", aModel);
     aModel.setBounds(col+50+40-5, row, 100, 25);
 
@@ -433,6 +433,9 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     bModel.addItem("Marimba", 7);
     bModel.addItem("Open Tube", 8);
     bModel.addItem("Closed Tube", 9);
+    bModel.addItem("Marimba2", 10);
+    bModel.addItem("Bell", 11);
+    bModel.addItem("Glass", 12);
     bModelAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.params, "b_model", bModel);
     bModel.setBounds(col+50+40-5, row, 100, 25);
 

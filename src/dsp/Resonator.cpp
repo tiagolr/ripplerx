@@ -43,12 +43,12 @@ void Resonator::setParams(double _srate, bool _on, int model, int _partials, dou
 	waveguide.rel = _rel;
 }
 
-void Resonator::update(double freq, double vel, bool isRelease, std::array<double,64> model)
+void Resonator::update(double freq, double vel, bool isRelease, std::array<double,64> model, std::array<double,64> gainModel)
 {
 	if (nmodel < 7 || nmodel >= 9) { // if model is not a tube model
 		for (Partial& partial : partials) {
 			auto idx = partial.k - 1; // clears lnt-arithmetic-overflow warning when accessing _model[k-1] directly
-			partial.update(freq, model[idx], model[model.size() - 1], vel, isRelease);
+			partial.update(freq, model[idx], model[model.size() - 1], vel, isRelease, gainModel[idx]);
 		}
 	}
 	else

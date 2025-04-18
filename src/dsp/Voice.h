@@ -22,6 +22,7 @@ public:
 	static std::array<double, 64> bFree;
 	static std::array<std::array<double, 64>, 12> aModels;
 	static std::array<std::array<double, 64>, 12> bModels;
+	static std::array<std::array<double, 64>, 4> modelGains;
 
 	// triggered on model ratio param changes
 	void static recalcBeam(bool resA, double ratio);

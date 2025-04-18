@@ -33,7 +33,7 @@ public:
 		double rel, double inharm, double cut,double radius, double vel_decay, double vel_hit, double vel_inharm);
 
 	void activate();
-	void update(double frequency, double vel, bool isRelease, std::array<double, 64> _model);
+	void update(double frequency, double vel, bool isRelease, std::array<double, 64> _model, std::array<double, 64> gainModel);
 	void clear();
 	double process(double x);
 

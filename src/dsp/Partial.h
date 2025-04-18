@@ -9,7 +9,7 @@ public:
 	Partial(int n) { k = n; };
 	~Partial() {};
 
-	void update(double freq, double ratio, double ratio_max, double vel, bool isRelease);
+	void update(double freq, double ratio, double ratio_max, double vel, bool isRelease, double modalGain);
 	double process(double input);
 	void clear();
 
