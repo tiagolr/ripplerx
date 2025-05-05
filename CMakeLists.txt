@@ -4,6 +4,8 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STR
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.13 CACHE STRING "Build for 10.13")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+option(BUILD_STANDALONE "Build Standalone plugin format" ON) # Allow overriding from the command line
+
 project(RipplerX VERSION 1.4.3)
 
 add_compile_definitions(PROJECT_VERSION="${PROJECT_VERSION}")
@@ -21,11 +23,14 @@ endif ()
 
 
 set(plugin_formats
-    Standalone
     VST3
     LV2
     AU
 )
+
+if(BUILD_STANDALONE)
+    list(APPEND plugin_formats Standalone)
+endif()
 
 juce_add_plugin(${PROJECT_NAME}
         COMPANY_NAME Tilr
