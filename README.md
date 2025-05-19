@@ -30,10 +30,10 @@ RipplerX is a physically modeled synth, capable of sounds similar to AAS Chromap
 
 ## Features
 
-  * **Cross-platform** available on Windows, Linux and macOS.
+  * **Cross-platform**, available on Windows, Linux, and macOS.
   * **Dual resonators** with serial and parallel coupling.
-  * **9 Models** of acoustic resonators: String, Beam, Squared, Membrane, Drumhead, Plate, Marimba, Open tube and Closed tube.
-  * **Inharmocity, Tone, Ratio and Material** sliders to shape the timbre.
+  * **9 Models** of acoustic resonators: String, Beam, Squared, Membrane, Drumhead, Plate, Marimba, Open tube, and Closed tube.
+  * **Inharmonicity, Tone, Ratio, and Material** sliders to shape the timbre.
   * **Noise and mallet** generators.
   * Up to **64 partials** per resonator.
   * Built with **JUCE**.
@@ -41,39 +41,39 @@ RipplerX is a physically modeled synth, capable of sounds similar to AAS Chromap
 ## Download
 
 * [Download latest release](https://github.com/tiagolr/ripplerx/releases)
-* Current builds include VST3 and LV2 for Windows, Linux and macOS plus AU for macOS.
+* Current builds include VST3 and LV2 for Windows, Linux, and macOS, plus AU for macOS.
 * Clap is planned when there is official [JUCE support](https://juce.com/blog/juce-roadmap-update-q3-2024/).
 
 ## About
 
 RipplerX is a port of [Rippler2](https://github.com/tiagolr/tilr_jsfx?tab=readme-ov-file#rippler-2)
-for the Reaper DAW, it started as a research project into physically modelled drums and ended up a
-synth heavily based on AAS Chromaphone and Sai'ke [Partials](https://github.com/JoepVanlier/JSFX?tab=readme-ov-file#partials---modal-synthesis-effect).
+for the Reaper DAW. It started as a research project into physically modelled drums and ended up a
+synth heavily based on AAS Chromaphone and Saike's [Partials](https://github.com/JoepVanlier/JSFX?tab=readme-ov-file#partials---modal-synthesis-effect).
 
-The first version was based off Partials since it is one the few open source modal synths I could find, from there
-the main reference became Chromaphone and Collision, the controls and models are almost a one to one match.
+The first version was based off Partials since it is one of the few open source modal synths I could find. From there,
+the main reference became Chromaphone and Collision. The controls and models are almost a one-to-one match.
 
-Ripplerx has additional controls for Inharmonicity and model Ratio and a distinct sound,
-Chromaphone is a more complete synth with more features, it has a more sophisticated mallet generator, physics based serial coupling, a better UI, etc..
-If you like this synth you should definetly check it out.
+RipplerX has additional controls for Inharmonicity and model Ratio and a distinct sound.
+Chromaphone is a more complete synth with more features; it has a more sophisticated mallet generator, physics-based serial coupling, a better UI, etc.
+If you like this synth, you should definitely check it out.
 
-The value of RipplerX is as an open source alternative to AAS plugins,
-it also provides an entry point for developers or researchers into physical modelling.
+The value of RipplerX is as an open source alternative to AAS plugins.
+It also provides an entry point for developers or researchers into physical modelling.
 
-A final note on Chromaphone, what really sets it appart is its coupling system, I don't think I will be able to figure it out judging by the time I spent on that already, the AAS plugin remains unparallel in that aspect.
+A final note on Chromaphone: what really sets it apart is its coupling system. I don't think I will be able to figure it out, judging by the time I spent on that already. The AAS plugin remains unparalleled in that aspect.
 
 **Acknowledgments**
 
-* Saike for the open source Partials synth which the original Rippler was based on.
+* Saike for the open source Partials synth, which the original Rippler was based on.
 * AAS for Chromaphone synth and manual with hints about the models and parameters used.
 * Nathan Ho and others for articles about [modal synthesis](https://nathan.ho.name/posts/exploring-modal-synthesis).
 * DSP coders like Tale and Scott Stillwell for providing open source JSFXs and libs.
 
-## MacOS
+## macOS
 
-MacOS builds are untested and unsigned, please let me know of any issues by opening a ticket, don't expect a promptly fix as I don't have access to that OS.
+macOS builds are untested and unsigned. Please let me know of any issues by opening a ticket. Don't expect a prompt fix as I don't have access to that OS.
 
-Because the builds are unsigned you may have to run the following commands:
+Because the builds are unsigned, you may have to run the following commands:
 
 ```bash
 sudo xattr -dr com.apple.quarantine /path/to/your/plugins/RipplerX.component
@@ -85,25 +85,25 @@ The commands above will recursively remove the quarantine flag from the plugins.
 
 ## Audio In
 
-From version 1.4.0 Rippler supports Audio In, this means that you can feed an audio signal into the plugin resonators and excite them when pressing keys.
+From version 1.4.0 Rippler supports Audio In. This means that you can feed an audio signal into the plugin resonators and excite them when pressing keys.
 
-This feature works in many DAWs *but not all*, here are some working examples:
+This feature works in many DAWs *but not all*. Here are some working examples:
 
-- **Reaper** - Play an audio clip in the same track as Rippler, the sound will only go through when pressing keys.
-- **Ableton Live** - Add an audio clip, on the mixer click the button bellow **Audio to** and send it to the plugin.
-- **Bitwig** - Add an audio clip, on the Rippler device window click **Show plug-in sidechain** and select the clip track.
-- **Cubase** - This is done by track sidechaining, unfortunately I can no longer find the video for this tutorial.
-- **Logic** - Track sidechaining should also work for AU version.
+- **Reaper** – Play an audio clip in the same track as Rippler. The sound will only go through when pressing keys.
+- **Ableton Live** – Add an audio clip, on the mixer click the button below **Audio to** and send it to the plugin.
+- **Bitwig** – Add an audio clip, on the Rippler device window click **Show plug-in sidechain** and select the clip track.
+- **Cubase** – This is done by track sidechaining. Unfortunately, I can no longer find the video for this tutorial.
+- **Logic** – Track sidechaining should also work for the AU version.
 
-Because not all DAWs support this feature (Looking at you *FL Studio*) an FX version may be added in the future. Meanwhile sidechaning into the synth is the simplest way to use this.
+Because not all DAWs support this feature (looking at you *FL Studio*), an FX version may be added in the future. Meanwhile, sidechaining into the synth is the simplest way to use this.
 
 ## Microtuning
 
-Microtuning is supported via MTS-ESP, you can install a player like [MTS-ESP MINI](https://oddsound.com/mtsespmini.php) and run it along side RipplerX, the two plugins will communicate and automatically tune Rippler to the config file loaded.
+Microtuning is supported via MTS-ESP. You can install a player like [MTS-ESP MINI](https://oddsound.com/mtsespmini.php) and run it alongside RipplerX. The two plugins will communicate and automatically tune Rippler to the config file loaded.
 
-Tuning files can be found for example at https://www.huygens-fokker.org/docs/scales.zip
+Tuning files can be found, for example, at https://www.huygens-fokker.org/docs/scales.zip
 
-For more details and a list of players also check this section of [surge tuning guide](https://surge-synthesizer.github.io/tuning-guide/#mts-esp).
+For more details and a list of players, also check this section of the [Surge tuning guide](https://surge-synthesizer.github.io/tuning-guide/#mts-esp).
 
 ## Build
 
