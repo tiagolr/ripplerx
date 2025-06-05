@@ -28,6 +28,7 @@ public:
 	void static recalcBeam(bool resA, double ratio);
 	void static recalcMembrane(bool resA, double ratio);
 	void static recalcPlate(bool resA, double ratio);
+	std::array<double, 64> calcDjembe(double f0);
 
 	double note2freq(int _note, MTSClient *mts);
 	void trigger(double srate, int _note, double vel, double malletFreq, MTSClient *mts);
