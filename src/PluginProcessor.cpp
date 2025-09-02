@@ -346,7 +346,7 @@ void RipplerXAudioProcessor::onNote(MIDIMsg msg)
 
     auto mallet_stiff = (double)params.getRawParameterValue("mallet_stiff")->load();
     auto vel_mallet_stiff = (double)params.getRawParameterValue("vel_mallet_stiff")->load();
-    auto malletFreq = fmin(5000.0, exp(log(mallet_stiff) + msg.vel / 127.0 * vel_mallet_stiff * (log(5000.0) - log(100.0))));
+    auto malletFreq = fmax(100.0, fmin(5000.0, exp(log(mallet_stiff) + msg.vel / 127.0 * vel_mallet_stiff * (log(5000.0) - log(100.0)))));
 
     voice.trigger(srate, msg.note, msg.vel / 127.0, malletFreq, mtsClientPtr);
 }
@@ -573,8 +573,8 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
 
             auto msample = voice.mallet.process(); // process mallet
             if (msample) {
-                dirOut += msample * fmin(1.0, mallet_mix + vel_mallet_mix * voice.vel);
-                resOut += msample * fmin(1.0, mallet_res + vel_mallet_res * voice.vel);
+                dirOut += msample * fmax(0.0, fmin(1.0, mallet_mix + vel_mallet_mix * voice.vel));
+                resOut += msample * fmax(0.0, fmin(1.0, mallet_res + vel_mallet_res * voice.vel));
             }
 
             if (audioIn && voice.isPressed)
@@ -582,8 +582,8 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
 
             auto nsample = voice.noise.process(); // process noise
             if (nsample) {
-                dirOut += nsample * (double)noise_mix_range.convertFrom0to1(fmin(1.f, noise_mix + vel_noise_mix * (float)voice.vel));
-                resOut += nsample * (double)noise_res_range.convertFrom0to1(fmin(1.f, noise_res + vel_noise_res * (float)voice.vel));
+                dirOut += nsample * (double)noise_mix_range.convertFrom0to1(fmax(0.f, fmin(1.f, noise_mix + vel_noise_mix * (float)voice.vel)));
+                resOut += nsample * (double)noise_res_range.convertFrom0to1(fmax(0.f, fmin(1.f, noise_res + vel_noise_res * (float)voice.vel)));
             }
 
             auto out_from_a = 0.0; // output from voice A into B in case of resonator serial coupling

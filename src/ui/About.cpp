@@ -20,7 +20,8 @@ void About::paint(Graphics& g)
 	g.drawText(std::string("v") + PROJECT_VERSION, bounds.removeFromTop(25), Justification::centred);
 	g.setFont(FontOptions(16.0f));
 	g.drawText("Copyright (C) Tilr 2025", bounds.removeFromTop(22), Justification::centred);
-	g.drawText("github.com/tiagolr/ripplerx", bounds.removeFromTop(22), Justification::centred);
+	githublink.setBounds(bounds.removeFromTop(22));
+	//g.drawText("github.com/tiagolr/ripplerx", bounds.removeFromTop(22), Justification::centred);
 	bounds.removeFromTop(40);
 	g.drawText("- Ctrl for fine slider adjustments.", bounds.removeFromTop(22), Justification::centredLeft);
 	g.drawText("- Shift to adjust velocity mapping.", bounds.removeFromTop(22), Justification::centredLeft);

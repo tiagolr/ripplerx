@@ -6,11 +6,11 @@
 
 void Partial::update(double f_0, double ratio, double ratio_max, double vel, bool isRelease)
 {
-	auto inharm_k = fmin(1.0, exp(log(inharm) + vel * vel_inharm * -log(0.0001))) - 0.0001; // normalize velocity contribution on a logarithmic scale
+	auto inharm_k = fmax(0.0, fmin(1.0, exp(log(inharm) + vel * vel_inharm * -log(0.0001)) - 0.0001)); // normalize velocity contribution on a logarithmic scale
 	inharm_k = sqrt(1 + inharm_k * (ratio - 1) * (ratio - 1));
 	auto f_k = f_0 * ratio * inharm_k;
 
-	auto decay_k = fmin(100.0, exp(log(decay) + vel * vel_decay * (log(100.0) - log(0.01)))); // normalize velocity contribution on a logarithmic scale
+	auto decay_k = fmax(0.01, fmin(100.0, exp(log(decay) + vel * vel_decay * (log(100.0) - log(0.01))))); // normalize velocity contribution on a logarithmic scale
 	if (isRelease) 
 		decay_k *= rel;
 
@@ -34,7 +34,7 @@ void Partial::update(double f_0, double ratio, double ratio_max, double vel, boo
 		? pow(f_k / f_0, tone * 12 / 6)
 		: pow(f_k / f_max, tone * 12 / 6);
 
-	auto amp_k = fabs(sin(juce::MathConstants<double>::pi * k * fmin(.5, hit + vel_hit * vel / 2.0)));
+	auto amp_k = fabs(sin(juce::MathConstants<double>::pi * k * fmax(0.02, fmin(.5, hit + vel_hit * vel / 2.0))));
 	amp_k *= 35.0; 
 
 	// Bandpass filter coefficients (normalized)
