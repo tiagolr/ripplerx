@@ -102,10 +102,14 @@ void Rotary::mouseDown(const juce::MouseEvent& e)
     setMouseCursor(MouseCursor::NoCursor);
     start_mouse_pos = Desktop::getInstance().getMousePosition();
     repaint();
+    param->beginChangeGesture();
 }
 
 void Rotary::mouseWheelMove(const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel)
 {
+    if (event.mods.isLeftButtonDown() || event.mods.isRightButtonDown()) {
+        return; // prevent crash, param is already mutating
+    }
     auto speed = (event.mods.isCtrlDown() ? 0.01f : 0.05f);
     auto slider_change = wheel.deltaY > 0 ? speed : wheel.deltaY < 0 ? -speed : 0;
     auto param = audioProcessor.params.getParameter((event.mods.isShiftDown() || audioProcessor.velMap) && velId.isNotEmpty() ? velId : paramId);
@@ -124,6 +128,8 @@ void Rotary::mouseUp(const juce::MouseEvent& e) {
     e.source.enableUnboundedMouseMovement(false);
     Desktop::getInstance().setMousePosition(start_mouse_pos);
     repaint();
+    auto param = audioProcessor.params.getParameter(paramId);
+    param->endChangeGesture();
 }
 
 void Rotary::mouseDoubleClick(const juce::MouseEvent& e) {
@@ -140,9 +146,7 @@ void Rotary::mouseDrag(const juce::MouseEvent& e) {
     auto slider_change = float(change.getX() - change.getY()) / speed;
     cur_normed_value += slider_change;
     auto param = audioProcessor.params.getParameter((mouse_down_shift || audioProcessor.velMap) && velId.isNotEmpty() ? velId : paramId);
-    param->beginChangeGesture();
     param->setValueNotifyingHost(cur_normed_value);
-    param->endChangeGesture();
 }
 
 void Rotary::draw_rotary_slider(juce::Graphics& g, float slider_pos) {
