@@ -606,7 +606,7 @@ void RipplerXAudioProcessorEditor::toggleUIComponents()
     aTone.get()->setVisible(!is_tube);
     aHit.get()->setVisible(!is_tube);
     aInharm.get()->setVisible(!is_tube);
-    aRatio.get()->setVisible(!is_tube && (a_model == Models::Beam || a_model == Models::Membrane || a_model == Models::Plate));
+    aRatio.get()->setVisible(!is_tube && (a_model == ModelNames::Beam || a_model == ModelNames::Membrane || a_model == ModelNames::Plate));
     aRadius.get()->setVisible(is_tube);
 
     is_tube = b_model >= 7;
@@ -614,7 +614,7 @@ void RipplerXAudioProcessorEditor::toggleUIComponents()
     bTone.get()->setVisible(!is_tube);
     bHit.get()->setVisible(!is_tube);
     bInharm.get()->setVisible(!is_tube);
-    bRatio.get()->setVisible(!is_tube && (b_model == Models::Beam || b_model == Models::Membrane || b_model == Models::Plate));
+    bRatio.get()->setVisible(!is_tube && (b_model == ModelNames::Beam || b_model == ModelNames::Membrane || b_model == ModelNames::Plate));
     bRadius.get()->setVisible(is_tube);
 
     aPartials.setVisible(a_model < 7);

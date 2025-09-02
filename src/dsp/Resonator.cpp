@@ -37,7 +37,7 @@ void Resonator::setParams(double _srate, bool _on, int model, int _partials, dou
 
 	waveguide.decay = decay;
 	waveguide.radius = radius;
-	waveguide.is_closed = model == Models::ClosedTube;
+	waveguide.is_closed = model == ModelNames::ClosedTube;
 	waveguide.srate = srate;
 	waveguide.vel_decay = vel_decay;
 	waveguide.rel = _rel;

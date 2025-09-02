@@ -10,18 +10,7 @@
 #include "Partial.h"
 #include "Waveguide.h"
 #include "Filter.h"
-
-enum Models {
-	String,
-	Beam,
-	Squared,
-	Membrane,
-	Plate,
-	Drumhead,
-	Marimba,
-	OpenTube,
-	ClosedTube
-};
+#include "Models.h"
 
 class Resonator
 {

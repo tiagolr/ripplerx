@@ -12,21 +12,13 @@
 #include "tuple"
 #include "libMTSClient.h"
 
+class Models;
+
 class Voice
 {
 public:
-	Voice() {};
-	~Voice() {};
-
-	// static ratio models shared by voices, definition in .cpp
-	static std::array<double, 64> bFree;
-	static std::array<std::array<double, 64>, 9> aModels;
-	static std::array<std::array<double, 64>, 9> bModels;
-
-	// triggered on model ratio param changes
-	void static recalcBeam(bool resA, double ratio);
-	void static recalcMembrane(bool resA, double ratio);
-	void static recalcPlate(bool resA, double ratio);
+	Voice(Models& m) : models(m) {}
+	~Voice() {}
 
 	double note2freq(int _note, MTSClient *mts);
 	void trigger(double srate, int _note, double vel, double malletFreq, MTSClient *mts);
@@ -56,4 +48,5 @@ public:
 	Resonator resB{};
 
 private:
+	Models& models;
 };

@@ -63,41 +63,17 @@ source_group(Source
         ${CMAKE_CURRENT_SOURCE_DIR}/src/Globals.h
 )
 
-source_group(Source\\ui
-    FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/ui/CustomLookAndFeel.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/ui/CustomLookAndFeel.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/ui/Rotary.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/ui/Rotary.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/ui/Meter.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/ui/Meter.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/ui/Pitch.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/ui/Pitch.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/src/ui/About.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/ui/About.cpp
+file(GLOB UI_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ui/*.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ui/*.cpp
 )
+source_group(Source\\ui FILES ${UI_SOURCES})
 
-source_group(Source\\dsp
-    FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/dsp/Envelope.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/dsp/Envelope.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/dsp/Filter.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/dsp/Filter.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/dsp/Mallet.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/dsp/Mallet.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/dsp/Resonator.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/dsp/Resonator.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/dsp/Partial.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/dsp/Partial.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/dsp/Waveguide.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/dsp/Waveguide.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/dsp/Noise.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/dsp/Noise.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/dsp/Voice.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/dsp/Voice.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/dsp/Comb.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/dsp/Limiter.h
+file(GLOB DSP_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/dsp/*.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/dsp/*.cpp
 )
+source_group(Source\\dsp FILES ${DSP_SOURCES})
 
 # Make the SourceFiles buildable
 target_sources(${PROJECT_NAME} PRIVATE ${src})

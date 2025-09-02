@@ -92,8 +92,10 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         param->addListener(this);
     }
 
+    models = std::make_unique<Models>();
+
     for (int i = 0; i < globals::MAX_POLYPHONY; ++i) {
-        voices.push_back(std::make_unique<Voice>());
+        voices.push_back(std::make_unique<Voice>(*models));
     }
     
     mtsClientPtr = MTS_RegisterClient();
@@ -461,12 +463,12 @@ void RipplerXAudioProcessor::onSlider()
     else if (b_partials == 3) b_partials = 32;
     else if (b_partials == 4) b_partials = 64;
 
-    if (a_model == Models::Beam) Voice::recalcBeam(true, a_ratio);
-    else if (a_model == Models::Membrane) Voice::recalcMembrane(true, a_ratio);
-    else if (a_model == Models::Plate) Voice::recalcPlate(true, a_ratio);
-    if (b_model == Models::Beam) Voice::recalcBeam(false, b_ratio);
-    else if (b_model == Models::Membrane) Voice::recalcMembrane(false, b_ratio);
-    else if (b_model == Models::Plate) Voice::recalcPlate(false, b_ratio);
+    if (a_model == ModelNames::Beam) models->recalcBeam(true, a_ratio);
+    else if (a_model == ModelNames::Membrane) models->recalcMembrane(true, a_ratio);
+    else if (a_model == ModelNames::Plate) models->recalcPlate(true, a_ratio);
+    if (b_model == ModelNames::Beam) models->recalcBeam(false, b_ratio);
+    else if (b_model == ModelNames::Membrane) models->recalcMembrane(false, b_ratio);
+    else if (b_model == ModelNames::Plate) models->recalcPlate(false, b_ratio);
 
     for (int i = 0; i < polyphony; i++) {
         Voice& voice = *voices[i];
