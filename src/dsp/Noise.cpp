@@ -1,5 +1,6 @@
 #include "Noise.h"
 #include <cstdlib>
+#include <cmath>
 
 void Noise::init(double _srate, int filterMode, double _freq, double _q, double att, double dec, double sus, double rel, double _vel_freq, double _vel_q)
 {
@@ -13,7 +14,7 @@ void Noise::init(double _srate, int filterMode, double _freq, double _q, double 
 	env.init(srate, att, dec, sus, rel, 0.4, 0.4, 0.4);
 }
 
-void Noise::attack(double _vel) 
+void Noise::attack(double _vel)
 {
 	vel = _vel;
 	initFilter();
@@ -52,7 +53,7 @@ double Noise::process()
 	if (filter_active)
 		sample = filter.df1(sample);
 
-	if (!env.state) 
+	if (!env.state)
 		filter.clear(0.0); // envelope has finished, clear filter to avoid pops
 
 	return sample * env.env;
