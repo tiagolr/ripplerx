@@ -49,8 +49,11 @@ jobs:
         with:
          submodules: recursive
 
+      - name: Uninstall existing cmake (if any)
+        run: brew uninstall cmake || true
+
       - name: Install Dependencies
-        run: brew install cmake ninja
+        run: brew install cmake
 
       - name: Generate Build Files
         run: |

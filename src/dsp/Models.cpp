@@ -1,3 +1,4 @@
+#include "cmath"
 #include "Models.h"
 
 Models::Models() :
