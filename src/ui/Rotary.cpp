@@ -43,22 +43,21 @@ void Rotary::paint(juce::Graphics& g) {
 
     draw_rotary_slider(g, normValue);
     
-    auto velNorm = -1.0f;
+    auto velVal = -2.0f;
     if (!velId.isEmpty()) {
         auto velParam = audioProcessor.params.getParameter(velId);
-        velNorm = velParam->getValue();
-        draw_vel_arc(g, normValue, velNorm);
+        velVal = velParam->convertFrom0to1(velParam->getValue());
+        draw_vel_arc(g, normValue, velVal);
     }
 
-    
-    draw_label(g, value, velNorm);
+    draw_label(g, value, velVal);
 }
 
 void Rotary::draw_label(juce::Graphics& g, float slider_val, float vel_val)
 {
     auto text = name;
     if (mouse_down) {
-        if ((mouse_down_shift || audioProcessor.velMap) && vel_val > -1) {
+        if ((mouse_down_shift || audioProcessor.velMap) && vel_val > -2.0f) {
             text = std::to_string((int)std::round((vel_val * 100))) + " %";
         }
         else {
@@ -177,14 +176,14 @@ void Rotary::draw_rotary_slider(juce::Graphics& g, float slider_pos) {
     }
 }
 
-void Rotary::draw_vel_arc(juce::Graphics& g, float slider_pos, float vel_pos) const {
+void Rotary::draw_vel_arc(juce::Graphics& g, float slider_pos, float vel_val) const {
     auto bounds = getBounds();
     const float radius = bounds.getHeight() / 2.0f - 20.0f;
     const float slider_angle = -deg130 + slider_pos * (deg130 - -deg130);
-    const float vel_angle = fmin(deg130, slider_angle + vel_pos * (deg130 - -deg130));
+    const float vel_angle = fmax(-deg130, fmin(deg130, slider_angle + vel_val * (deg130 - -deg130)));
     g.setColour(Colour(globals::COLOR_VEL));
 
-    if (vel_pos && slider_angle < deg130) {
+    if ((vel_val > 0.0f && slider_angle < deg130) || (vel_val < 0.0f && slider_angle > -deg130)) {
         juce::Path arc;
         arc.addCentredArc(bounds.getWidth() / 2.0f, bounds.getHeight() / 2.0f - 4.0f, radius + 8.0f, radius + 8.0f, 0, slider_angle, vel_angle, true);
         g.strokePath(arc, PathStrokeType(2.0, PathStrokeType::JointStyle::curved, PathStrokeType::rounded));
