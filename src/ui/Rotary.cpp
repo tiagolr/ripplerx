@@ -128,7 +128,7 @@ void Rotary::mouseUp(const juce::MouseEvent& e) {
     e.source.enableUnboundedMouseMovement(false);
     Desktop::getInstance().setMousePosition(start_mouse_pos);
     repaint();
-    auto param = audioProcessor.params.getParameter(paramId);
+    auto param = audioProcessor.params.getParameter((e.mods.isShiftDown() || audioProcessor.velMap) && velId.isNotEmpty() ? velId : paramId);
     param->endChangeGesture();
 }
 

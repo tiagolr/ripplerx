@@ -61,6 +61,8 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("vel_mallet_stiff", "Vel Mallet Stiffness", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("vel_noise_mix", "Vel Noise Mix", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("vel_noise_res", "Vel Noise Resonance", -1.0f, 1.0f, 0.0f),
+        std::make_unique<juce::AudioParameterFloat>("vel_noise_freq", "Vel Noise Frequency", -1.0f, 1.0f, 0.0f),
+        std::make_unique<juce::AudioParameterFloat>("vel_noise_q", "Vel Noise Q", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("vel_a_decay", "Vel A Decay", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("vel_a_hit", "Vel A Hit", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("vel_a_inharm", "Vel A Inharmonic", -1.0f, 1.0f, 0.0f),
@@ -371,6 +373,8 @@ void RipplerXAudioProcessor::onSlider()
     auto noise_dec = (double)params.getRawParameterValue("noise_dec")->load();
     auto noise_sus = (double)normalizeVolSlider(params.getRawParameterValue("noise_sus")->load() * 100.0f);
     auto noise_rel = (double)params.getRawParameterValue("noise_rel")->load();
+    auto vel_noise_freq = params.getRawParameterValue("vel_noise_freq")->load();
+    auto vel_noise_q = params.getRawParameterValue("vel_noise_q")->load();
 
     auto a_on = (bool)params.getRawParameterValue("a_on")->load();
     auto a_model = (int)params.getRawParameterValue("a_model")->load();
@@ -466,7 +470,7 @@ void RipplerXAudioProcessor::onSlider()
 
     for (int i = 0; i < polyphony; i++) {
         Voice& voice = *voices[i];
-        voice.noise.init(srate, noise_filter_mode, noise_filter_freq, noise_filter_q, noise_att, noise_dec, noise_sus, noise_rel);
+        voice.noise.init(srate, noise_filter_mode, noise_filter_freq, noise_filter_q, noise_att, noise_dec, noise_sus, noise_rel, vel_noise_freq, vel_noise_q);
         voice.setPitch(a_coarse, b_coarse, a_fine, b_fine);
         voice.resA.setParams(srate, a_on, a_model, a_partials, a_decay, a_damp, a_tone, a_hit, a_rel, a_inharm, a_cut, a_radius, vel_a_decay, vel_a_hit, vel_a_inharm);
         voice.resB.setParams(srate, b_on, b_model, b_partials, b_decay, b_damp, b_tone, b_hit, b_rel, b_inharm, b_cut, b_radius, vel_b_decay, vel_b_hit, vel_b_inharm);

@@ -224,11 +224,11 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     addAndMakeVisible(*noiseRes);
     noiseRes->setBounds(col,row+75,70,75);
 
-    noiseFreq = std::make_unique<Rotary>(p, "noise_filter_freq", "Freq", LabelFormat::Hz);
+    noiseFreq = std::make_unique<Rotary>(p, "noise_filter_freq", "Freq", LabelFormat::Hz, "vel_noise_freq");
     addAndMakeVisible(*noiseFreq);
     noiseFreq->setBounds(col+70,row,70,75);
 
-    noiseQ = std::make_unique<Rotary>(p, "noise_filter_q", "Q", LabelFormat::float1);
+    noiseQ = std::make_unique<Rotary>(p, "noise_filter_q", "Q", LabelFormat::float1, "vel_noise_q");
     addAndMakeVisible(*noiseQ);
     noiseQ->setBounds(col+70,row+75,70,75);
 
@@ -732,6 +732,8 @@ void RipplerXAudioProcessorEditor::repaintVelSliders()
 {
     noiseMix.get()->repaint();
     noiseRes.get()->repaint();
+    noiseFreq.get()->repaint();
+    noiseQ.get()->repaint();
     malletMix.get()->repaint();
     malletRes.get()->repaint();
     malletStiff.get()->repaint();
