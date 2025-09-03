@@ -12,6 +12,11 @@ static const InternalSample samples[] = {
 	{ MalletType::kSample8, BinaryData::click8_wav, BinaryData::click8_wavSize },
 };
 
+void Sampler::setPitch(double semis)
+{
+	pitchfactor = std::pow(2.0, (semis / 12.0));
+}
+
 void Sampler::loadSample(String path)
 {
 	File audioFile(path);

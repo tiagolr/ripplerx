@@ -14,7 +14,7 @@ void Mallet::trigger(MalletType _type, double _srate, double freq)
 		env = exp(-100.0 / srate);
 	}
 	else {
-		increment = sampler.wavesrate / srate;
+		playback_speed = sampler.wavesrate / srate;
 		playback = 0.0;
 	}
 }
@@ -37,7 +37,7 @@ double Mallet::process()
 	}
 	else if (type >= kUserFile && playback < sampler.waveform.size()) {
 		sample = sampler.waveCubic(playback);
-		playback += increment;
+		playback += playback_speed * sampler.pitchfactor;
 	}
 
 	return sample;

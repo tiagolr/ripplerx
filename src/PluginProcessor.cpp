@@ -12,7 +12,9 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
      )
     , settings{}
     , params(*this, &undoManager, "PARAMETERS", {
-        std::make_unique<juce::AudioParameterChoice>("mallet_type", "Mallet type", StringArray { "Impulse","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","User File","Click 1","Click 2","Click 3","Click 4","Click 5","Click 6","Click 7","Click 8" }, 0),
+        std::make_unique<juce::AudioParameterChoice>("mallet_type", "Mallet Type", StringArray { "Impulse","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","User File","Click 1","Click 2","Click 3","Click 4","Click 5","Click 6","Click 7","Click 8" }, 0),
+        std::make_unique<juce::AudioParameterFloat>("mallet_pitch", "Mallet Pitch", -24.0f, 24.0f, 0.0f),
+        std::make_unique<juce::AudioParameterFloat>("mallet_filter", "Mallet Filter", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("mallet_mix", "Mallet Mix", 0.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("mallet_res", "Mallet Resonance", 0.0f, 1.0f, 0.8f),
         std::make_unique<juce::AudioParameterFloat>("mallet_stiff", "Mallet Stifness",juce::NormalisableRange<float>(100.0f, 5000.0f, 1.0f, 0.3f) , 600.0f),
@@ -373,6 +375,7 @@ void RipplerXAudioProcessor::onSlider()
     auto srate = getSampleRate();
 
     auto mallet_type = (MalletType)params.getRawParameterValue("mallet_type")->load();
+    auto mallet_pitch = (double)params.getRawParameterValue("mallet_pitch")->load();
 
     auto noise_filter_freq = (double)params.getRawParameterValue("noise_filter_freq")->load();
     auto noise_filter_mode = (int)params.getRawParameterValue("noise_filter_mode")->load();
@@ -485,6 +488,8 @@ void RipplerXAudioProcessor::onSlider()
         }
         clearVoices();
     }
+
+    malletSampler->setPitch(mallet_pitch);
 
     for (int i = 0; i < polyphony; i++) {
         Voice& voice = *voices[i];

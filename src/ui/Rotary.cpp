@@ -95,7 +95,8 @@ void Rotary::mouseDown(const juce::MouseEvent& e)
     e.source.enableUnboundedMouseMovement(true);
     mouse_down = true;
     mouse_down_shift = e.mods.isShiftDown();
-    auto param = audioProcessor.params.getParameter((mouse_down_shift || audioProcessor.velMap) && velId.isNotEmpty() ? velId : paramId);
+    editingVel = (mouse_down_shift || audioProcessor.velMap) && velId.isNotEmpty();
+    auto param = audioProcessor.params.getParameter(editingVel ? velId : paramId);
     auto cur_val = param->getValue();
     cur_normed_value = cur_val;
     last_mouse_position = e.getPosition();
@@ -112,7 +113,7 @@ void Rotary::mouseWheelMove(const juce::MouseEvent& event, const juce::MouseWhee
     }
     auto speed = (event.mods.isCtrlDown() ? 0.01f : 0.05f);
     auto slider_change = wheel.deltaY > 0 ? speed : wheel.deltaY < 0 ? -speed : 0;
-    auto param = audioProcessor.params.getParameter((event.mods.isShiftDown() || audioProcessor.velMap) && velId.isNotEmpty() ? velId : paramId);
+    auto param = audioProcessor.params.getParameter(editingVel ? velId : paramId);
     param->beginChangeGesture();
     param->setValueNotifyingHost(param->getValue() + slider_change);
     while (wheel.deltaY > 0.0f && param->getValue() == 0.0f) { // FIX wheel not working when value is zero, first step takes more than 0.05% 
@@ -128,7 +129,7 @@ void Rotary::mouseUp(const juce::MouseEvent& e) {
     e.source.enableUnboundedMouseMovement(false);
     Desktop::getInstance().setMousePosition(start_mouse_pos);
     repaint();
-    auto param = audioProcessor.params.getParameter((e.mods.isShiftDown() || audioProcessor.velMap) && velId.isNotEmpty() ? velId : paramId);
+    auto param = audioProcessor.params.getParameter(editingVel ? velId : paramId);
     param->endChangeGesture();
 }
 

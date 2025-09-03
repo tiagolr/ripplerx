@@ -24,9 +24,11 @@ public:
 	void loadSampleFromBinary(std::unique_ptr<juce::InputStream> stream);
 	double waveLerp(double pos);
 	double waveCubic(double pos);
+	void setPitch(double semis);
 
 	// sample mallet fields
 	std::vector<double> waveform = {};
 	bool isUserFile = false;
 	double wavesrate = 44100.0;
+	double pitchfactor = 1.0;
 };

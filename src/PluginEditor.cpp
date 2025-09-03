@@ -286,6 +286,14 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     addAndMakeVisible(*malletStiff);
     malletStiff->setBounds(col,row+75+75,70,75);
 
+    malletPitch = std::make_unique<Rotary>(p, "mallet_pitch", "Pitch", LabelFormat::Hz, "", true);
+    addAndMakeVisible(*malletPitch);
+    malletPitch->setBounds(col, row + 75 + 75, 70, 75);
+
+    malletFilter = std::make_unique<Rotary>(p, "mallet_filter", "Filter", LabelFormat::Hz, "", true);
+    addAndMakeVisible(*malletFilter);
+    malletFilter->setBounds(col, row + 75 + 75 + 75, 70, 75);
+
     addAndMakeVisible(malletSubLabel);
     malletSubLabel.setColour(juce::Label::ColourIds::textColourId, Colour(globals::COLOR_NEUTRAL_LIGHT));
     malletSubLabel.setFont(FontOptions(11.0f));
@@ -592,6 +600,7 @@ void RipplerXAudioProcessorEditor::toggleUIComponents()
     auto a_model = (int)audioProcessor.params.getRawParameterValue("a_model")->load();
     auto b_model = (int)audioProcessor.params.getRawParameterValue("b_model")->load();
     auto is_serial = (bool)audioProcessor.params.getRawParameterValue("couple")->load();
+    auto mallet_type = (MalletType)audioProcessor.params.getRawParameterValue("mallet_type")->load();
 
     auto alpha = a_on ? 1.0f : 0.5f;
     aModel.setAlpha(alpha);
@@ -687,6 +696,11 @@ void RipplerXAudioProcessorEditor::toggleUIComponents()
             logoImage, 1.0f, juce::Colours::transparentBlack
        );
     }
+
+    bool isSampleMallet = mallet_type >= MalletType::kUserFile;
+    malletStiff->setVisible(mallet_type == MalletType::kImpulse);
+    malletPitch->setVisible(isSampleMallet);
+    malletFilter->setVisible(isSampleMallet);
 }
 
 void RipplerXAudioProcessorEditor::loadTheme()

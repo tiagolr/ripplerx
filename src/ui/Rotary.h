@@ -38,6 +38,7 @@ protected:
     RipplerXAudioProcessor& audioProcessor;
 
 private:
+    bool editingVel = false;
     bool isSymmetric;
     float deg130 = 130.0f * juce::MathConstants<float>::pi / 180.0f;
     void draw_rotary_slider(juce::Graphics& g, float slider_pos);

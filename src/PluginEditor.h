@@ -76,6 +76,8 @@ private:
     std::unique_ptr<Rotary> malletMix;
     std::unique_ptr<Rotary> malletRes;
     std::unique_ptr<Rotary> malletStiff;
+    std::unique_ptr<Rotary> malletPitch;
+    std::unique_ptr<Rotary> malletFilter;
 
     // Res A
     Label aLabel;

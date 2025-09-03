@@ -53,7 +53,7 @@ public:
 
 	// sample mallet fields
 	double playback = INFINITY;
-	double increment = 1.0;
+	double playback_speed = 1.0;
 
 private:
 	Sampler& sampler;
