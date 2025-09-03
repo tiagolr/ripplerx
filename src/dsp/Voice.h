@@ -13,15 +13,16 @@
 #include "libMTSClient.h"
 
 class Models;
+class Sampler;
 
 class Voice
 {
 public:
-	Voice(Models& m) : models(m) {}
+	Voice(Models& m, Sampler& s) : models(m), mallet(s) {}
 	~Voice() {}
 
 	double note2freq(int _note, MTSClient *mts);
-	void trigger(double srate, int _note, double vel, double malletFreq, MTSClient *mts);
+	void trigger(double srate, int _note, double vel, MalletType malletType, double malletFreq, MTSClient *mts);
 	void release();
 	void clear();
 	void setPitch(double a_coarse, double b_coarse, double a_fine, double b_fine);
@@ -42,7 +43,7 @@ public:
 	double aPitchFactor = 1.0;
 	double bPitchFactor = 1.0;
 
-	Mallet mallet{};
+	Mallet mallet;
 	Noise noise{};
 	Resonator resA{};
 	Resonator resB{};

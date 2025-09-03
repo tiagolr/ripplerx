@@ -15,7 +15,7 @@ double Voice::note2freq(int _note, MTSClient *mts)
 }
 
 // Triggers mallet and noise generator
-void Voice::trigger(double srate, int _note, double _vel, double malletFreq, MTSClient *mts)
+void Voice::trigger(double srate, int _note, double _vel, MalletType malletType, double malletFreq, MTSClient *mts)
 {
 	resA.clear();
 	resB.clear();
@@ -24,7 +24,7 @@ void Voice::trigger(double srate, int _note, double _vel, double malletFreq, MTS
 	isPressed = true;
 	vel = _vel;
 	freq = note2freq(note, mts);
-	mallet.trigger(srate, malletFreq);
+	mallet.trigger(malletType, srate, malletFreq);
 	noise.attack(_vel);
 	if (resA.on) resA.activate();
 	if (resB.on) resB.activate();

@@ -1,26 +1,44 @@
 #include "Mallet.h"
+#include "Sampler.h"
 #include <cmath>
 
-void Mallet::trigger(double srate, double freq)
+void Mallet::trigger(MalletType _type, double _srate, double freq)
 {
-	filter.bp(srate, freq, 0.707);
-	elapsed = (int)(srate/10.0); // countdown (100ms)
-	impulse = 1.0;
-	env = exp(-100.0/srate);
+	type = _type;
+	srate = _srate;
+
+	if (type == kImpulse) {
+		filter.bp(srate, freq, 0.707);
+		countdown = (int)(srate / 10.0); // countdown (100ms)
+		impulse = 1.0;
+		env = exp(-100.0 / srate);
+	}
+	else {
+		increment = sampler.wavesrate / srate;
+		playback = 0.0;
+	}
 }
 
 void Mallet::clear()
 {
-	elapsed = 0;
+	countdown = 0;
 	impulse = 0.0;
+	playback = INFINITY;
 }
 
 double Mallet::process()
 {
-	if (elapsed == 0) return 0.0;
-	auto sample = filter.df1(impulse) * 2.0;
-	elapsed -= 1;
-	impulse *= env;
+	auto sample = 0.0;
+
+	if (type == kImpulse && countdown > 0) {
+		sample = filter.df1(impulse) * 2.0;
+		countdown -= 1;
+		impulse *= env;
+	}
+	else if (type >= kUserFile && playback < sampler.waveform.size()) {
+		sample = sampler.waveCubic(playback);
+		playback += increment;
+	}
 
 	return sample;
 }

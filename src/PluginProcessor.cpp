@@ -12,6 +12,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
      )
     , settings{}
     , params(*this, &undoManager, "PARAMETERS", {
+        std::make_unique<juce::AudioParameterChoice>("mallet_type", "Mallet type", StringArray { "Impulse","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","User File","Sample1","Sample2","Sample3","Sample4","Sample5","Sample6","Sample7","Sample8","Sample9","Sample10" }, 0),
         std::make_unique<juce::AudioParameterFloat>("mallet_mix", "Mallet Mix", 0.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("mallet_res", "Mallet Resonance", 0.0f, 1.0f, 0.8f),
         std::make_unique<juce::AudioParameterFloat>("mallet_stiff", "Mallet Stifness",juce::NormalisableRange<float>(100.0f, 5000.0f, 1.0f, 0.3f) , 600.0f),
@@ -93,9 +94,10 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
     }
 
     models = std::make_unique<Models>();
+    malletSampler = std::make_unique<Sampler>();
 
     for (int i = 0; i < globals::MAX_POLYPHONY; ++i) {
-        voices.push_back(std::make_unique<Voice>(*models));
+        voices.push_back(std::make_unique<Voice>(*models, *malletSampler));
     }
     
     mtsClientPtr = MTS_RegisterClient();
@@ -348,11 +350,12 @@ void RipplerXAudioProcessor::onNote(MIDIMsg msg)
     Voice& voice = *voices[nvoice];
     nvoice = (nvoice + 1) % polyphony;
 
+    auto mallet_type = (MalletType)params.getRawParameterValue("mallet_type")->load();
     auto mallet_stiff = (double)params.getRawParameterValue("mallet_stiff")->load();
     auto vel_mallet_stiff = (double)params.getRawParameterValue("vel_mallet_stiff")->load();
     auto malletFreq = fmax(100.0, fmin(5000.0, exp(log(mallet_stiff) + msg.vel / 127.0 * vel_mallet_stiff * (log(5000.0) - log(100.0)))));
 
-    voice.trigger(srate, msg.note, msg.vel / 127.0, malletFreq, mtsClientPtr);
+    voice.trigger(srate, msg.note, msg.vel / 127.0, mallet_type, malletFreq, mtsClientPtr);
 }
 
 void RipplerXAudioProcessor::offNote(MIDIMsg msg)
@@ -421,7 +424,8 @@ void RipplerXAudioProcessor::onSlider()
 
     if (a_model != last_a_model) {
         auto param = params.getParameter("a_ratio");
-        auto value = param->convertTo0to1(a_model == 1 ? 2.0f : 0.78f);
+        a_ratio = a_model == 1 ? 2.0 : 0.78;
+        auto value = param->convertTo0to1(float(a_ratio));
         MessageManager::callAsync([param, value] {
             param->beginChangeGesture();
             param->setValueNotifyingHost(value);
@@ -432,7 +436,8 @@ void RipplerXAudioProcessor::onSlider()
     }
     if (b_model != last_b_model) {
         auto param = params.getParameter("b_ratio");
-        auto value = param->convertTo0to1(b_model == 1 ? 2.0f : 0.78f);
+        b_ratio = b_model == 1 ? 2.0 : 0.78;
+        auto value = param->convertTo0to1((float)b_ratio);
         MessageManager::callAsync([param, value] {
             param->beginChangeGesture();
             param->setValueNotifyingHost(value);

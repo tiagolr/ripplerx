@@ -15,6 +15,8 @@
 #include "dsp/Comb.h"
 #include "dsp/Resonator.h"
 #include "dsp/Models.h"
+#include "dsp/Mallet.h"
+#include "dsp/Sampler.h"
 #include "libMTSClient.h"
 
 struct MIDIMsg {
@@ -107,6 +109,7 @@ private:
     std::vector<MIDIMsg> midi;
     std::vector<std::unique_ptr<Voice>> voices;
     std::unique_ptr<Models> models;
+    std::unique_ptr<Sampler> malletSampler;
     int nvoice = 0; // next voice to use
     Comb comb{};
     Limiter limiter{};
