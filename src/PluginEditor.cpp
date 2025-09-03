@@ -14,6 +14,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     audioProcessor.params.addParameterListener("b_on", this);
     audioProcessor.params.addParameterListener("a_model", this);
     audioProcessor.params.addParameterListener("b_model", this);
+    audioProcessor.params.addParameterListener("mallet_type", this);
 
     setSize (650, 485);
     setScaleFactor(audioProcessor.scale);
@@ -266,6 +267,11 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     malletLabel.setText("MALLET", NotificationType::dontSendNotification);
     malletLabel.setBounds(col+5, row, 70, 25);
 
+    addAndMakeVisible(malletButton);
+    malletButton.setBounds(malletLabel.getBounds().expanded(15, 5));
+    malletButton.setAlpha(0.f);
+    malletButton.onClick = [this] { showMalletMenu(); };
+
     row += 25;
 
     malletMix = std::make_unique<Rotary>(p, "mallet_mix", "Mix", LabelFormat::Percent, "vel_mallet_mix");
@@ -279,6 +285,14 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     malletStiff = std::make_unique<Rotary>(p, "mallet_stiff", "Stiff", LabelFormat::Hz, "vel_mallet_stiff");
     addAndMakeVisible(*malletStiff);
     malletStiff->setBounds(col,row+75+75,70,75);
+
+    addAndMakeVisible(malletSubLabel);
+    malletSubLabel.setColour(juce::Label::ColourIds::textColourId, Colour(globals::COLOR_NEUTRAL_LIGHT));
+    malletSubLabel.setFont(FontOptions(11.0f));
+    malletSubLabel.setJustificationType(Justification::centred);
+    malletSubLabel.setText(audioProcessor.params.getParameter("mallet_type")->getCurrentValueAsText(), dontSendNotification);
+    malletSubLabel.setBounds(malletLabel.getBounds().translated(0, 15).expanded(15, 0));
+    malletSubLabel.setInterceptsMouseClicks(false, false);
     
     // RES A
     col += 90;
@@ -556,12 +570,16 @@ RipplerXAudioProcessorEditor::~RipplerXAudioProcessorEditor()
     audioProcessor.params.removeParameterListener("b_on", this);
     audioProcessor.params.removeParameterListener("a_model", this);
     audioProcessor.params.removeParameterListener("b_model", this);
+    audioProcessor.params.removeParameterListener("mallet_type", this);
 }
 
 void RipplerXAudioProcessorEditor::parameterChanged (const juce::String& parameterID, float newValue) 
 {
     (void)parameterID;
     (void)newValue;
+    if (parameterID == "mallet_type") {
+        malletSubLabel.setText(audioProcessor.params.getParameter("mallet_type")->getCurrentValueAsText(), dontSendNotification);
+    }
     juce::MessageManager::callAsync([this] { 
         toggleUIComponents();
     });
@@ -694,6 +712,7 @@ void RipplerXAudioProcessorEditor::loadTheme()
 
     noiseLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL_LIGHT));
     malletLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL_LIGHT));
+    malletSubLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL_LIGHT));
     envelopeLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL_LIGHT));
     sizeLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL_LIGHT));
     pitchLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL));
@@ -726,6 +745,15 @@ void RipplerXAudioProcessorEditor::paint (Graphics& g)
     g.drawVerticalLine(20+70+70, 100.0f, 380.0f); // noise div
     g.drawVerticalLine(20+70+70+20+70, 100.0f, 380.0f); // mallet div
     g.drawVerticalLine(40+70*3+70*4+20, 100.0f, 380.0f); // resonators div
+
+    // draw mallet label dropdown arrow
+    g.setColour(Colour(COLOR_NEUTRAL_LIGHT));
+    auto bounds = malletLabel.getBounds().removeFromRight(20).translated(13,0);
+    Path path;
+    path.startNewSubPath((float)bounds.getX() + 3.0f, (float)bounds.getCentreY() - 2.0f);
+    path.lineTo((float)bounds.getCentreX(), (float)bounds.getCentreY() + 3.0f);
+    path.lineTo((float)bounds.getRight() - 3.0f, (float)bounds.getCentreY() - 2.0f);
+    g.strokePath(path, PathStrokeType(2.0f));
 }
 
 void RipplerXAudioProcessorEditor::repaintVelSliders()
@@ -747,4 +775,30 @@ void RipplerXAudioProcessorEditor::repaintVelSliders()
 
 void RipplerXAudioProcessorEditor::resized()
 {
+}
+
+void RipplerXAudioProcessorEditor::showMalletMenu()
+{
+    auto malletType = (int)audioProcessor.params.getRawParameterValue("mallet_type")->load() + 1;
+
+    PopupMenu mallets;
+    mallets.addItem(1, "Impulse", true, malletType == 1);
+    mallets.addSeparator();
+    mallets.addItem(13, "Click1", true, malletType == 13);
+    mallets.addItem(14, "Click2", true, malletType == 14);
+    mallets.addItem(15, "Click3", true, malletType == 15);
+    mallets.addItem(16, "Click4", true, malletType == 16);
+    mallets.addItem(17, "Click5", true, malletType == 17);
+    mallets.addItem(18, "Click6", true, malletType == 18);
+    mallets.addItem(19, "Click7", true, malletType == 19);
+    mallets.addItem(20, "Click8", true, malletType == 20);
+
+    auto menuPos = localPointToGlobal(malletLabel.getBounds().getBottomLeft());
+    mallets.showMenuAsync(PopupMenu::Options()
+        .withTargetScreenArea({ menuPos.getX(), menuPos.getY(), 1, 1 }),
+        [this](int result) {
+            if (result == 0) return;
+            auto param = audioProcessor.params.getParameter("mallet_type");
+            param->setValueNotifyingHost(param->convertTo0to1(float(result - 1)));
+        });
 }

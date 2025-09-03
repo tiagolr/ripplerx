@@ -2,31 +2,41 @@
 #include <cmath>
 
 static const InternalSample samples[] = {
-	{ "__sample1__", BinaryData::Bells2_xml, BinaryData::Bells2_xmlSize },
+	{ MalletType::kSample1, BinaryData::click1_wav, BinaryData::click1_wavSize },
+	{ MalletType::kSample2, BinaryData::click2_wav, BinaryData::click2_wavSize },
+	{ MalletType::kSample3, BinaryData::click3_wav, BinaryData::click3_wavSize },
+	{ MalletType::kSample4, BinaryData::click4_wav, BinaryData::click4_wavSize },
+	{ MalletType::kSample5, BinaryData::click5_wav, BinaryData::click5_wavSize },
+	{ MalletType::kSample6, BinaryData::click6_wav, BinaryData::click6_wavSize },
+	{ MalletType::kSample7, BinaryData::click7_wav, BinaryData::click7_wavSize },
+	{ MalletType::kSample8, BinaryData::click8_wav, BinaryData::click8_wavSize },
 };
 
 void Sampler::loadSample(String path)
 {
-	isUserFile = false;
-	std::unique_ptr<juce::InputStream> inputStream;
+	File audioFile(path);
+	if (!audioFile.existsAsFile()) {
+		loadInternalSample(MalletType::kSample1); // fallback
+		return;
+	}
 
+	std::unique_ptr<juce::InputStream> inputStream = audioFile.createInputStream();
+	loadSampleFromBinary(std::move(inputStream));
+	isUserFile = true;
+}
+
+void Sampler::loadInternalSample(MalletType type)
+{
 	for (const auto& sample : samples) {
-		if (path == sample.name) {
-			inputStream = std::make_unique<juce::MemoryInputStream>(sample.data, sample.size, false);
+		if (type == sample.type) {
+			auto inputStream = std::make_unique<juce::MemoryInputStream>(sample.data, sample.size, false);
 			loadSampleFromBinary(std::move(inputStream));
+			isUserFile = false;
 			return;
 		}
 	}
 
-	File audioFile(path);
-	if (!audioFile.existsAsFile()) {
-		loadSample("__sample1__");
-		return;
-	}
-
-	inputStream = audioFile.createInputStream();
-	loadSampleFromBinary(std::move(inputStream));
-	isUserFile = true;
+	loadInternalSample(MalletType::kSample1); // fallback
 }
 
 void Sampler::loadSampleFromBinary(std::unique_ptr<juce::InputStream> stream)
@@ -36,7 +46,7 @@ void Sampler::loadSampleFromBinary(std::unique_ptr<juce::InputStream> stream)
 
 	std::unique_ptr<juce::AudioFormatReader> reader(manager.createReaderFor(std::move(stream)));
 	if (reader == nullptr) {
-		return loadSample("__sample1__");
+		return loadInternalSample(MalletType::kSample1);
 	}
 
 	try {
@@ -61,7 +71,7 @@ void Sampler::loadSampleFromBinary(std::unique_ptr<juce::InputStream> stream)
 		}
 	}
 	catch (...) {
-		loadSample("__sample1__");
+		return loadInternalSample(MalletType::kSample1);
 	}
 }
 

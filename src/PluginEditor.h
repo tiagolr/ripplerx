@@ -33,6 +33,7 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
     void repaintVelSliders ();
+    void showMalletMenu();
 
 private:
     RipplerXAudioProcessor& audioProcessor;
@@ -41,6 +42,8 @@ private:
     Label noiseLabel;
     Label envelopeLabel;
     Label malletLabel;
+    Label malletSubLabel;
+    TextButton malletButton;
     std::unique_ptr<About> about;
 
     // Top bar

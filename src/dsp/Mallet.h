@@ -27,8 +27,6 @@ enum MalletType
 	kSample6,
 	kSample7,
 	kSample8,
-	kSample9,
-	kSample10,
 };
 
 class Sampler;

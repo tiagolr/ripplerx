@@ -4,10 +4,11 @@
 #include "Filter.h"
 #include "vector"
 #include "JuceHeader.h"
+#include "Mallet.h"
 
 struct InternalSample
 {
-	const char* name;
+	MalletType type;
 	const void* data;
 	size_t size;
 };
@@ -19,6 +20,7 @@ public:
 	~Sampler() {};
 
 	void loadSample(juce::String filepath);
+	void loadInternalSample(MalletType type);
 	void loadSampleFromBinary(std::unique_ptr<juce::InputStream> stream);
 	double waveLerp(double pos);
 	double waveCubic(double pos);

@@ -43,6 +43,7 @@ public:
     int currentProgram = -1;
     std::atomic<float> rmsValue { 0.0f };
     MTSClient *mtsClientPtr;
+    MalletType l_mallet_type = MalletType::kImpulse; // used to detect mallet type changes
 
     //==============================================================================
     RipplerXAudioProcessor();

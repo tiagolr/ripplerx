@@ -12,7 +12,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
      )
     , settings{}
     , params(*this, &undoManager, "PARAMETERS", {
-        std::make_unique<juce::AudioParameterChoice>("mallet_type", "Mallet type", StringArray { "Impulse","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","User File","Sample1","Sample2","Sample3","Sample4","Sample5","Sample6","Sample7","Sample8","Sample9","Sample10" }, 0),
+        std::make_unique<juce::AudioParameterChoice>("mallet_type", "Mallet type", StringArray { "Impulse","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","User File","Click 1","Click 2","Click 3","Click 4","Click 5","Click 6","Click 7","Click 8" }, 0),
         std::make_unique<juce::AudioParameterFloat>("mallet_mix", "Mallet Mix", 0.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("mallet_res", "Mallet Resonance", 0.0f, 1.0f, 0.8f),
         std::make_unique<juce::AudioParameterFloat>("mallet_stiff", "Mallet Stifness",juce::NormalisableRange<float>(100.0f, 5000.0f, 1.0f, 0.3f) , 600.0f),
@@ -371,6 +371,9 @@ void RipplerXAudioProcessor::offNote(MIDIMsg msg)
 void RipplerXAudioProcessor::onSlider()
 {
     auto srate = getSampleRate();
+
+    auto mallet_type = (MalletType)params.getRawParameterValue("mallet_type")->load();
+
     auto noise_filter_freq = (double)params.getRawParameterValue("noise_filter_freq")->load();
     auto noise_filter_mode = (int)params.getRawParameterValue("noise_filter_mode")->load();
     auto noise_filter_q = (double)params.getRawParameterValue("noise_filter_q")->load();
@@ -474,6 +477,14 @@ void RipplerXAudioProcessor::onSlider()
     if (b_model == ModelNames::Beam) models->recalcBeam(false, b_ratio);
     else if (b_model == ModelNames::Membrane) models->recalcMembrane(false, b_ratio);
     else if (b_model == ModelNames::Plate) models->recalcPlate(false, b_ratio);
+
+    if (mallet_type != l_mallet_type) {
+        l_mallet_type = mallet_type;
+        if (mallet_type > MalletType::kUserFile) {
+            malletSampler->loadInternalSample(mallet_type);
+        }
+        clearVoices();
+    }
 
     for (int i = 0; i < polyphony; i++) {
         Voice& voice = *voices[i];
