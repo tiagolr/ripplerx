@@ -19,9 +19,18 @@
 #include "dsp/Sampler.h"
 #include "libMTSClient.h"
 
-struct MIDIMsg {
+enum MIDIMsgType 
+{
+    NoteOn,
+    NoteOff,
+    SustainPedalOn,
+    SustainPedalOff,
+};
+
+struct MIDIMsg 
+{
     int offset;
-    int isNoteon;
+    MIDIMsgType type;
     int note;
     int vel;
 };
@@ -44,6 +53,7 @@ public:
     std::atomic<float> rmsValue { 0.0f };
     MTSClient *mtsClientPtr;
     MalletType l_mallet_type = MalletType::kImpulse; // used to detect mallet type changes
+    bool sustainPedal = false;
 
     //==============================================================================
     RipplerXAudioProcessor();
@@ -108,6 +118,7 @@ private:
     bool paramChanged = false; // flag that triggers on any param change
     juce::ApplicationProperties settings;
     std::vector<MIDIMsg> midi;
+    std::vector<MIDIMsg> sustainPedalNotes;
     std::vector<std::unique_ptr<Voice>> voices;
     std::unique_ptr<Models> models;
     std::unique_ptr<Sampler> malletSampler;

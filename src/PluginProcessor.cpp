@@ -29,7 +29,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("a_rel", "A Release", 0.0f, 1.0f, 1.0f),
         std::make_unique<juce::AudioParameterFloat>("a_inharm", "A Inharmonic",juce::NormalisableRange<float>(0.0001f, 1.0f, 0.0001f, 0.3f), 0.0001f),
         std::make_unique<juce::AudioParameterFloat>("a_ratio", "A Ratio",juce::NormalisableRange<float>(0.1f, 10.0f, 0.01f, 0.3f), 1.0f),
-        std::make_unique<juce::AudioParameterFloat>("a_cut", "A LowCut",juce::NormalisableRange<float>(20.0f, 20000.0f, 1.0f, 0.3f), 20.0f),
+        std::make_unique<juce::AudioParameterFloat>("a_cut", "A LowCut", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("a_radius", "A Tube Radius", 0.0f, 1.0f, 0.5f),
         std::make_unique<juce::AudioParameterFloat>("a_coarse", "A coarse pitch", juce::NormalisableRange<float>(-48.0f, 48.0f, 1.0f, 1.0f), 0.0f),
         std::make_unique<juce::AudioParameterFloat>("a_fine", "A fine pitch", juce::NormalisableRange<float>(-99.0f, 99.0f, 1.0f, 1.0f), 0.0f),
@@ -44,7 +44,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("b_rel", "B Release", 0.0f, 1.0f, 1.0f),
         std::make_unique<juce::AudioParameterFloat>("b_inharm", "B Inharmonic",juce::NormalisableRange<float>(0.0001f, 1.0f, 0.0001f, 0.3f), 0.0001f),
         std::make_unique<juce::AudioParameterFloat>("b_ratio", "B Ratio",juce::NormalisableRange<float>(0.1f, 10.0f, 0.01f, 0.3f), 1.0f),
-        std::make_unique<juce::AudioParameterFloat>("b_cut", "B LowCut",juce::NormalisableRange<float>(20.0f, 20000.0f, 1.0f, 0.3f), 20.0f),
+        std::make_unique<juce::AudioParameterFloat>("b_cut", "B LowCut", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("b_radius", "B Tube Radius", 0.0f, 1.0f, 0.5f),
         std::make_unique<juce::AudioParameterFloat>("b_coarse", "B coarse pitch", juce::NormalisableRange<float>(-48.0f, 48.0f, 1.0f, 1.0f), 0.0f),
         std::make_unique<juce::AudioParameterFloat>("b_fine", "B fine pitch", juce::NormalisableRange<float>(-99.0f, 99.0f, 1.0f, 1.0f), 0.0f),
@@ -253,7 +253,27 @@ void RipplerXAudioProcessor::setCurrentProgram (int index)
     if (xmlState.get() != nullptr) {
         if (xmlState->hasTagName(params.state.getType())) {
             clearVoices();
-            params.replaceState(juce::ValueTree::fromXml (*xmlState));
+            auto state = juce::ValueTree::fromXml(*xmlState);
+
+            // migrate a_cut and b_cut to new normalized range
+            auto a_cut = state.getChildWithProperty("id", "a_cut");
+            if (a_cut.isValid()) {
+                float val = (float)a_cut.getProperty("value");
+                if (val >= 20.0f) {
+                    val = std::log(val / 20.0f) / std::log(20000.0f / 20.0f);
+                    a_cut.setProperty("value", val, nullptr);
+                }
+            }
+            auto b_cut = state.getChildWithProperty("id", "b_cut");
+            if (b_cut.isValid()) {
+                float val = (float)b_cut.getProperty("value");
+                if (val >= 20.0f) {
+                    val = std::log(val / 20.0f) / std::log(20000.0f / 20.0f);
+                    b_cut.setProperty("value", val, nullptr);
+                }
+            }
+
+            params.replaceState(state);
             resetLastModels();
         }
     }
@@ -563,12 +583,15 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
     keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), true);
     for (const auto metadata : midiMessages) {
         juce::MidiMessage message = metadata.getMessage();
-        if (message.isNoteOn() || message.isNoteOff())
+        if (message.isNoteOn() || message.isNoteOff() || message.isSustainPedalOn() || message.isSustainPedalOff())
             midi.push_back({ // queue midi message
                 metadata.samplePosition,
-                message.isNoteOn(),
+                message.isNoteOn() ? MIDIMsgType::NoteOn 
+                : message.isNoteOff() ? MIDIMsgType::NoteOff
+                : message.isSustainPedalOn() ? MIDIMsgType::SustainPedalOn
+                : MIDIMsgType::SustainPedalOff,
                 message.getNoteNumber(),
-                message.getVelocity()
+                message.getVelocity(),
             });
         else if (message.isAllNotesOff())
             clearVoices();
@@ -580,10 +603,27 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
         // process midi queue
         for (auto& msg : midi) {
             if (msg.offset == 0) {
-                if (msg.isNoteon)
+                if (msg.type == MIDIMsgType::NoteOn) {
                     onNote(msg);
-                else
-                    offNote(msg);
+                }
+                else if (msg.type == MIDIMsgType::NoteOff) {
+                    if (!sustainPedal) {
+                        offNote(msg);
+                    }
+                    else {
+                        sustainPedalNotes.push_back(msg);
+                    }
+                }
+                else if (msg.type == MIDIMsgType::SustainPedalOn) {
+                    sustainPedal = true;
+                }
+                else if (msg.type == MIDIMsgType::SustainPedalOff) {
+                    sustainPedal = false;
+                    for (auto& note : sustainPedalNotes) {
+                        offNote(note);
+                    }
+                    sustainPedalNotes.clear();
+                }
             }
             msg.offset -= 1;
         }
@@ -620,7 +660,7 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
             auto out_from_a = 0.0; // output from voice A into B in case of resonator serial coupling
             if (a_on) {
                 auto out = voice.resA.process(resOut);
-                if (voice.resA.cut > 20.0001)
+                if (voice.resA.cut != 0.0)
                     out = voice.resA.filter.df1(out);
                 aOut += out;
                 out_from_a = out;
@@ -628,7 +668,7 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
 
             if (b_on) {
                 auto out = voice.resB.process(a_on && couple ? out_from_a : resOut);
-                if (voice.resB.cut > 20.0001)
+                if (voice.resB.cut != 0.0)
                     out = voice.resB.filter.df1(out);
                 bOut += out;
             }
@@ -692,6 +732,24 @@ void RipplerXAudioProcessor::setStateInformation (const void* data, int sizeInBy
             if (state.hasProperty("currentProgram")) {
                 currentProgram = static_cast<int>(state.getProperty("currentProgram"));
             }
+            // migrate a_cut and b_cut to new normalized range
+            auto a_cut = state.getChildWithProperty("id", "a_cut");
+            if (a_cut.isValid()) {
+                float val = (float)a_cut.getProperty("value");
+                if (val >= 20.0f) {
+                    val = std::log(val / 20.0f) / std::log(20000.0f / 20.0f);
+                    a_cut.setProperty("value", val, nullptr);
+                }
+            }
+            auto b_cut = state.getChildWithProperty("id", "b_cut");
+            if (b_cut.isValid()) {
+                float val = (float)b_cut.getProperty("value");
+                if (val >= 20.0f) {
+                    val = std::log(val / 20.0f) / std::log(20000.0f / 20.0f);
+                    b_cut.setProperty("value", val, nullptr);
+                }
+            }
+
             params.replaceState(state);
         }
     }

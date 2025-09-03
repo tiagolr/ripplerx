@@ -51,7 +51,7 @@ double Mallet::process()
 
 void Mallet::setFilter(double norm)
 {
-	double freq = 20.0 * std::pow(1000, norm < 0.0 ? 1 + norm : norm); // map 1..0 to 20..20000, with inverse scale for negative norm
+	double freq = 20.0 * std::pow(20000.0/20.0, norm < 0.0 ? 1 + norm : norm); // map 1..0 to 20..20000, with inverse scale for negative norm
 	disable_filter = norm == 0.0;
 	if (!disable_filter) {
 		if (norm < 0.0) {

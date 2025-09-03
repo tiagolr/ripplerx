@@ -396,7 +396,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     addAndMakeVisible(*aRatio);
     aRatio->setBounds(col+70+70,row,70,75);
 
-    aCut = std::make_unique<Rotary>(p, "a_cut", "LowCut", LabelFormat::Hz);
+    aCut = std::make_unique<Rotary>(p, "a_cut", "Filter", LabelFormat::FilterLPHP, "", true);
     addAndMakeVisible(*aCut);
     aCut->setBounds(col+70+70+70,row,70,75);
 
@@ -493,7 +493,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     addAndMakeVisible(*bRatio);
     bRatio->setBounds(col+70+70,row,70,75);
 
-    bCut = std::make_unique<Rotary>(p, "b_cut", "LowCut", LabelFormat::Hz);
+    bCut = std::make_unique<Rotary>(p, "b_cut", "Filter", LabelFormat::FilterLPHP, "", true);
     addAndMakeVisible(*bCut);
     bCut->setBounds(col+70+70+70,row,70,75);
 

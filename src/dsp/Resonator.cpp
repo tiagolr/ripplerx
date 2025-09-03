@@ -20,7 +20,13 @@ void Resonator::setParams(double _srate, bool _on, int model, int _partials, dou
 	srate = _srate;
 	cut = _cut;
 
-	filter.hp(srate, cut, 0.707);
+	auto freq = 20.0 * std::pow(20000.0 / 20.0, cut < 0.0 ? 1 + cut : cut); // map 1..0 to 20..20000, with inverse scale for negative norm;
+	if (_cut < 0.0) {
+		filter.lp(srate, freq, 0.707);
+	}
+	else {
+		filter.hp(srate, freq, 0.707);
+	}
 
 	for (Partial& partial : partials) {
 		partial.damp = damp;
@@ -92,4 +98,5 @@ void Resonator::clear()
 		partial.clear();
 	}
 	waveguide.clear();
+	filter.clear(0.0);
 }
