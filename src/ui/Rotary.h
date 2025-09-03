@@ -14,6 +14,8 @@ enum LabelFormat {
     millis,
     seconds2f,
     ABMix,
+    FilterLPHP,
+    PitchSemis,
 };
 
 class Rotary : public juce::SettableTooltipClient, public juce::Component, private juce::AudioProcessorValueTreeState::Listener {

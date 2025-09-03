@@ -286,11 +286,11 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     addAndMakeVisible(*malletStiff);
     malletStiff->setBounds(col,row+75+75,70,75);
 
-    malletPitch = std::make_unique<Rotary>(p, "mallet_pitch", "Pitch", LabelFormat::Hz, "", true);
+    malletPitch = std::make_unique<Rotary>(p, "mallet_pitch", "Pitch", LabelFormat::PitchSemis, "", true);
     addAndMakeVisible(*malletPitch);
     malletPitch->setBounds(col, row + 75 + 75, 70, 75);
 
-    malletFilter = std::make_unique<Rotary>(p, "mallet_filter", "Filter", LabelFormat::Hz, "", true);
+    malletFilter = std::make_unique<Rotary>(p, "mallet_filter", "Filter", LabelFormat::FilterLPHP, "", true);
     addAndMakeVisible(*malletFilter);
     malletFilter->setBounds(col, row + 75 + 75 + 75, 70, 75);
 
@@ -804,8 +804,6 @@ void RipplerXAudioProcessorEditor::showMalletMenu()
     mallets.addItem(16, "Click4", true, malletType == 16);
     mallets.addItem(17, "Click5", true, malletType == 17);
     mallets.addItem(18, "Click6", true, malletType == 18);
-    mallets.addItem(19, "Click7", true, malletType == 19);
-    mallets.addItem(20, "Click8", true, malletType == 20);
 
     auto menuPos = localPointToGlobal(malletLabel.getBounds().getBottomLeft());
     mallets.showMenuAsync(PopupMenu::Options()

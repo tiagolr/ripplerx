@@ -81,11 +81,36 @@ void Rotary::draw_label(juce::Graphics& g, float slider_val, float vel_val)
             }
             else if (format == LabelFormat::ABMix) text = std::to_string((int)((1-slider_val) * 100)) + ":" + std::to_string((int)(slider_val * 100));
             else if (format == LabelFormat::dB) text = std::to_string((int)slider_val) + " dB";
+            else if (format == LabelFormat::FilterLPHP) {
+                if (slider_val == 0.0) {
+                    text = "Off";
+                }
+                else {
+                    std::stringstream ss;
+                    double freq = 20.0 * std::pow(1000, slider_val < 0.0 ? 1 + slider_val : slider_val); // map 1..0 to 20..20000
+
+                    ss << (slider_val < 0.0 ? "LP " : "HP ");
+                    if (freq >= 1000.0) {
+                        ss << std::fixed << std::setprecision(1) << (freq / 1000.0) << " kHz";
+                    }
+                    else {
+                        ss << std::fixed << std::setprecision(0) << freq << " Hz";
+                    }
+
+                    text = ss.str();
+                }
+            }
+            else if (format == LabelFormat::PitchSemis) {
+                std::stringstream ss;
+                ss << std::fixed << std::setprecision(0) << slider_val << " Sem";
+                text = ss.str();
+            }
         }
     }
 
+    bool isShowingFilter = mouse_down && format == LabelFormat::FilterLPHP;
     g.setColour(juce::Colour(globals::COLOR_NEUTRAL));
-    g.setFont(15.0f);
+    g.setFont(isShowingFilter ? 14.f : 15.0f);
     g.drawText(text, 0, getHeight() - 16, getWidth(), 16, juce::Justification::centred, true);
     //g.drawRect(getLocalBounds());
 }
@@ -147,7 +172,15 @@ void Rotary::mouseDrag(const juce::MouseEvent& e) {
     auto slider_change = float(change.getX() - change.getY()) / speed;
     cur_normed_value += slider_change;
     auto param = audioProcessor.params.getParameter((mouse_down_shift || audioProcessor.velMap) && velId.isNotEmpty() ? velId : paramId);
-    param->setValueNotifyingHost(cur_normed_value);
+
+    if (format == LabelFormat::PitchSemis && !e.mods.isCtrlDown()) {
+        // snap values for pitch knob
+        auto val = param->convertFrom0to1(cur_normed_value);
+        param->setValueNotifyingHost(param->convertTo0to1(std::round(val)));
+    }
+    else {
+        param->setValueNotifyingHost(cur_normed_value);
+    }
 }
 
 void Rotary::draw_rotary_slider(juce::Graphics& g, float slider_pos) {

@@ -8,8 +8,6 @@ static const InternalSample samples[] = {
 	{ MalletType::kSample4, BinaryData::click4_wav, BinaryData::click4_wavSize },
 	{ MalletType::kSample5, BinaryData::click5_wav, BinaryData::click5_wavSize },
 	{ MalletType::kSample6, BinaryData::click6_wav, BinaryData::click6_wavSize },
-	{ MalletType::kSample7, BinaryData::click7_wav, BinaryData::click7_wavSize },
-	{ MalletType::kSample8, BinaryData::click8_wav, BinaryData::click8_wavSize },
 };
 
 void Sampler::setPitch(double semis)

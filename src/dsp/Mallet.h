@@ -25,8 +25,6 @@ enum MalletType
 	kSample4,
 	kSample5,
 	kSample6,
-	kSample7,
-	kSample8,
 };
 
 class Sampler;
@@ -41,8 +39,7 @@ public:
 	void clear();
 	double process();
 
-	void loadSample(juce::String filepath);
-	void loadSampleFromBinary(std::unique_ptr<juce::InputStream> stream);
+	void setFilter(double norm);
 
 	double srate = 44100.0;
 
@@ -50,13 +47,15 @@ public:
 	double impulse = 0.0;
 	int countdown = 0;
 	double env = 0.0;
+	Filter impulse_filter{};
 
 	// sample mallet fields
 	double playback = INFINITY;
 	double playback_speed = 1.0;
+	bool disable_filter = false;
+	Filter sample_filter{};
 
 private:
 	Sampler& sampler;
 	MalletType type = kImpulse;
-	Filter filter{};
 };
