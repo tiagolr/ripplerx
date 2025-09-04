@@ -4,6 +4,7 @@
 #include <cmath>
 #include <functional>
 #include <algorithm>
+#include <stdexcept>
 
 class Utils
 {
