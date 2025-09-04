@@ -53,9 +53,10 @@ void Partial::update(double f_0, double ratio, double ratio_max, double vel, dou
 	auto omega = juce::MathConstants<double>::twoPi * f_k / srate;
 	auto alpha = juce::MathConstants<double>::twoPi / srate; // aprox 1 sec decay
 
-	auto damp_k = damp <= 0
-		? pow(f_0 / f_k, damp * 2.0)
-		: pow(f_max / f_k, damp * 2.0);
+	auto damp_base = std::fmin(1.0, std::fmax(-1.0, damp + vel_damp * 2.0 * vel));
+	auto damp_k = damp_base <= 0
+		? pow(f_0 / f_k, damp_base * 2.0)
+		: pow(f_max / f_k, damp_base * 2.0);
 
 	decay_k /= damp_k;
 

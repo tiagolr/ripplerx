@@ -31,6 +31,7 @@ public:
 	double vel_decay = 0.0;
 	double vel_hit = 0.0;
 	double vel_inharm = 0.0;
+	double vel_damp = 0.0;
 
 private:
 	double base_f_k = 1000.0;

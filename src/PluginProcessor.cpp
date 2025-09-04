@@ -72,9 +72,11 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("vel_a_decay", "Vel A Decay", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("vel_a_hit", "Vel A Hit", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("vel_a_inharm", "Vel A Inharmonic", -1.0f, 1.0f, 0.0f),
+        std::make_unique<juce::AudioParameterFloat>("vel_a_damp", "Vel A Material", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("vel_b_decay", "Vel B Decay", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("vel_b_hit", "Vel B Hit", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("vel_b_inharm", "Vel B Inharmonic", -1.0f, 1.0f, 0.0f),
+        std::make_unique<juce::AudioParameterFloat>("vel_b_damp", "Vel B Material", -1.0f, 1.0f, 0.0f),
 
         std::make_unique<juce::AudioParameterChoice>("couple", "Coupling", StringArray {"A+B", "A>B"}, 0),
         std::make_unique<juce::AudioParameterFloat>("ab_mix", "A+B Mix", 0.0f, 1.0f, 0.5f),
@@ -381,7 +383,7 @@ void RipplerXAudioProcessor::onNote(MIDIMsg msg)
     auto mallet_type = (MalletType)params.getRawParameterValue("mallet_type")->load();
     auto mallet_stiff = (double)params.getRawParameterValue("mallet_stiff")->load();
     auto vel_mallet_stiff = (double)params.getRawParameterValue("vel_mallet_stiff")->load();
-    auto malletFreq = fmax(100.0, fmin(5000.0, exp(log(mallet_stiff) + msg.vel / 127.0 * vel_mallet_stiff * (log(5000.0) - log(100.0)))));
+    auto malletFreq = fmax(100.0, fmin(5000.0, exp(log(mallet_stiff) + msg.vel / 127.0 * vel_mallet_stiff * 2.0 * (log(5000.0) - log(100.0)))));
 
     voice.trigger(srate, msg.note, msg.vel / 127.0, mallet_type, malletFreq, mtsClientPtr);
 }
@@ -446,9 +448,11 @@ void RipplerXAudioProcessor::onSlider()
     auto vel_a_decay = (double)params.getRawParameterValue("vel_a_decay")->load();
     auto vel_a_hit = (double)params.getRawParameterValue("vel_a_hit")->load();
     auto vel_a_inharm = (double)params.getRawParameterValue("vel_a_inharm")->load();
+    auto vel_a_damp = (double)params.getRawParameterValue("vel_a_damp")->load();
     auto vel_b_decay = (double)params.getRawParameterValue("vel_b_decay")->load();
     auto vel_b_hit = (double)params.getRawParameterValue("vel_b_hit")->load();
     auto vel_b_inharm = (double)params.getRawParameterValue("vel_b_inharm")->load();
+    auto vel_b_damp = (double)params.getRawParameterValue("vel_b_damp")->load();
 
     auto a_coarse = (double)params.getRawParameterValue("a_coarse")->load();
     auto a_fine = (double)params.getRawParameterValue("a_fine")->load();
@@ -527,8 +531,8 @@ void RipplerXAudioProcessor::onSlider()
             noise_dec, noise_sus, noise_rel, vel_noise_freq, vel_noise_q, noise_att_ten, noise_dec_ten, noise_rel_ten
         );
         voice.setPitch(a_coarse, b_coarse, a_fine, b_fine, curBend);
-        voice.resA.setParams(srate, a_on, a_model, a_partials, a_decay, a_damp, a_tone, a_hit, a_rel, a_inharm, a_cut, a_radius, vel_a_decay, vel_a_hit, vel_a_inharm);
-        voice.resB.setParams(srate, b_on, b_model, b_partials, b_decay, b_damp, b_tone, b_hit, b_rel, b_inharm, b_cut, b_radius, vel_b_decay, vel_b_hit, vel_b_inharm);
+        voice.resA.setParams(srate, a_on, a_model, a_partials, a_decay, a_damp, a_tone, a_hit, a_rel, a_inharm, a_cut, a_radius, vel_a_decay, vel_a_hit, vel_a_inharm, vel_a_damp);
+        voice.resB.setParams(srate, b_on, b_model, b_partials, b_decay, b_damp, b_tone, b_hit, b_rel, b_inharm, b_cut, b_radius, vel_b_decay, vel_b_hit, vel_b_inharm, vel_b_damp);
         voice.setCoupling(couple, split);
         voice.updateResonators();
         if (mallet_type >= MalletType::kUserFile) {

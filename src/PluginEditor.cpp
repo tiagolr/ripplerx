@@ -378,7 +378,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     addAndMakeVisible(*aDecay);
     aDecay->setBounds(col,row,70,75);
 
-    aDamp = std::make_unique<Rotary>(p, "a_damp", "Material", LabelFormat::Percent, "", true);
+    aDamp = std::make_unique<Rotary>(p, "a_damp", "Material", LabelFormat::Percent, "vel_a_damp", true);
     addAndMakeVisible(*aDamp);
     aDamp->setBounds(col+70,row,70,75);
 
@@ -475,7 +475,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     addAndMakeVisible(*bDecay);
     bDecay->setBounds(col,row,70,75);
 
-    bDamp = std::make_unique<Rotary>(p, "b_damp", "Material", LabelFormat::Percent, "", true);
+    bDamp = std::make_unique<Rotary>(p, "b_damp", "Material", LabelFormat::Percent, "vel_b_damp", true);
     addAndMakeVisible(*bDamp);
     bDamp->setBounds(col+70,row,70,75);
 
@@ -808,6 +808,8 @@ void RipplerXAudioProcessorEditor::repaintVelSliders()
     bDecay.get()->repaint();
     bHit.get()->repaint();
     bInharm.get()->repaint();
+    aDamp.get()->repaint();
+    bDamp.get()->repaint();
 }
 
 void RipplerXAudioProcessorEditor::resized()
