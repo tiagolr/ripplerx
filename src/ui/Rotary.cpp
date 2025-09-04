@@ -62,7 +62,16 @@ void Rotary::draw_label(juce::Graphics& g, float slider_val, float vel_val)
         }
         else {
             if (format == LabelFormat::Percent) text = std::to_string((int)std::round((slider_val * 100))) + " %";
-            else if (format == LabelFormat::millis) text = std::to_string((int)slider_val) + " ms";
+            else if (format == LabelFormat::millis) {
+                if (slider_val < 1000.0f) {
+                    text = std::to_string((int)slider_val) + " ms";
+                }
+                else {
+                    std::stringstream ss;
+                    ss << std::fixed << std::setprecision(2) << (slider_val / 1000.f) << " s";
+                    text = ss.str();
+                }
+            }
             else if (format == LabelFormat::Hz) text = std::to_string((int)slider_val) + " Hz";
             else if (format == LabelFormat::float1) {
                 std::stringstream ss;
