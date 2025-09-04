@@ -121,14 +121,12 @@ private:
     std::unique_ptr<Pitch>aPitch;
     std::unique_ptr<Pitch>bPitch;
     Label pitchLabel;
+    Label bendLabel;
+    std::unique_ptr<Pitch>bendPitch;
     std::unique_ptr<Rotary> gain;
 
     TooltipWindow tooltipWindow;
     juce::MidiKeyboardComponent keyboardComponent;
-    std::unique_ptr<Meter> meter;
-
-
-
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RipplerXAudioProcessorEditor)
 };

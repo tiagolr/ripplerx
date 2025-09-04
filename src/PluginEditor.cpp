@@ -541,6 +541,17 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     addAndMakeVisible(*gain);
     gain->setBounds(col, row+75*3+25+10, 70, 75);
 
+    addAndMakeVisible(bendLabel);
+    bendLabel.setColour(juce::Label::ColourIds::textColourId, Colour(globals::COLOR_NEUTRAL));
+    bendLabel.setFont(FontOptions(15.0f));
+    bendLabel.setJustificationType(Justification::centred);
+    bendLabel.setText("PBend", NotificationType::dontSendNotification);
+    bendLabel.setBounds(col, row + 85 - 2 + 75, 70, 20);
+
+    bendPitch = std::make_unique<Pitch>(p, "Bend Range", "bend_range", "");
+    addAndMakeVisible(*bendPitch);
+    bendPitch->setBounds(col + 5, row + 105 + 75, 70 - 10, 20);
+
     // KEYBOARD
     auto bounds = getLocalBounds();
     addAndMakeVisible(keyboardComponent);
@@ -555,9 +566,9 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
 #endif
 
     // METER
-    meter = std::make_unique<Meter>(p);
-    addAndMakeVisible(*meter);
-    meter->setBounds(bounds.getRight() - 85, 235, 60, 95);
+    // meter = std::make_unique<Meter>(p);
+    // addAndMakeVisible(*meter);
+    // meter->setBounds(bounds.getRight() - 85, 235, 60, 95);
 
     // ABOUT
     about = std::make_unique<About>();

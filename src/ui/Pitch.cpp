@@ -10,13 +10,17 @@ Pitch::Pitch(RipplerXAudioProcessor& p, juce::String name, juce::String coarse_p
 {
     setName(name);
     audioProcessor.params.addParameterListener(coarse_param_id, this);
-    audioProcessor.params.addParameterListener(fine_param_id, this);
+    if (fine_param_id.isNotEmpty()) {
+        audioProcessor.params.addParameterListener(fine_param_id, this);
+    }
 }
 
 Pitch::~Pitch()
 {
     audioProcessor.params.removeParameterListener(coarse_param_id, this);
-    audioProcessor.params.removeParameterListener(fine_param_id, this);
+    if (fine_param_id.isNotEmpty()) {
+        audioProcessor.params.removeParameterListener(fine_param_id, this);
+    }
 }
 
 void Pitch::parameterChanged(const juce::String& parameterID, float newValue) 
@@ -33,9 +37,12 @@ void Pitch::paint(juce::Graphics& g) {
     auto norm = param->getValue();
     auto coarse_val = param->convertFrom0to1(norm);
 
-    param = audioProcessor.params.getParameter(fine_param_id);
-    norm = param->getValue();
-    auto fine_val = param->convertFrom0to1(norm);
+    float fine_val = 0.f;
+    if (fine_param_id.isNotEmpty()) {
+        param = audioProcessor.params.getParameter(fine_param_id);
+        norm = param->getValue();
+        fine_val = param->convertFrom0to1(norm);
+    }
 
     auto isDark = audioProcessor.darkTheme;
     g.setColour(Colour(globals::COLOR_ACTIVE));
@@ -44,32 +51,41 @@ void Pitch::paint(juce::Graphics& g) {
     g.setColour(isDark ? Colour(globals::COLOR_BACKGROUND).darker(0.7f) : Colours::white);
     auto sign = coarse_val < 0 || fine_val < 0 ? -1.f : 1.f;
     std::stringstream ss;
-    ss << sign * fabs(coarse_val) << "." << std::setw(2) << std::setfill('0') << fabs(fine_val);
 
-    auto text = ss.str();
-    g.drawText(text, 0, 0, getWidth()-15, getHeight(), Justification::centredRight, false);
+    if (fine_param_id.isNotEmpty()) {
+        ss << sign * fabs(coarse_val) << "." << std::setw(2) << std::setfill('0') << fabs(fine_val);
+        auto text = ss.str();
+        g.drawText(text, 0, 0, getWidth() - 15, getHeight(), Justification::centredRight, false);
+    }
+    else {
+        ss << sign * fabs(coarse_val);
+        auto text = ss.str();
+        g.drawText(text, 0, 0, getWidth(), getHeight(), Justification::centred, false);
+    }
 }
 
 void Pitch::mouseDown(const juce::MouseEvent& e) 
 {
     e.source.enableUnboundedMouseMovement(true);
-    is_coarse = e.getMouseDownX() < getWidth() / 2.f;
+    is_coarse = fine_param_id.isEmpty() || e.getMouseDownX() < getWidth() / 2.f;
     last_mouse_pos = e.getPosition();
     auto param = audioProcessor.params.getParameter(coarse_param_id);
     auto norm = param->getValue();
     auto val = param->convertFrom0to1(norm);
     cur_coarse = val;
-    param = audioProcessor.params.getParameter(fine_param_id);
-    norm = param->getValue();
-    val = param->convertFrom0to1(norm);
-    cur_fine = val;
+    if (fine_param_id.isNotEmpty()) {
+        param = audioProcessor.params.getParameter(fine_param_id);
+        norm = param->getValue();
+        val = param->convertFrom0to1(norm);
+        cur_fine = val;
+    }
     setMouseCursor(MouseCursor::NoCursor);
     start_mouse_pos = Desktop::getInstance().getMousePosition();
 }
 
 void Pitch::mouseWheelMove(const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel)
 {
-    is_coarse = event.getMouseDownX() < getWidth() / 2.f;
+    is_coarse = fine_param_id.isEmpty() || event.getMouseDownX() < getWidth() / 2.f;
     auto slider_change = wheel.deltaY > 0 ? 1.0f : wheel.deltaY < 0 ? -1.0f : 0;
     applyChange(slider_change);
 }
@@ -102,6 +118,15 @@ void Pitch::applyChange(float change)
         cur_coarse += change;
     else
         cur_fine += change;
+
+    if (fine_param_id.isEmpty()) {
+        auto param = audioProcessor.params.getParameter(coarse_param_id);
+        auto norm = param->convertTo0to1(cur_coarse);
+        param->beginChangeGesture();
+        param->setValueNotifyingHost(norm);
+        param->endChangeGesture();
+        return;
+    }
 
     if (!is_coarse && (
         (cur_fine >= 100.f) || 

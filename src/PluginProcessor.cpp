@@ -77,6 +77,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("ab_mix", "A+B Mix", 0.0f, 1.0f, 0.5f),
         std::make_unique<juce::AudioParameterFloat>("ab_split", "A>B Split", juce::NormalisableRange<float>(0.01f, 1.0f, 0.001f, 0.5f), 0.01f),
         std::make_unique<juce::AudioParameterFloat>("gain", "Res Gain", -24.0f, 24.0f, 0.0f),
+        std::make_unique<juce::AudioParameterInt>("bend_range", "PitchBend Range", 1, 24, 2),
     }),
     mtsClientPtr{nullptr}
 #endif
@@ -570,7 +571,7 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
     auto gain = (double)params.getRawParameterValue("gain")->load();
     auto couple = (bool)params.getRawParameterValue("couple")->load();
     gain = pow(10.0, gain / 20.0);
-    auto bend_range = 12.0;
+    auto bend_range = (double)params.getRawParameterValue("bend_range")->load();
 
     auto setBendTarget = [this, bend_range](double pitchWheel)
         {
