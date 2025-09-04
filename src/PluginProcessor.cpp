@@ -640,6 +640,17 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
             if (msg.offset == 0) {
                 if (msg.type == MIDIMsgType::NoteOn) {
                     onNote(msg);
+
+                    // remove new notes from sustain pedal notes, 
+                    // fixes notes pressed twice and held should not be released with the pedal
+                    auto it = std::remove_if(
+                        sustainPedalNotes.begin(),
+                        sustainPedalNotes.end(),
+                        [msg](const MIDIMsg& m) {
+                            return m.note == msg.note;
+                        }
+                    );
+                    sustainPedalNotes.erase(it, sustainPedalNotes.end());
                 }
                 else if (msg.type == MIDIMsgType::NoteOff) {
                     if (!sustainPedal) {
