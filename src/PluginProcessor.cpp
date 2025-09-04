@@ -58,6 +58,9 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("noise_dec", "Noise Decay",juce::NormalisableRange<float>(1.0f, 5000.0f, 1.0f, 0.3f), 500.0f),
         std::make_unique<juce::AudioParameterFloat>("noise_sus", "Noise Sustain", 0.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("noise_rel", "Noise Release",juce::NormalisableRange<float>(1.0f, 5000.0f, 1.0f, 0.3f), 500.0f),
+        std::make_unique<juce::AudioParameterFloat>("noise_att_ten", "Noise Release Tension", -1.f, 1.f, 0.4f),
+        std::make_unique<juce::AudioParameterFloat>("noise_dec_ten", "Noise Release Tension", -1.f, 1.f, 0.4f),
+        std::make_unique<juce::AudioParameterFloat>("noise_rel_ten", "Noise Release Tension", -1.f, 1.f, 0.4f),
 
         std::make_unique<juce::AudioParameterFloat>("vel_mallet_mix", "Vel Mallet Mix", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("vel_mallet_res", "Vel Mallet Resonance", -1.0f, 1.0f, 0.0f),
@@ -408,6 +411,9 @@ void RipplerXAudioProcessor::onSlider()
     auto noise_dec = (double)params.getRawParameterValue("noise_dec")->load();
     auto noise_sus = (double)normalizeVolSlider(params.getRawParameterValue("noise_sus")->load() * 100.0f);
     auto noise_rel = (double)params.getRawParameterValue("noise_rel")->load();
+    auto noise_att_ten = (double)params.getRawParameterValue("noise_att_ten")->load();
+    auto noise_dec_ten = (double)params.getRawParameterValue("noise_dec_ten")->load();
+    auto noise_rel_ten = (double)params.getRawParameterValue("noise_rel_ten")->load();
     auto vel_noise_freq = params.getRawParameterValue("vel_noise_freq")->load();
     auto vel_noise_q = params.getRawParameterValue("vel_noise_q")->load();
 
@@ -517,7 +523,9 @@ void RipplerXAudioProcessor::onSlider()
 
     for (int i = 0; i < polyphony; i++) {
         Voice& voice = *voices[i];
-        voice.noise.init(srate, noise_filter_mode, noise_filter_freq, noise_filter_q, noise_att, noise_dec, noise_sus, noise_rel, vel_noise_freq, vel_noise_q);
+        voice.noise.init(srate, noise_filter_mode, noise_filter_freq, noise_filter_q, noise_att, 
+            noise_dec, noise_sus, noise_rel, vel_noise_freq, vel_noise_q, noise_att_ten, noise_dec_ten, noise_rel_ten
+        );
         voice.setPitch(a_coarse, b_coarse, a_fine, b_fine, curBend);
         voice.resA.setParams(srate, a_on, a_model, a_partials, a_decay, a_damp, a_tone, a_hit, a_rel, a_inharm, a_cut, a_radius, vel_a_decay, vel_a_hit, vel_a_inharm);
         voice.resB.setParams(srate, b_on, b_model, b_partials, b_decay, b_damp, b_tone, b_hit, b_rel, b_inharm, b_cut, b_radius, vel_b_decay, vel_b_hit, vel_b_inharm);

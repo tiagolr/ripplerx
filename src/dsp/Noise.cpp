@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <cmath>
 
-void Noise::init(double _srate, int filterMode, double _freq, double _q, double att, double dec, double sus, double rel, double _vel_freq, double _vel_q)
+void Noise::init(double _srate, int filterMode, double _freq, double _q, double att, double dec, double sus, double rel, double _vel_freq, double _vel_q, double att_ten, double dec_ten, double rel_ten)
 {
 	srate = _srate;
 	fmode = filterMode;
@@ -11,7 +11,7 @@ void Noise::init(double _srate, int filterMode, double _freq, double _q, double 
 	vel_freq = _vel_freq;
 	vel_q = _vel_q;
 	initFilter();
-	env.init(srate, att, dec, sus, rel, 0.4, 0.4, 0.4);
+	env.init(srate, att, dec, sus, rel, att_ten, dec_ten, rel_ten);
 }
 
 void Noise::attack(double _vel)

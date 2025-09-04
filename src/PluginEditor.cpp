@@ -257,6 +257,18 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     addAndMakeVisible(*noiseR);
     noiseR->setBounds(col+70,row+75,70,75);
 
+    noiseATen = std::make_unique<TensionCtrl>(p, "noise_att_ten", false);
+    addAndMakeVisible(*noiseATen);
+    noiseATen->setBounds(Rectangle<int>(15, 15).withPosition(noiseA->getBounds().getTopRight().translated(-10, 0)));
+
+    noiseDTen = std::make_unique<TensionCtrl>(p, "noise_dec_ten", true);
+    addAndMakeVisible(*noiseDTen);
+    noiseDTen->setBounds(Rectangle<int>(15, 15).withPosition(noiseD->getBounds().getTopRight().translated(-10, 0)));
+
+    noiseRTen = std::make_unique<TensionCtrl>(p, "noise_rel_ten", true);
+    addAndMakeVisible(*noiseRTen);
+    noiseRTen->setBounds(Rectangle<int>(15, 15).withPosition(noiseR->getBounds().getTopRight().translated(-10, 0)));
+
     // MALLET
     col += 160;
     row = 35 + 10;

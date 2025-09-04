@@ -14,6 +14,7 @@
 #include "ui/CustomLookAndFeel.h"
 #include "ui/Meter.h"
 #include "ui/Pitch.h"
+#include "ui/TensionCtrl.h"
 #include "ui/About.h"
 
 using namespace globals;
@@ -71,6 +72,9 @@ private:
     std::unique_ptr<Rotary> noiseD;
     std::unique_ptr<Rotary> noiseS;
     std::unique_ptr<Rotary> noiseR;
+    std::unique_ptr<TensionCtrl> noiseATen;
+    std::unique_ptr<TensionCtrl> noiseDTen;
+    std::unique_ptr<TensionCtrl> noiseRTen;
 
     // Mallet
     std::unique_ptr<Rotary> malletMix;

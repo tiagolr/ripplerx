@@ -10,7 +10,10 @@ public:
 	Noise() {};
 	~Noise() {};
 
-	void init(double srate, int filterMode, double freq, double q, double att, double dec, double sus, double rel, double vel_freq, double vel_q);
+	void init(
+		double srate, int filterMode, double freq, double q, double att, double dec, 
+		double sus, double rel, double vel_freq, double vel_q, double att_ten, double dec_ten, double rel_ten
+	);
 	double process();
 	void attack(double vel);
 	void initFilter();
