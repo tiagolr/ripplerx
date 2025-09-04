@@ -25,8 +25,9 @@ public:
 	void trigger(double srate, int _note, double vel, MalletType malletType, double malletFreq, MTSClient *mts);
 	void release();
 	void clear();
-	void setPitch(double a_coarse, double b_coarse, double a_fine, double b_fine);
+	void setPitch(double a_coarse, double b_coarse, double a_fine, double b_fine, double pitch_bend);
 	void applyPitch(std::array<double, 64>& model, double factor);
+	void applyPitchBend(double bend);
 	double inline freqShift(double fa, double fb) const;
 	std::tuple<std::array<double, 64>, std::array<double, 64>> calcFrequencyShifts();
 	void setCoupling(bool _couple, double _split);
@@ -42,6 +43,7 @@ public:
 
 	double aPitchFactor = 1.0;
 	double bPitchFactor = 1.0;
+	double pitchBend = 1.0;
 
 	Mallet mallet;
 	Noise noise{};

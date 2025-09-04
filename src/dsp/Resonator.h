@@ -22,9 +22,10 @@ public:
 		double rel, double inharm, double cut,double radius, double vel_decay, double vel_hit, double vel_inharm);
 
 	void activate();
-	void update(double frequency, double vel, bool isRelease, std::array<double, 64> _model);
+	void update(double frequency, double vel, bool isRelease, double pitch_bend, std::array<double, 64> _model);
 	void clear();
 	double process(double x);
+	void applyPitchBend(double bend);
 
 	int silence = 0; // counter of samples of silence
 	bool active = false; // returns to false if samples of silence run for a bit

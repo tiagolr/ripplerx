@@ -25,6 +25,7 @@ enum MIDIMsgType
     NoteOff,
     SustainPedalOn,
     SustainPedalOff,
+    PitchWheel,
 };
 
 struct MIDIMsg 
@@ -50,10 +51,17 @@ public:
     int last_a_partials = -1;
     int last_b_partials = -1;
     int currentProgram = -1;
+    int totalSamplesBend = 0;
     std::atomic<float> rmsValue { 0.0f };
     MTSClient *mtsClientPtr;
     MalletType l_mallet_type = MalletType::kImpulse; // used to detect mallet type changes
     bool sustainPedal = false;
+    // pitch bend
+    double bendStep = 0.1;
+    double startBend = 1.0;
+    double curBend = 1.0;
+    double targetBend = 1.0;
+    int remainingSamplesBend = -1; // countdown in samples for pitch bend glide
 
     //==============================================================================
     RipplerXAudioProcessor();

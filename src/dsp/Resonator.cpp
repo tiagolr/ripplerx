@@ -49,16 +49,27 @@ void Resonator::setParams(double _srate, bool _on, int model, int _partials, dou
 	waveguide.rel = _rel;
 }
 
-void Resonator::update(double freq, double vel, bool isRelease, std::array<double,64> model)
+void Resonator::update(double freq, double vel, bool isRelease, double pitch_bend, std::array<double,64> model)
 {
 	if (nmodel < 7) {
 		for (Partial& partial : partials) {
 			auto idx = partial.k - 1; // clears lnt-arithmetic-overflow warning when accessing _model[k-1] directly
-			partial.update(freq, model[idx], model[model.size() - 1], vel, isRelease);
+			partial.update(freq, model[idx], model[model.size() - 1], vel, pitch_bend, isRelease);
 		}
 	}
 	else
 		waveguide.update(model[0] * freq, vel, isRelease);
+}
+
+void Resonator::applyPitchBend(double bend)
+{
+	if (active) {
+		if (nmodel < 7) {
+			for (int p = 0; p < npartials; ++p) {
+				partials[p].applyPitchBend(bend);
+			}
+		}
+	}
 }
 
 void Resonator::activate()

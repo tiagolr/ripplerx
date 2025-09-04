@@ -2,6 +2,7 @@
 // Partial is a second order bandpass filter with extra variables for decay, frequency and amplitude calculation
 
 #pragma once
+#include "Utils.h"
 
 class Partial
 {
@@ -9,9 +10,14 @@ public:
 	Partial(int n) { k = n; };
 	~Partial() {};
 
-	void update(double freq, double ratio, double ratio_max, double vel, bool isRelease);
+	static LookupTable a1LUT;
+	static void initA1LUT(double sampleRate);
+
+	void update(double freq, double ratio, double ratio_max, double vel, double pitch_bend, bool isRelease);
 	double process(double input);
 	void clear();
+
+	void applyPitchBend(double pitchFactor);
 
 	double srate = 0.0;
 	int k = 0; // Partial num
@@ -27,6 +33,8 @@ public:
 	double vel_inharm = 0.0;
 
 private:
+	double base_f_k = 1000.0;
+	bool out_of_range = false;
 	double b0 = 0.0;
 	double b2 = 0.0;
 	double a0 = 1.0;

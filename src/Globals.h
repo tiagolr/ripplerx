@@ -22,5 +22,5 @@ namespace globals {
 	inline const int MAX_POLYPHONY = 16;
 	inline const int MAX_PARTIALS = 64;
 
-
+	inline const double BEND_GLIDE_MS = 2;
 };

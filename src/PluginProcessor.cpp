@@ -322,6 +322,8 @@ void RipplerXAudioProcessor::changeProgramName (int index, const juce::String& n
 void RipplerXAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     (void)samplesPerBlock;
+    totalSamplesBend = (int)(globals::BEND_GLIDE_MS * 0.001 * sampleRate);
+    Partial::initA1LUT(sampleRate);
     comb.init(sampleRate);
     limiter.init(sampleRate);
     resetLastModels(); // FIX - ableton initial load causes async value reset that overrides loaded patch value for a_model and b_model
@@ -515,7 +517,7 @@ void RipplerXAudioProcessor::onSlider()
     for (int i = 0; i < polyphony; i++) {
         Voice& voice = *voices[i];
         voice.noise.init(srate, noise_filter_mode, noise_filter_freq, noise_filter_q, noise_att, noise_dec, noise_sus, noise_rel, vel_noise_freq, vel_noise_q);
-        voice.setPitch(a_coarse, b_coarse, a_fine, b_fine);
+        voice.setPitch(a_coarse, b_coarse, a_fine, b_fine, curBend);
         voice.resA.setParams(srate, a_on, a_model, a_partials, a_decay, a_damp, a_tone, a_hit, a_rel, a_inharm, a_cut, a_radius, vel_a_decay, vel_a_hit, vel_a_inharm);
         voice.resB.setParams(srate, b_on, b_model, b_partials, b_decay, b_damp, b_tone, b_hit, b_rel, b_inharm, b_cut, b_radius, vel_b_decay, vel_b_hit, vel_b_inharm);
         voice.setCoupling(couple, split);
@@ -568,6 +570,29 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
     auto gain = (double)params.getRawParameterValue("gain")->load();
     auto couple = (bool)params.getRawParameterValue("couple")->load();
     gain = pow(10.0, gain / 20.0);
+    auto bend_range = 12.0;
+
+    auto setBendTarget = [this, bend_range](double pitchWheel)
+        {
+            double normalized = (pitchWheel - 8192) / 8191.0;
+            startBend = curBend;
+            targetBend = std::pow(2.0, normalized * bend_range / 12.0);
+            remainingSamplesBend = totalSamplesBend;
+            bendStep = (targetBend - startBend) / (double)totalSamplesBend;
+        };
+
+    auto interpolatePitchBend = [this]()
+        {
+            if (remainingSamplesBend > 0) {
+                curBend += bendStep;
+
+                --remainingSamplesBend;
+
+                if (remainingSamplesBend == 0) {
+                    curBend = targetBend;
+                }
+            }
+        };
 
     // remove midi messages that have been processed
     midi.erase(std::remove_if(midi.begin(), midi.end(), [](const MIDIMsg& msg) {
@@ -586,20 +611,29 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
         if (message.isNoteOn() || message.isNoteOff() || message.isSustainPedalOn() || message.isSustainPedalOff())
             midi.push_back({ // queue midi message
                 metadata.samplePosition,
-                message.isNoteOn() ? MIDIMsgType::NoteOn 
+                message.isNoteOn() ? MIDIMsgType::NoteOn
                 : message.isNoteOff() ? MIDIMsgType::NoteOff
                 : message.isSustainPedalOn() ? MIDIMsgType::SustainPedalOn
                 : MIDIMsgType::SustainPedalOff,
                 message.getNoteNumber(),
                 message.getVelocity(),
-            });
+                });
         else if (message.isAllNotesOff())
             clearVoices();
         else if (message.isAllSoundOff())
             clearVoices();
+        else if (message.isPitchWheel())
+            midi.push_back({
+                metadata.samplePosition,
+                MIDIMsgType::PitchWheel,
+                0,
+                message.getPitchWheelValue(),
+            });
     }
 
     for (int sample = 0; sample < numSamples; ++sample) {
+        interpolatePitchBend();
+
         // process midi queue
         for (auto& msg : midi) {
             if (msg.offset == 0) {
@@ -624,6 +658,9 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
                     }
                     sustainPedalNotes.clear();
                 }
+                else if (msg.type == MIDIMsgType::PitchWheel) {
+                    setBendTarget((double)msg.vel);
+                }
             }
             msg.offset -= 1;
         }
@@ -641,6 +678,12 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
         for (int i = 0; i < polyphony; ++i) {
             Voice& voice = *voices[i];
             double resOut = 0.0;
+
+            if (remainingSamplesBend >= 0) {
+                voice.applyPitchBend(curBend);
+                if (remainingSamplesBend == 0)
+                    remainingSamplesBend = -1;
+            }
 
             auto msample = voice.mallet.process(); // process mallet
             if (msample) {

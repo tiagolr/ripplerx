@@ -52,16 +52,26 @@ void Voice::setCoupling(bool _couple, double _split) {
 	split = _split;
 }
 
-void Voice::setPitch(double a_coarse, double b_coarse, double a_fine, double b_fine)
+void Voice::setPitch(double a_coarse, double b_coarse, double a_fine, double b_fine, double _pitch_bend)
 {
 	aPitchFactor = pow(2.0, (a_coarse + a_fine / 100.0) / 12.0);
 	bPitchFactor = pow(2.0, (b_coarse + b_fine / 100.0) / 12.0);
+	pitchBend = _pitch_bend;
 }
 
 void Voice::applyPitch(std::array<double, 64>& model, double factor)
 {
 	for (double& ratio : model)
 		ratio *= factor;
+}
+
+void Voice::applyPitchBend(double bend)
+{
+	if (bend != pitchBend) {
+		pitchBend = bend;
+		if (resA.on) resA.applyPitchBend(bend);
+		if (resB.on) resB.applyPitchBend(bend);
+	}
 }
 
 double inline Voice::freqShift(double fa, double fb) const
@@ -121,6 +131,6 @@ void Voice::updateResonators()
 		if (bPitchFactor != 1.0) applyPitch(bModel, bPitchFactor);
 	}
 
-	if (resA.on) resA.update(freq, vel, isRelease, aModel);
-	if (resB.on) resB.update(freq, vel, isRelease, bModel);
+	if (resA.on) resA.update(freq, vel, isRelease, pitchBend, aModel);
+	if (resB.on) resB.update(freq, vel, isRelease, pitchBend, bModel);
 }
