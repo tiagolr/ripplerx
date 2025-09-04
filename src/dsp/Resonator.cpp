@@ -58,7 +58,7 @@ void Resonator::update(double freq, double vel, bool isRelease, double pitch_ben
 		}
 	}
 	else
-		waveguide.update(model[0] * freq, vel, isRelease);
+		waveguide.update(model[0] * freq, vel, pitch_bend, isRelease);
 }
 
 void Resonator::applyPitchBend(double bend)
@@ -68,6 +68,9 @@ void Resonator::applyPitchBend(double bend)
 			for (int p = 0; p < npartials; ++p) {
 				partials[p].applyPitchBend(bend);
 			}
+		}
+		else {
+			waveguide.applyPitchBend(bend);
 		}
 	}
 }

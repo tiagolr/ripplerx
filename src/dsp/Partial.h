@@ -17,7 +17,7 @@ public:
 	double process(double input);
 	void clear();
 
-	void applyPitchBend(double pitchFactor);
+	void applyPitchBend(double bend);
 
 	double srate = 0.0;
 	int k = 0; // Partial num

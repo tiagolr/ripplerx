@@ -11,10 +11,13 @@ public:
 	};
 	~Waveguide() {};
 
-	void update(double freq, double vel, bool isRelease);
+	void update(double f_0, double vel, double pitch_bend, bool isRelease);
 	double process(double input);
 	void clear();
 
+	void applyPitchBend(double bend);
+
+	double base_freq = 1000.0;
 	bool is_closed = false;
 	double srate = 0.0;
 	double decay = 0.0;
@@ -23,7 +26,7 @@ public:
 	double vel_decay = 0.0;
 
 private:
-	int read_ptr = 0;
+	double read_ptr_frac = 0.0;
 	int write_ptr = 0;
 	double tube_decay = 0.0;
 	std::unique_ptr<double[]> tube;
