@@ -58,8 +58,8 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("noise_dec", "Noise Decay",juce::NormalisableRange<float>(1.0f, 20000.0f, 1.0f, 0.3f), 500.0f),
         std::make_unique<juce::AudioParameterFloat>("noise_sus", "Noise Sustain", 0.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("noise_rel", "Noise Release",juce::NormalisableRange<float>(1.0f, 20000.0f, 1.0f, 0.3f), 500.0f),
-        std::make_unique<juce::AudioParameterFloat>("noise_att_ten", "Noise Release Tension", -1.f, 1.f, 0.4f),
-        std::make_unique<juce::AudioParameterFloat>("noise_dec_ten", "Noise Release Tension", -1.f, 1.f, 0.4f),
+        std::make_unique<juce::AudioParameterFloat>("noise_att_ten", "Noise Attack Tension", -1.f, 1.f, 0.4f),
+        std::make_unique<juce::AudioParameterFloat>("noise_dec_ten", "Noise Decay Tension", -1.f, 1.f, 0.4f),
         std::make_unique<juce::AudioParameterFloat>("noise_rel_ten", "Noise Release Tension", -1.f, 1.f, 0.4f),
 
         std::make_unique<juce::AudioParameterFloat>("vel_mallet_mix", "Vel Mallet Mix", -1.0f, 1.0f, 0.0f),
@@ -68,17 +68,21 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("vel_noise_mix", "Vel Noise Mix", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("vel_noise_res", "Vel Noise Resonance", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("vel_noise_freq", "Vel Noise Frequency", -1.0f, 1.0f, 0.0f),
+        std::make_unique<juce::AudioParameterFloat>("vel_noise_att", "Vel Noise Attack", -1.0f, 1.0f, 0.0f),
+        std::make_unique<juce::AudioParameterFloat>("vel_noise_dec", "Vel Noise Decay", -1.0f, 1.0f, 0.0f),
+        std::make_unique<juce::AudioParameterFloat>("vel_noise_sus", "Vel Noise Sustain", -1.0f, 1.0f, 0.0f),
+        std::make_unique<juce::AudioParameterFloat>("vel_noise_rel", "Vel Noise Release", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("vel_noise_q", "Vel Noise Q", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("vel_a_decay", "Vel A Decay", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("vel_a_hit", "Vel A Hit", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("vel_a_inharm", "Vel A Inharmonic", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("vel_a_damp", "Vel A Material", -1.0f, 1.0f, 0.0f),
-        std::make_unique<juce::AudioParameterFloat>("vel_a_tone", "Vel A Material", -1.0f, 1.0f, 0.0f),
+        std::make_unique<juce::AudioParameterFloat>("vel_a_tone", "Vel A Tone", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("vel_b_decay", "Vel B Decay", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("vel_b_hit", "Vel B Hit", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("vel_b_inharm", "Vel B Inharmonic", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("vel_b_damp", "Vel B Material", -1.0f, 1.0f, 0.0f),
-        std::make_unique<juce::AudioParameterFloat>("vel_b_tone", "Vel B Material", -1.0f, 1.0f, 0.0f),
+        std::make_unique<juce::AudioParameterFloat>("vel_b_tone", "Vel B Tone", -1.0f, 1.0f, 0.0f),
 
         std::make_unique<juce::AudioParameterChoice>("couple", "Coupling", StringArray {"A+B", "A>B"}, 0),
         std::make_unique<juce::AudioParameterFloat>("ab_mix", "A+B Mix", 0.0f, 1.0f, 0.5f),
@@ -371,11 +375,6 @@ bool RipplerXAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts)
 }
 #endif
 
-float RipplerXAudioProcessor::normalizeVolSlider(float val)
-{
-    return val * 60.0f / 100.0f - 60.0f;
-}
-
 void RipplerXAudioProcessor::onNote(MIDIMsg msg)
 {
     auto srate = getSampleRate();
@@ -413,13 +412,17 @@ void RipplerXAudioProcessor::onSlider()
     auto noise_filter_q = (double)params.getRawParameterValue("noise_filter_q")->load();
     auto noise_att = (double)params.getRawParameterValue("noise_att")->load();
     auto noise_dec = (double)params.getRawParameterValue("noise_dec")->load();
-    auto noise_sus = (double)normalizeVolSlider(params.getRawParameterValue("noise_sus")->load() * 100.0f);
+    auto noise_sus = (double)params.getRawParameterValue("noise_sus")->load();
     auto noise_rel = (double)params.getRawParameterValue("noise_rel")->load();
     auto noise_att_ten = (double)params.getRawParameterValue("noise_att_ten")->load();
     auto noise_dec_ten = (double)params.getRawParameterValue("noise_dec_ten")->load();
     auto noise_rel_ten = (double)params.getRawParameterValue("noise_rel_ten")->load();
     auto vel_noise_freq = params.getRawParameterValue("vel_noise_freq")->load();
     auto vel_noise_q = params.getRawParameterValue("vel_noise_q")->load();
+    auto vel_noise_att = (double)params.getRawParameterValue("vel_noise_att")->load();
+    auto vel_noise_dec = (double)params.getRawParameterValue("vel_noise_dec")->load();
+    auto vel_noise_sus = (double)params.getRawParameterValue("vel_noise_sus")->load();
+    auto vel_noise_rel = (double)params.getRawParameterValue("vel_noise_rel")->load();
 
     auto a_on = (bool)params.getRawParameterValue("a_on")->load();
     auto a_model = (int)params.getRawParameterValue("a_model")->load();
@@ -532,7 +535,8 @@ void RipplerXAudioProcessor::onSlider()
     for (int i = 0; i < polyphony; i++) {
         Voice& voice = *voices[i];
         voice.noise.init(srate, noise_filter_mode, noise_filter_freq, noise_filter_q, noise_att, 
-            noise_dec, noise_sus, noise_rel, vel_noise_freq, vel_noise_q, noise_att_ten, noise_dec_ten, noise_rel_ten
+            noise_dec, noise_sus, noise_rel, vel_noise_freq, vel_noise_q, noise_att_ten, noise_dec_ten, noise_rel_ten,
+            vel_noise_att, vel_noise_dec, vel_noise_sus, vel_noise_rel
         );
         voice.setPitch(a_coarse, b_coarse, a_fine, b_fine, curBend);
         voice.resA.setParams(srate, a_on, a_model, a_partials, a_decay, a_damp, a_tone, a_hit, a_rel, 

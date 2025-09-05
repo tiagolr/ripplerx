@@ -2,7 +2,11 @@
 #include <cstdlib>
 #include <cmath>
 
-void Noise::init(double _srate, int filterMode, double _freq, double _q, double att, double dec, double sus, double rel, double _vel_freq, double _vel_q, double att_ten, double dec_ten, double rel_ten)
+void Noise::init(
+	double _srate, int filterMode, double _freq, double _q, double _att, double _dec, double _sus, 
+	double _rel, double _vel_freq, double _vel_q, double _att_ten, double _dec_ten, double _rel_ten,
+	double _vel_att, double _vel_dec, double _vel_sus, double _vel_rel
+)
 {
 	srate = _srate;
 	fmode = filterMode;
@@ -11,13 +15,29 @@ void Noise::init(double _srate, int filterMode, double _freq, double _q, double 
 	vel_freq = _vel_freq;
 	vel_q = _vel_q;
 	initFilter();
-	env.init(srate, att, dec, sus, rel, att_ten, dec_ten, rel_ten);
+
+	att = _att;
+	dec = _dec;
+	sus = _sus;
+	rel = _rel;
+	
+	att_ten = _att_ten;
+	dec_ten = _dec_ten;
+	rel_ten = _rel_ten;
+
+	vel_att = _vel_att;
+	vel_dec = _vel_dec;
+	vel_sus = _vel_sus;
+	vel_rel = _vel_rel;
+	
+	initEnvelope();
 }
 
 void Noise::attack(double _vel)
 {
 	vel = _vel;
 	initFilter();
+	initEnvelope();
 	env.attack(1.0);
 }
 
@@ -32,6 +52,24 @@ void Noise::initFilter()
 	else if (fmode == 1) filter.bp(srate, f, res);
 	else if (fmode == 2) filter.hp(srate, f, res);
 	else throw "Unknown filter mode";
+}
+
+static double susToDb(double val) {
+	return val * 60.0 - 60.0;
+}
+
+void Noise::initEnvelope()
+{
+	auto normalizeVol = [](double val) {
+		return val * 60.0 / 100.0 - 60.0;
+	};
+
+	auto _att = fmax(1.0, fmin(20000.0, exp(log(att) + vel * vel_att * (log(20000.0) - log(1.0)))));
+	auto _dec = fmax(1.0, fmin(20000.0, exp(log(dec) + vel * vel_dec * (log(20000.0) - log(1.0)))));
+	auto _sus = fmax(0.0, fmin(1.0, sus + vel * vel_sus));
+	auto _rel = fmax(1.0, fmin(20000.0, exp(log(rel) + vel * vel_rel * (log(20000.0) - log(1.0)))));
+
+	env.init(srate, _att, _dec, susToDb(_sus), _rel, att_ten, dec_ten, rel_ten);
 }
 
 void Noise::release()

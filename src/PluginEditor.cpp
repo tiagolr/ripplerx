@@ -241,19 +241,19 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     envelopeLabel.setBounds(col+10, row, 60, 25);
     row += 25;
 
-    noiseA = std::make_unique<Rotary>(p, "noise_att", "Attack", LabelFormat::millis);
+    noiseA = std::make_unique<Rotary>(p, "noise_att", "Attack", LabelFormat::millis, "vel_noise_att");
     addAndMakeVisible(*noiseA);
     noiseA->setBounds(col,row,70,75);
 
-    noiseS = std::make_unique<Rotary>(p, "noise_sus", "Sus", LabelFormat::Percent);
+    noiseS = std::make_unique<Rotary>(p, "noise_sus", "Sus", LabelFormat::Percent, "vel_noise_sus");
     addAndMakeVisible(*noiseS);
     noiseS->setBounds(col,row+75,70,75);
 
-    noiseD = std::make_unique<Rotary>(p, "noise_dec", "Decay", LabelFormat::millis);
+    noiseD = std::make_unique<Rotary>(p, "noise_dec", "Decay", LabelFormat::millis, "vel_noise_dec");
     addAndMakeVisible(*noiseD);
     noiseD->setBounds(col+70,row,70,75);
 
-    noiseR = std::make_unique<Rotary>(p, "noise_rel", "Release", LabelFormat::millis);
+    noiseR = std::make_unique<Rotary>(p, "noise_rel", "Release", LabelFormat::millis, "vel_noise_rel");
     addAndMakeVisible(*noiseR);
     noiseR->setBounds(col+70,row+75,70,75);
 
@@ -812,6 +812,10 @@ void RipplerXAudioProcessorEditor::repaintVelSliders()
     bDamp.get()->repaint();
     aTone.get()->repaint();
     bTone.get()->repaint();
+    noiseA.get()->repaint();
+    noiseD.get()->repaint();
+    noiseS.get()->repaint();
+    noiseR.get()->repaint();
 }
 
 void RipplerXAudioProcessorEditor::resized()
