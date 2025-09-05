@@ -132,5 +132,10 @@ private:
     TooltipWindow tooltipWindow;
     juce::MidiKeyboardComponent keyboardComponent;
 
+    static constexpr const char* patchExtension = "*.ripx";
+    static constexpr const char* exportWindowTitle = "Export patch";
+    static constexpr const char* importWindowTitle = "Import patch";
+    std::unique_ptr<juce::FileChooser> mFileChooser;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RipplerXAudioProcessorEditor)
 };

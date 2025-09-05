@@ -154,6 +154,9 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
 
     addAndMakeVisible(presetMenu);
     presetMenu.setText("Patch");
+    presetMenu.addItem("Import", 7777);
+    presetMenu.addItem("Export", 8888);
+    presetMenu.addSeparator();
     presetMenu.addItem("Init", 1);
     presetMenu.addItem("Harpsi", 2);
     presetMenu.addItem("Harp", 3);
@@ -167,8 +170,8 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     presetMenu.addItem("Sink", 11);
     presetMenu.addItem("Cans", 12);
     presetMenu.addItem("Gong", 13);
-    presetMenu.addItem("Bong", 14);
     presetMenu.getRootMenu()->addColumnBreak();
+    presetMenu.addItem("Bong", 14);
     presetMenu.addItem("Marimba", 15);
     presetMenu.addItem("Fight", 16);
     presetMenu.addItem("Tabla", 17);
@@ -183,14 +186,58 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     presetMenu.addItem("Flute", 26);
     presetMenu.addItem("Fifths", 27);
     presetMenu.addItem("Kalimba", 28);
-    if (audioProcessor.currentProgram > -1) {
-        presetMenu.setSelectedId(audioProcessor.currentProgram + 1, NotificationType::dontSendNotification);
-    }
 
-    presetMenu.onChange = [this]()
+    auto resetPresetMenu = [this]() {
+        if (audioProcessor.currentProgram > -1) {
+            presetMenu.setSelectedId(audioProcessor.currentProgram + 1, NotificationType::dontSendNotification);
+        }
+    };
+
+    resetPresetMenu();
+
+    presetMenu.onChange = [this, resetPresetMenu]()
         {
             const int value = presetMenu.getSelectedId();
-            if (value > 0) {
+            if (value == 7777) {
+                mFileChooser.reset(new juce::FileChooser(importWindowTitle, juce::File(), patchExtension));
+                mFileChooser->launchAsync(juce::FileBrowserComponent::openMode |
+                    juce::FileBrowserComponent::canSelectFiles,
+                    [this](const juce::FileChooser& fc)
+                    {
+                        const auto u = fc.getURLResult();
+                        auto file = u.getLocalFile();
+
+                        if (!file.existsAsFile())
+                            return;
+
+                        juce::String fileContent = file.loadFileAsString();
+                        auto xml = juce::XmlDocument::parse(fileContent);
+                        if (xml != nullptr) {
+                            juce::MemoryBlock mb;
+                            audioProcessor.copyXmlToBinary(*xml, mb);
+                            audioProcessor.setStateInformation(mb.getData(), (int)mb.getSize());
+                        }
+                    });
+                resetPresetMenu();
+            }
+            else if (value == 8888) {
+                mFileChooser.reset(new juce::FileChooser(exportWindowTitle, juce::File::getSpecialLocation(juce::File::userDesktopDirectory), patchExtension));
+                mFileChooser->launchAsync(juce::FileBrowserComponent::saveMode |
+                    juce::FileBrowserComponent::canSelectFiles |
+                    juce::FileBrowserComponent::warnAboutOverwriting, [this](const juce::FileChooser& fc)
+                    {
+                        auto file = fc.getResult();
+                        if (file == juce::File{})
+                            return;
+
+                        auto state = audioProcessor.params.copyState();
+                        std::unique_ptr<juce::XmlElement>xml(state.createXml());
+                        juce::String xmlString = xml->toString();
+                        file.replaceWithText(xmlString.toStdString());
+                    });
+                resetPresetMenu();
+            }
+            else if (value > 0) {
                 MessageManager::callAsync([this, value] {
                     audioProcessor.setCurrentProgram(value - 1);
                 });
