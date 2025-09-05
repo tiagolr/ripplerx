@@ -6,7 +6,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 option(BUILD_STANDALONE "Build Standalone plugin format" ON) # Allow overriding from the command line
 
-project(RipplerX VERSION 1.5.3)
+project(RipplerX VERSION 1.5.4)
 
 add_compile_definitions(PROJECT_VERSION="${PROJECT_VERSION}")
 set(CMAKE_CXX_STANDARD 17)
