@@ -15,17 +15,50 @@ double Voice::note2freq(int _note, MTSClient *mts)
 }
 
 // Triggers mallet and noise generator
-void Voice::trigger(double srate, int _note, double _vel, MalletType malletType, double malletFreq, MTSClient *mts)
+void Voice::trigger(double _srate, int _note, double _vel, MalletType _malletType, double _malletFreq, MTSClient* mts)
+{
+	srate = _srate;
+	malletType = _malletType;
+	malletFreq = _malletFreq;
+	
+	newVel = _vel;
+	newNote = _note;
+	newFreq = note2freq(newNote, mts);
+
+	// fade out active voice before re-triggering
+	if ((resA.on && resA.active) || (resB.on && resB.active)) {
+		isFading = true;
+		fadeTotalSamples = (int)(globals::REPEAT_NOTE_FADE_MS * 0.001 * srate);
+		fadeSamples = fadeTotalSamples;
+		updateResonators();
+	}
+	else {
+		triggerStart();
+	}
+}
+
+double Voice::fadeOut()
+{
+	fadeSamples--;
+	if (fadeSamples <= 0) {
+		isFading = false;
+		triggerStart();
+	}
+	return isFading ? (double)fadeSamples / (double)fadeTotalSamples : 1.0;
+}
+
+void Voice::triggerStart()
 {
 	resA.clear();
 	resB.clear();
-	note = _note;
 	isRelease = false;
 	isPressed = true;
-	vel = _vel;
-	freq = note2freq(note, mts);
+	note = newNote;
+	vel = newVel;
+	freq = newFreq;
+
 	mallet.trigger(malletType, srate, malletFreq);
-	noise.attack(_vel);
+	noise.attack(vel);
 	if (resA.on) resA.activate();
 	if (resB.on) resB.activate();
 	updateResonators();

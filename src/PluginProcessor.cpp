@@ -719,9 +719,12 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
                     remainingSamplesBend = -1;
             }
 
+            // voice fade out used to declick on voice note repeat
+            double voiceFadeOutEnv = voice.isFading ? voice.fadeOut() : 1.0;
+
             auto msample = voice.mallet.process(); // process mallet
             if (msample) {
-                dirOut += msample * fmax(0.0, fmin(1.0, mallet_mix + vel_mallet_mix * voice.vel));
+                dirOut += msample * fmax(0.0, fmin(1.0, mallet_mix + vel_mallet_mix * voice.vel)) * voiceFadeOutEnv;
                 resOut += msample * fmax(0.0, fmin(1.0, mallet_res + vel_mallet_res * voice.vel));
             }
 
@@ -730,7 +733,7 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
 
             auto nsample = voice.noise.process(); // process noise
             if (nsample) {
-                dirOut += nsample * (double)noise_mix_range.convertFrom0to1(fmax(0.f, fmin(1.f, noise_mix + vel_noise_mix * (float)voice.vel)));
+                dirOut += nsample * (double)noise_mix_range.convertFrom0to1(fmax(0.f, fmin(1.f, noise_mix + vel_noise_mix * (float)voice.vel))) * voiceFadeOutEnv;
                 resOut += nsample * (double)noise_res_range.convertFrom0to1(fmax(0.f, fmin(1.f, noise_res + vel_noise_res * (float)voice.vel)));
             }
 
@@ -739,7 +742,7 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
                 auto out = voice.resA.process(resOut);
                 if (voice.resA.cut != 0.0)
                     out = voice.resA.filter.df1(out);
-                aOut += out;
+                aOut += out * voiceFadeOutEnv;
                 out_from_a = out;
             }
 
@@ -747,7 +750,7 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
                 auto out = voice.resB.process(a_on && couple ? out_from_a : resOut);
                 if (voice.resB.cut != 0.0)
                     out = voice.resB.filter.df1(out);
-                bOut += out;
+                bOut += out * voiceFadeOutEnv;
             }
         }
 

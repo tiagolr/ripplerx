@@ -3,6 +3,7 @@
 
 #pragma once
 #include "Utils.h"
+#include "../Globals.h"
 
 class Partial
 {

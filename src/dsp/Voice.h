@@ -23,6 +23,8 @@ public:
 
 	double note2freq(int _note, MTSClient *mts);
 	void trigger(double srate, int _note, double vel, MalletType malletType, double malletFreq, MTSClient *mts);
+	void triggerStart();
+	double fadeOut();
 	void release();
 	void clear();
 	void setPitch(double a_coarse, double b_coarse, double a_fine, double b_fine, double pitch_bend);
@@ -40,6 +42,17 @@ public:
 	bool isPressed = false; // used for audioIn
 	bool couple = false;
 	double split = 0.0;
+	double srate = 44100.0;
+
+	// used to fade out on repeat notes
+	bool isFading = false;
+	int fadeTotalSamples = 0;
+	int fadeSamples = 0;
+	MalletType malletType = kImpulse;
+	double malletFreq = 0.0;
+	double newFreq = 0.0;
+	double newVel = 0.0;
+	int newNote = 0;
 
 	double aPitchFactor = 1.0;
 	double bPitchFactor = 1.0;

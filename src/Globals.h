@@ -23,4 +23,5 @@ namespace globals {
 	inline const int MAX_PARTIALS = 64;
 
 	inline const double BEND_GLIDE_MS = 2;
+	inline const double REPEAT_NOTE_FADE_MS = 1;
 };

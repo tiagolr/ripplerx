@@ -2,6 +2,7 @@
 // Waveguide for OpenTube and ClosedTube models
 #pragma once
 #include <memory>
+#include "../Globals.h"
 
 class Waveguide
 {
