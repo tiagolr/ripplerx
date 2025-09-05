@@ -21,7 +21,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
 
         std::make_unique<juce::AudioParameterBool>("a_on", "A ON", true),
         std::make_unique<juce::AudioParameterChoice>("a_model", "A Model", StringArray { "String", "Beam", "Squared", "Membrane", "Plate", "Drumhead", "Marimba", "Open Tube", "Closed Tube" }, 0),
-        std::make_unique<juce::AudioParameterChoice>("a_partials", "A Partials", StringArray { "4", "8", "16", "32", "64" }, 3),
+        std::make_unique<juce::AudioParameterChoice>("a_partials", "A Partials", StringArray { "4", "8", "16", "32", "64", "1", "2"}, 3),
         std::make_unique<juce::AudioParameterFloat>("a_decay", "A Decay",juce::NormalisableRange<float>(0.01f, 100.0f, 0.01f, 0.2f) , 1.0f),
         std::make_unique<juce::AudioParameterFloat>("a_damp", "A Material", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("a_tone", "A Tone", -1.0f, 1.0f, 0.0f),
@@ -36,7 +36,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
 
         std::make_unique<juce::AudioParameterBool>("b_on", "B ON", false),
         std::make_unique<juce::AudioParameterChoice>("b_model", "B Model", StringArray { "String", "Beam", "Squared", "Membrane", "Plate", "Drumhead", "Marimba", "Open Tube", "Closed Tube" }, 0),
-        std::make_unique<juce::AudioParameterChoice>("b_partials", "B Partials", StringArray { "4", "8", "16", "32", "64" }, 3),
+        std::make_unique<juce::AudioParameterChoice>("b_partials", "B Partials", StringArray { "4", "8", "16", "32", "64", "1", "2"}, 3),
         std::make_unique<juce::AudioParameterFloat>("b_decay", "B Decay",juce::NormalisableRange<float>(0.01f, 100.0f, 0.01f, 0.2f), 1.0f),
         std::make_unique<juce::AudioParameterFloat>("b_damp", "B Material", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("b_tone", "B Tone", -1.0f, 1.0f, 0.0f),
@@ -509,12 +509,16 @@ void RipplerXAudioProcessor::onSlider()
     else if (a_partials == 2) a_partials = 16;
     else if (a_partials == 3) a_partials = 32;
     else if (a_partials == 4) a_partials = 64;
+    else if (a_partials == 5) a_partials = 1;
+    else if (a_partials == 6) a_partials = 2;
     // convert choice to partials num
     if (b_partials == 0) b_partials = 4;
     else if (b_partials == 1) b_partials = 8;
     else if (b_partials == 2) b_partials = 16;
     else if (b_partials == 3) b_partials = 32;
     else if (b_partials == 4) b_partials = 64;
+    else if (b_partials == 5) b_partials = 1;
+    else if (b_partials == 6) b_partials = 2;
 
     if (a_model == ModelNames::Beam) models->recalcBeam(true, a_ratio);
     else if (a_model == ModelNames::Membrane) models->recalcMembrane(true, a_ratio);

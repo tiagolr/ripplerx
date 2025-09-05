@@ -35,6 +35,7 @@ public:
     void resized() override;
     void repaintVelSliders ();
     void showMalletMenu();
+    void showPartialsMenu(bool AorB);
 
 private:
     RipplerXAudioProcessor& audioProcessor;
@@ -89,6 +90,7 @@ private:
     ComboBox aModel;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> aModelAttachment;
     ComboBox aPartials;
+    TextButton aPartialsBtn;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> aPartialsAttachment;
     std::unique_ptr<Rotary> aDecay;
     std::unique_ptr<Rotary> aDamp;
@@ -106,6 +108,7 @@ private:
     ComboBox bModel;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> bModelAttachment;
     ComboBox bPartials;
+    TextButton bPartialsBtn;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> bPartialsAttachment;
     std::unique_ptr<Rotary> bDecay;
     std::unique_ptr<Rotary> bDamp;

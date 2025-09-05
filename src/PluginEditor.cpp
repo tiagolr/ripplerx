@@ -426,9 +426,22 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     aPartials.addItem("16", 3);
     aPartials.addItem("32", 4);
     aPartials.addItem("64", 5);
+    aPartials.addItem("1", 6);
+    aPartials.addItem("2", 7);
     aPartials.setTooltip("Number of partials");
     aPartialsAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.params, "a_partials", aPartials);
     aPartials.setBounds(col+50+110+40-5, row, 60, 25);
+
+    // because comboBoxes only work with ordered items
+    // use an invisible button on top to show a menu with the items in custom order
+    addAndMakeVisible(aPartialsBtn);
+    aPartialsBtn.setAlpha(0.0f);
+    aPartialsBtn.setBounds(aPartials.getBounds().expanded(2));
+    aPartialsBtn.onClick = [this]()
+        {
+            showPartialsMenu(true);
+        };
+
 
     row += 25;
 
@@ -523,9 +536,21 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     bPartials.addItem("16", 3);
     bPartials.addItem("32", 4);
     bPartials.addItem("64", 5);
+    bPartials.addItem("1", 6);
+    bPartials.addItem("2", 7);
     bPartials.setTooltip("Number of partials");
     bPartialsAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.params, "b_partials", bPartials);
     bPartials.setBounds(col+50+110+40-5, row, 60, 25);
+
+    // because comboBoxes only work with ordered items
+    // use an invisible button on top to show a menu with the items in custom order
+    addAndMakeVisible(bPartialsBtn);
+    bPartialsBtn.setAlpha(0.0f);
+    bPartialsBtn.setBounds(bPartials.getBounds().expanded(2));
+    bPartialsBtn.onClick = [this]()
+        {
+            showPartialsMenu(false);
+        };
 
     row += 25;
 
@@ -907,6 +932,29 @@ void RipplerXAudioProcessorEditor::showMalletMenu()
         [this](int result) {
             if (result == 0) return;
             auto param = audioProcessor.params.getParameter("mallet_type");
+            param->setValueNotifyingHost(param->convertTo0to1(float(result - 1)));
+        });
+}
+
+void RipplerXAudioProcessorEditor::showPartialsMenu(bool AorB)
+{
+    auto choice = (int)audioProcessor.params.getRawParameterValue(AorB ? "a_partials" : "b_partials")->load() + 1;
+
+    PopupMenu mallets;
+    mallets.addItem(6, "1", true, choice == 6);
+    mallets.addItem(7, "2", true, choice == 7);
+    mallets.addItem(1, "4", true, choice == 1);
+    mallets.addItem(2, "8", true, choice == 2);
+    mallets.addItem(3, "16", true, choice == 3);
+    mallets.addItem(4, "32", true, choice == 4);
+    mallets.addItem(5, "64", true, choice == 5);
+
+    auto menuPos = localPointToGlobal((AorB ? aPartials : bPartials).getBounds().getBottomLeft());
+    mallets.showMenuAsync(PopupMenu::Options()
+        .withTargetScreenArea({ menuPos.getX(), menuPos.getY(), 1, 1 }),
+        [this, AorB](int result) {
+            if (result == 0) return;
+            auto param = audioProcessor.params.getParameter(AorB ? "a_partials" : "b_partials");
             param->setValueNotifyingHost(param->convertTo0to1(float(result - 1)));
         });
 }
