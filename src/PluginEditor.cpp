@@ -152,6 +152,17 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
         };
     polyMenu.setBounds(col+115+80+50+5,row,55,25);
 
+    addAndMakeVisible(stereoizerBtn);
+    stereoizerBtn.setBounds(Rectangle<int>(50, 25).withPosition(polyMenu.getBounds().getTopRight().translated(6, 0)));
+    stereoizerBtn.setAlpha(0.0f);
+    stereoizerBtn.setTooltip("Toggle stereoizer FX");
+    stereoizerBtn.onClick = [this]()
+        {
+            bool stereo = (bool)audioProcessor.params.getRawParameterValue("stereoizer")->load();
+            audioProcessor.params.getParameter("stereoizer")->setValueNotifyingHost(stereo ? 0.0f : 1.0f);
+            repaint();
+        };
+
     addAndMakeVisible(presetMenu);
     presetMenu.setText("Patch");
     presetMenu.addItem("Import", 7777);
@@ -600,17 +611,6 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     addAndMakeVisible(*gain);
     gain->setBounds(col, row+75*3+25+10, 70, 75);
 
-    addAndMakeVisible(stereoizerBtn);
-    stereoizerBtn.setBounds(Rectangle<int>(20, 20).withPosition(gain->getBounds().getTopRight().translated(-10, 0)));
-    stereoizerBtn.setAlpha(0.0f);
-    stereoizerBtn.setTooltip("Toggle stereoizer FX");
-    stereoizerBtn.onClick = [this]()
-        {
-            bool stereo = (bool)audioProcessor.params.getRawParameterValue("stereoizer")->load();
-            audioProcessor.params.getParameter("stereoizer")->setValueNotifyingHost(stereo ? 0.0f : 1.0f);
-            repaint();
-        };
-
     addAndMakeVisible(bendLabel);
     bendLabel.setColour(juce::Label::ColourIds::textColourId, Colour(globals::COLOR_NEUTRAL));
     bendLabel.setFont(FontOptions(15.0f));
@@ -854,8 +854,8 @@ void RipplerXAudioProcessorEditor::paint (Graphics& g)
     bounds = stereoizerBtn.getBounds();
     bool stereo = audioProcessor.params.getRawParameterValue("stereoizer")->load();
     g.setColour(Colour(stereo ? COLOR_ACTIVE : COLOR_NEUTRAL_LIGHT));
-    g.drawEllipse(bounds.expanded(-5).translated(-3, 0).toFloat(), 1.f);
-    g.drawEllipse(bounds.expanded(-5).translated(3, 0).toFloat(), 1.f);
+    g.setFont(14.f);
+    g.drawText(stereo ? "Stereo" : "Mono", bounds, Justification::centred, false);
 }
 
 void RipplerXAudioProcessorEditor::repaintVelSliders()
