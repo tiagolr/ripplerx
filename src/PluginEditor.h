@@ -128,6 +128,7 @@ private:
     Label bendLabel;
     std::unique_ptr<Pitch>bendPitch;
     std::unique_ptr<Rotary> gain;
+    TextButton stereoizerBtn;
 
     TooltipWindow tooltipWindow;
     juce::MidiKeyboardComponent keyboardComponent;

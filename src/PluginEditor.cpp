@@ -600,6 +600,17 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     addAndMakeVisible(*gain);
     gain->setBounds(col, row+75*3+25+10, 70, 75);
 
+    addAndMakeVisible(stereoizerBtn);
+    stereoizerBtn.setBounds(Rectangle<int>(20, 20).withPosition(gain->getBounds().getTopRight().translated(-10, 0)));
+    stereoizerBtn.setAlpha(0.0f);
+    stereoizerBtn.setTooltip("Toggle stereoizer FX");
+    stereoizerBtn.onClick = [this]()
+        {
+            bool stereo = (bool)audioProcessor.params.getRawParameterValue("stereoizer")->load();
+            audioProcessor.params.getParameter("stereoizer")->setValueNotifyingHost(stereo ? 0.0f : 1.0f);
+            repaint();
+        };
+
     addAndMakeVisible(bendLabel);
     bendLabel.setColour(juce::Label::ColourIds::textColourId, Colour(globals::COLOR_NEUTRAL));
     bendLabel.setFont(FontOptions(15.0f));
@@ -838,6 +849,13 @@ void RipplerXAudioProcessorEditor::paint (Graphics& g)
     path.lineTo((float)bounds.getCentreX(), (float)bounds.getCentreY() + 3.0f);
     path.lineTo((float)bounds.getRight() - 3.0f, (float)bounds.getCentreY() - 2.0f);
     g.strokePath(path, PathStrokeType(2.0f));
+
+    // draw stereoizer button
+    bounds = stereoizerBtn.getBounds();
+    bool stereo = audioProcessor.params.getRawParameterValue("stereoizer")->load();
+    g.setColour(Colour(stereo ? COLOR_ACTIVE : COLOR_NEUTRAL_LIGHT));
+    g.drawEllipse(bounds.expanded(-5).translated(-3, 0).toFloat(), 1.f);
+    g.drawEllipse(bounds.expanded(-5).translated(3, 0).toFloat(), 1.f);
 }
 
 void RipplerXAudioProcessorEditor::repaintVelSliders()

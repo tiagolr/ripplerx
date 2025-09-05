@@ -35,7 +35,7 @@ void Rotary::parameterChanged(const juce::String& parameterID, float newValue)
 }
 
 void Rotary::paint(juce::Graphics& g) {
-    g.fillAll(Colour(globals::COLOR_BACKGROUND));
+    //g.fillAll(Colour(globals::COLOR_BACKGROUND));
 
     auto param = audioProcessor.params.getParameter(paramId);
     auto normValue = param->getValue();

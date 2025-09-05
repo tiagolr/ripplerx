@@ -89,6 +89,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("ab_split", "A>B Split", juce::NormalisableRange<float>(0.01f, 1.0f, 0.001f, 0.5f), 0.01f),
         std::make_unique<juce::AudioParameterFloat>("gain", "Res Gain", -24.0f, 24.0f, 0.0f),
         std::make_unique<juce::AudioParameterInt>("bend_range", "PitchBend Range", 1, 24, 2),
+        std::make_unique<juce::AudioParameterBool>("stereoizer", "Stereoizer", true),
     }),
     mtsClientPtr{nullptr}
 #endif
@@ -594,6 +595,7 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
     auto couple = (bool)params.getRawParameterValue("couple")->load();
     gain = pow(10.0, gain / 20.0);
     auto bend_range = (double)params.getRawParameterValue("bend_range")->load();
+    auto stereoizer = (bool)params.getRawParameterValue("stereoizer")->load();
 
     auto setBendTarget = [this, bend_range](double pitchWheel)
         {
@@ -761,7 +763,15 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
             resOut = aOut + bOut; // one of them is turned off, just sum the two
 
         double totalOut = dirOut + resOut * gain;
-        auto [spl0, spl1] = comb.process(totalOut);
+
+        double spl0, spl1;
+        if (stereoizer) {
+            std::tie(spl0, spl1) = comb.process(totalOut);
+        }
+        else {
+            spl0 = totalOut;
+            spl1 = totalOut;
+        }
         auto [left, right] = limiter.process(spl0, spl1);
 
         for (int channel = 0; channel < totalNumOutputChannels; ++channel)
