@@ -396,7 +396,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
 
     row += 75;
 
-    aTone = std::make_unique<Rotary>(p, "a_tone", "Tone", LabelFormat::Percent, "", true);
+    aTone = std::make_unique<Rotary>(p, "a_tone", "Tone", LabelFormat::Percent, "vel_a_tone", true);
     addAndMakeVisible(*aTone);
     aTone->setBounds(col,row,70,75);
 
@@ -493,7 +493,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
 
     row += 75;
 
-    bTone = std::make_unique<Rotary>(p, "b_tone", "Tone", LabelFormat::Percent, "", true);
+    bTone = std::make_unique<Rotary>(p, "b_tone", "Tone", LabelFormat::Percent, "vel_b_tone", true);
     addAndMakeVisible(*bTone);
     bTone->setBounds(col,row,70,75);
 
@@ -810,6 +810,8 @@ void RipplerXAudioProcessorEditor::repaintVelSliders()
     bInharm.get()->repaint();
     aDamp.get()->repaint();
     bDamp.get()->repaint();
+    aTone.get()->repaint();
+    bTone.get()->repaint();
 }
 
 void RipplerXAudioProcessorEditor::resized()

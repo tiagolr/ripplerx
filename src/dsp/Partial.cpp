@@ -60,9 +60,10 @@ void Partial::update(double f_0, double ratio, double ratio_max, double vel, dou
 
 	decay_k /= damp_k;
 
-	auto tone_gain = tone <= 0
-		? pow(f_k / f_0, tone * 12 / 6)
-		: pow(f_k / f_max, tone * 12 / 6);
+	auto tone_base = std::fmin(1.0, std::fmax(-1.0, tone + vel_tone * 2.0 * vel));
+	auto tone_gain = tone_base <= 0
+		? pow(f_k / f_0, tone_base * 12 / 6)
+		: pow(f_k / f_max, tone_base * 12 / 6);
 
 	auto amp_k = fabs(sin(juce::MathConstants<double>::pi * k * fmax(0.02, fmin(.5, hit + vel_hit * vel / 2.0))));
 	amp_k *= 35.0;

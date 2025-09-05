@@ -19,7 +19,8 @@ public:
 	~Resonator() {};
 
 	void setParams(double srate, bool on, int model, int partials, double decay, double damp, double tone, double hit,
-		double rel, double inharm, double cut,double radius, double vel_decay, double vel_hit, double vel_inharm, double vel_damp);
+		double rel, double inharm, double cut,double radius, double vel_decay, double vel_hit, double vel_inharm, 
+		double vel_damp, double vel_tone);
 
 	void activate();
 	void update(double frequency, double vel, bool isRelease, double pitch_bend, std::array<double, 64> _model);

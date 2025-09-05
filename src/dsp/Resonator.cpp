@@ -10,7 +10,8 @@ Resonator::Resonator()
 }
 
 void Resonator::setParams(double _srate, bool _on, int model, int _partials, double _decay, double damp, double tone, double hit,
-	double _rel, double inharm, double _cut, double _radius, double vel_decay, double vel_hit, double vel_inharm, double vel_damp)
+	double _rel, double inharm, double _cut, double _radius, double vel_decay, double vel_hit, double vel_inharm,
+	double vel_damp, double vel_tone)
 {
 	on = _on;
 	nmodel = model;
@@ -39,6 +40,7 @@ void Resonator::setParams(double _srate, bool _on, int model, int _partials, dou
 		partial.vel_hit = vel_hit;
 		partial.vel_inharm = vel_inharm;
 		partial.vel_damp = vel_damp;
+		partial.vel_tone = vel_tone;
 		partial.srate = _srate;
 	}
 

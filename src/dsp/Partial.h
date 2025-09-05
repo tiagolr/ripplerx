@@ -32,6 +32,7 @@ public:
 	double vel_hit = 0.0;
 	double vel_inharm = 0.0;
 	double vel_damp = 0.0;
+	double vel_tone = 0.0;
 
 private:
 	double base_f_k = 1000.0;
