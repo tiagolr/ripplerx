@@ -553,7 +553,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     bModelBtn.setBounds(bModel.getBounds().expanded(2));
     bModelBtn.onClick = [this]()
         {
-            showModelMenu(true);
+            showModelMenu(false);
         };
 
     addAndMakeVisible(bPartials);
@@ -963,7 +963,7 @@ void RipplerXAudioProcessorEditor::showMalletMenu()
 
 void RipplerXAudioProcessorEditor::showModelMenu(bool AorB)
 {
-    auto choice = (int)audioProcessor.params.getRawParameterValue(AorB ? "a_model" : "b_bmodel")->load() + 1;
+    auto choice = (int)audioProcessor.params.getRawParameterValue(AorB ? "a_model" : "b_model")->load() + 1;
 
     PopupMenu mallets;
     mallets.addItem(1,  "String", true, choice == 1);
