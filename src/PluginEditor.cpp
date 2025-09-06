@@ -417,8 +417,21 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     aModel.addItem("Marimba", 7);
     aModel.addItem("Open Tube", 8);
     aModel.addItem("Closed Tube", 9);
+    aModel.addItem("Marimba2", 10);
+    aModel.addItem("Bell", 11);
+    aModel.addItem("Djembe", 12);
     aModelAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.params, "a_model", aModel);
     aModel.setBounds(col+50+40-5, row, 100, 25);
+
+    // because comboBoxes only work with ordered items
+    // use an invisible button on top to show a menu with the items in custom order
+    addAndMakeVisible(aModelBtn);
+    aModelBtn.setAlpha(0.0f);
+    aModelBtn.setBounds(aModel.getBounds().expanded(2));
+    aModelBtn.onClick = [this]()
+        {
+            showModelMenu(true);
+        };
 
     addAndMakeVisible(aPartials);
     aPartials.addItem("4", 1);
@@ -527,8 +540,21 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     bModel.addItem("Marimba", 7);
     bModel.addItem("Open Tube", 8);
     bModel.addItem("Closed Tube", 9);
+    bModel.addItem("Marimba2", 10);
+    bModel.addItem("Bell", 11);
+    bModel.addItem("Djembe", 12);
     bModelAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.params, "b_model", bModel);
     bModel.setBounds(col+50+40-5, row, 100, 25);
+
+    // because comboBoxes only work with ordered items
+    // use an invisible button on top to show a menu with the items in custom order
+    addAndMakeVisible(bModelBtn);
+    bModelBtn.setAlpha(0.0f);
+    bModelBtn.setBounds(bModel.getBounds().expanded(2));
+    bModelBtn.onClick = [this]()
+        {
+            showModelMenu(true);
+        };
 
     addAndMakeVisible(bPartials);
     bPartials.addItem("4", 1);
@@ -734,24 +760,23 @@ void RipplerXAudioProcessorEditor::toggleUIComponents()
     bCut.get()->setAlpha(alpha);
     bRadius.get()->setAlpha(alpha);
 
-    bool is_tube = a_model >= 7;
+    bool is_tube = a_model == OpenTube || a_model == ClosedTube;
     aDamp.get()->setVisible(!is_tube);
     aTone.get()->setVisible(!is_tube);
     aHit.get()->setVisible(!is_tube);
     aInharm.get()->setVisible(!is_tube);
-    aRatio.get()->setVisible(!is_tube && (a_model == ModelNames::Beam || a_model == ModelNames::Membrane || a_model == ModelNames::Plate));
+    aRatio.get()->setVisible(!is_tube && (a_model == Beam || a_model == Membrane || a_model == Plate || a_model == Djembe));
     aRadius.get()->setVisible(is_tube);
+    aPartials.setVisible(!is_tube);
 
-    is_tube = b_model >= 7;
+    is_tube = b_model == OpenTube || b_model == ClosedTube;
     bDamp.get()->setVisible(!is_tube);
     bTone.get()->setVisible(!is_tube);
     bHit.get()->setVisible(!is_tube);
     bInharm.get()->setVisible(!is_tube);
-    bRatio.get()->setVisible(!is_tube && (b_model == ModelNames::Beam || b_model == ModelNames::Membrane || b_model == ModelNames::Plate));
+    bRatio.get()->setVisible(!is_tube && (b_model == Beam || b_model == Membrane || b_model == Plate || b_model == Djembe));
     bRadius.get()->setVisible(is_tube);
-
-    aPartials.setVisible(a_model < 7);
-    bPartials.setVisible(b_model < 7);
+    bPartials.setVisible(!is_tube);
 
     couple.setAlpha((a_on && b_on) ? 1.0f : 0.5f);
     abMix.get()->setAlpha((a_on && b_on) ? 1.0f : 0.5f);
@@ -932,6 +957,34 @@ void RipplerXAudioProcessorEditor::showMalletMenu()
         [this](int result) {
             if (result == 0) return;
             auto param = audioProcessor.params.getParameter("mallet_type");
+            param->setValueNotifyingHost(param->convertTo0to1(float(result - 1)));
+        });
+}
+
+void RipplerXAudioProcessorEditor::showModelMenu(bool AorB)
+{
+    auto choice = (int)audioProcessor.params.getRawParameterValue(AorB ? "a_model" : "b_bmodel")->load() + 1;
+
+    PopupMenu mallets;
+    mallets.addItem(1,  "String", true, choice == 1);
+    mallets.addItem(2,  "Beam", true, choice == 2);
+    mallets.addItem(3,  "Squared", true, choice == 3);
+    mallets.addItem(11, "Bell", true, choice == 11);
+    mallets.addItem(4,  "Membrane", true, choice == 4);
+    mallets.addItem(5,  "Plate", true, choice == 5);
+    mallets.addItem(6,  "Drumhead", true, choice == 6);
+    mallets.addItem(12, "Djembe", true, choice == 12);
+    mallets.addItem(7,  "Marimba", true, choice == 7);
+    mallets.addItem(10, "Marimba2", true, choice == 10);
+    mallets.addItem(8,  "OpenTube", true, choice == 8);
+    mallets.addItem(9,  "ClosedTube", true, choice == 9);
+
+    auto menuPos = localPointToGlobal((AorB ? aModel : bModel).getBounds().getBottomLeft());
+    mallets.showMenuAsync(PopupMenu::Options()
+        .withTargetScreenArea({ menuPos.getX(), menuPos.getY(), 1, 1 }),
+        [this, AorB](int result) {
+            if (result == 0) return;
+            auto param = audioProcessor.params.getParameter(AorB ? "a_model" : "b_model");
             param->setValueNotifyingHost(param->convertTo0to1(float(result - 1)));
         });
 }

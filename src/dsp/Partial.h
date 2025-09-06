@@ -17,7 +17,7 @@ public:
 	void update(double freq, double ratio, double ratio_max, double vel, double pitch_bend, bool isRelease);
 	double process(double input);
 	void clear();
-
+	void applyGain(double gain);
 	void applyPitchBend(double bend);
 
 	double srate = 0.0;

@@ -23,7 +23,7 @@ public:
 		double vel_damp, double vel_tone);
 
 	void activate();
-	void update(double frequency, double vel, bool isRelease, double pitch_bend, std::array<double, 64> _model);
+	void update(double frequency, double vel, bool isRelease, double pitch_bend, std::array<double, 64> _model, std::array<double, 64> modelGain);
 	void clear();
 	double process(double x);
 	void applyPitchBend(double bend);

@@ -35,6 +35,7 @@ public:
     void resized() override;
     void repaintVelSliders ();
     void showMalletMenu();
+    void showModelMenu(bool AorB);
     void showPartialsMenu(bool AorB);
 
 private:
@@ -88,6 +89,7 @@ private:
     Label aLabel;
     ImageButton aOn;
     ComboBox aModel;
+    TextButton aModelBtn;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> aModelAttachment;
     ComboBox aPartials;
     TextButton aPartialsBtn;
@@ -106,6 +108,7 @@ private:
     Label bLabel;
     ImageButton bOn;
     ComboBox bModel;
+    TextButton bModelBtn;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> bModelAttachment;
     ComboBox bPartials;
     TextButton bPartialsBtn;

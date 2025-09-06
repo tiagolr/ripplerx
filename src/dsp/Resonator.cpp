@@ -46,34 +46,36 @@ void Resonator::setParams(double _srate, bool _on, int model, int _partials, dou
 
 	waveguide.decay = decay;
 	waveguide.radius = radius;
-	waveguide.is_closed = model == ModelNames::ClosedTube;
+	waveguide.is_closed = model == ClosedTube;
 	waveguide.srate = srate;
 	waveguide.vel_decay = vel_decay;
 	waveguide.rel = _rel;
 }
 
-void Resonator::update(double freq, double vel, bool isRelease, double pitch_bend, std::array<double,64> model)
+void Resonator::update(double freq, double vel, bool isRelease, double pitch_bend, std::array<double,64> model, std::array<double, 64> modelGain)
 {
-	if (nmodel < 7) {
+	if (nmodel == OpenTube || nmodel == ClosedTube) {
+		waveguide.update(model[0] * freq, vel, pitch_bend, isRelease);
+	}
+	else {
 		for (Partial& partial : partials) {
-			auto idx = partial.k - 1; // clears lnt-arithmetic-overflow warning when accessing _model[k-1] directly
+			auto idx = partial.k - 1; // clears warning when accessing model[k-1] directly
 			partial.update(freq, model[idx], model[model.size() - 1], vel, pitch_bend, isRelease);
+			partial.applyGain(modelGain[idx]);
 		}
 	}
-	else
-		waveguide.update(model[0] * freq, vel, pitch_bend, isRelease);
 }
 
 void Resonator::applyPitchBend(double bend)
 {
 	if (active) {
-		if (nmodel < 7) {
+		if (nmodel == OpenTube || nmodel == ClosedTube) {
+			waveguide.applyPitchBend(bend);
+		}
+		else {
 			for (int p = 0; p < npartials; ++p) {
 				partials[p].applyPitchBend(bend);
 			}
-		}
-		else {
-			waveguide.applyPitchBend(bend);
 		}
 	}
 }
@@ -89,13 +91,14 @@ double Resonator::process(double input)
 	double out = 0.0;
 
 	if (active) { // use active and silence to turn off strings process if not in use
-		if (nmodel < 7) {
+		if (nmodel == OpenTube || nmodel == ClosedTube) {
+			out += waveguide.process(input); // waveguide process
+		}
+		else {
 			for (int p = 0; p < npartials; ++p) {
 				out += partials[p].process(input);
 			}
-		}
-		else
-			out += waveguide.process(input); // waveguide process
+		}	
 	}
 
 	if (fabs(out) + fabs(input) > 0.00001)

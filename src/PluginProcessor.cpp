@@ -20,7 +20,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("mallet_stiff", "Mallet Stifness",juce::NormalisableRange<float>(100.0f, 5000.0f, 1.0f, 0.3f) , 600.0f),
 
         std::make_unique<juce::AudioParameterBool>("a_on", "A ON", true),
-        std::make_unique<juce::AudioParameterChoice>("a_model", "A Model", StringArray { "String", "Beam", "Squared", "Membrane", "Plate", "Drumhead", "Marimba", "Open Tube", "Closed Tube" }, 0),
+        std::make_unique<juce::AudioParameterChoice>("a_model", "A Model", StringArray { "String", "Beam", "Squared", "Membrane", "Plate", "Drumhead", "Marimba", "Open Tube", "Closed Tube", "Marimba2", "Bell", "Djembe" }, 0),
         std::make_unique<juce::AudioParameterChoice>("a_partials", "A Partials", StringArray { "4", "8", "16", "32", "64", "1", "2"}, 3),
         std::make_unique<juce::AudioParameterFloat>("a_decay", "A Decay",juce::NormalisableRange<float>(0.01f, 100.0f, 0.01f, 0.2f) , 1.0f),
         std::make_unique<juce::AudioParameterFloat>("a_damp", "A Material", -1.0f, 1.0f, 0.0f),
@@ -35,7 +35,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("a_fine", "A fine pitch", juce::NormalisableRange<float>(-99.0f, 99.0f, 1.0f, 1.0f), 0.0f),
 
         std::make_unique<juce::AudioParameterBool>("b_on", "B ON", false),
-        std::make_unique<juce::AudioParameterChoice>("b_model", "B Model", StringArray { "String", "Beam", "Squared", "Membrane", "Plate", "Drumhead", "Marimba", "Open Tube", "Closed Tube" }, 0),
+        std::make_unique<juce::AudioParameterChoice>("b_model", "B Model", StringArray { "String", "Beam", "Squared", "Membrane", "Plate", "Drumhead", "Marimba", "Open Tube", "Closed Tube", "Marimba2", "Bell", "Djembe" }, 0),
         std::make_unique<juce::AudioParameterChoice>("b_partials", "B Partials", StringArray { "4", "8", "16", "32", "64", "1", "2"}, 3),
         std::make_unique<juce::AudioParameterFloat>("b_decay", "B Decay",juce::NormalisableRange<float>(0.01f, 100.0f, 0.01f, 0.2f), 1.0f),
         std::make_unique<juce::AudioParameterFloat>("b_damp", "B Material", -1.0f, 1.0f, 0.0f),
@@ -472,7 +472,7 @@ void RipplerXAudioProcessor::onSlider()
 
     if (a_model != last_a_model) {
         auto param = params.getParameter("a_ratio");
-        a_ratio = a_model == 1 ? 2.0 : 0.78;
+        a_ratio = a_model == Beam ? 2.0 : a_model == Djembe ? 1.0 : 0.78;
         auto value = param->convertTo0to1(float(a_ratio));
         MessageManager::callAsync([param, value] {
             param->beginChangeGesture();
@@ -484,7 +484,7 @@ void RipplerXAudioProcessor::onSlider()
     }
     if (b_model != last_b_model) {
         auto param = params.getParameter("b_ratio");
-        b_ratio = b_model == 1 ? 2.0 : 0.78;
+        b_ratio = b_model == Beam ? 2.0 : b_model == Djembe ? 1.0 : 0.78;
         auto value = param->convertTo0to1((float)b_ratio);
         MessageManager::callAsync([param, value] {
             param->beginChangeGesture();
@@ -520,12 +520,12 @@ void RipplerXAudioProcessor::onSlider()
     else if (b_partials == 5) b_partials = 1;
     else if (b_partials == 6) b_partials = 2;
 
-    if (a_model == ModelNames::Beam) models->recalcBeam(true, a_ratio);
-    else if (a_model == ModelNames::Membrane) models->recalcMembrane(true, a_ratio);
-    else if (a_model == ModelNames::Plate) models->recalcPlate(true, a_ratio);
-    if (b_model == ModelNames::Beam) models->recalcBeam(false, b_ratio);
-    else if (b_model == ModelNames::Membrane) models->recalcMembrane(false, b_ratio);
-    else if (b_model == ModelNames::Plate) models->recalcPlate(false, b_ratio);
+    if (a_model == ModalModels::Beam) models->recalcBeam(true, a_ratio);
+    else if (a_model == ModalModels::Membrane) models->recalcMembrane(true, a_ratio);
+    else if (a_model == ModalModels::Plate) models->recalcPlate(true, a_ratio);
+    if (b_model == ModalModels::Beam) models->recalcBeam(false, b_ratio);
+    else if (b_model == ModalModels::Membrane) models->recalcMembrane(false, b_ratio);
+    else if (b_model == ModalModels::Plate) models->recalcPlate(false, b_ratio);
 
     if (mallet_type != l_mallet_type) {
         l_mallet_type = mallet_type;
@@ -544,6 +544,7 @@ void RipplerXAudioProcessor::onSlider()
             vel_noise_att, vel_noise_dec, vel_noise_sus, vel_noise_rel
         );
         voice.setPitch(a_coarse, b_coarse, a_fine, b_fine, curBend);
+        voice.setRatio(a_ratio, b_ratio);
         voice.resA.setParams(srate, a_on, a_model, a_partials, a_decay, a_damp, a_tone, a_hit, a_rel, 
             a_inharm, a_cut, a_radius, vel_a_decay, vel_a_hit, vel_a_inharm, vel_a_damp, vel_a_tone);
         voice.resB.setParams(srate, b_on, b_model, b_partials, b_decay, b_damp, b_tone, b_hit, b_rel, 

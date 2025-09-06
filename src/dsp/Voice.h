@@ -28,10 +28,14 @@ public:
 	void release();
 	void clear();
 	void setPitch(double a_coarse, double b_coarse, double a_fine, double b_fine, double pitch_bend);
+	void setRatio(double _a_ratio, double _b_ratio);
 	void applyPitch(std::array<double, 64>& model, double factor);
 	void applyPitchBend(double bend);
 	double inline freqShift(double fa, double fb) const;
-	std::tuple<std::array<double, 64>, std::array<double, 64>> calcFrequencyShifts();
+	std::tuple<std::array<double, 64>, std::array<double, 64>> calcFrequencyShifts(
+		std::array<double, 64>& aModel,
+		std::array<double, 64>& bModel
+	);
 	void setCoupling(bool _couple, double _split);
 	void updateResonators();
 
@@ -43,6 +47,8 @@ public:
 	bool couple = false;
 	double split = 0.0;
 	double srate = 44100.0;
+	double a_ratio = 1.0; // used to recalculate models
+	double b_ratio = 1.0; // used to recalculate models
 
 	// used to fade out on repeat notes
 	bool isFading = false;

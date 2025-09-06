@@ -88,6 +88,12 @@ double Partial::process(double input)
 	return output;
 }
 
+void Partial::applyGain(double gain)
+{
+	b0 *= gain;
+	b2 *= gain;
+}
+
 void Partial::applyPitchBend(double pitch_bend)
 {
 	out_of_range = false;

@@ -92,6 +92,12 @@ void Voice::setPitch(double a_coarse, double b_coarse, double a_fine, double b_f
 	pitchBend = _pitch_bend;
 }
 
+void Voice::setRatio(double _a_ratio, double _b_ratio)
+{
+	a_ratio = _a_ratio;
+	b_ratio = _b_ratio;
+}
+
 void Voice::applyPitch(std::array<double, 64>& model, double factor)
 {
 	for (double& ratio : model)
@@ -119,14 +125,10 @@ double inline Voice::freqShift(double fa, double fb) const
 * When resonators are coupled in serial a frequency split is applied
 * using the formula f +-= (fa + fb) / 2 + sqrt(((fa - fb) / 2)**2 + k**2) where k is the coupling strength
 */
-std::tuple<std::array<double, 64>, std::array<double,64>> Voice::calcFrequencyShifts()
-{
-	std::array<double, 64> aModel = models.aModels[resA.nmodel];
-	std::array<double, 64> bModel = models.bModels[resB.nmodel];
-
-	if (aPitchFactor != 1.0) applyPitch(aModel, aPitchFactor);
-	if (bPitchFactor != 1.0) applyPitch(bModel, bPitchFactor);
-
+std::tuple<std::array<double, 64>, std::array<double,64>> Voice::calcFrequencyShifts(
+	std::array<double, 64>& aModel,
+	std::array<double, 64>& bModel
+) {
 	std::array<double, 64> aShifts = aModel;
 	std::array<double, 64> bShifts = bModel;
 
@@ -148,22 +150,28 @@ std::tuple<std::array<double, 64>, std::array<double,64>> Voice::calcFrequencySh
 
 void Voice::updateResonators()
 {
-	std::array<double,64> aModel;
-	std::array<double,64> bModel;
+	std::array<double,64> aModel = models.aModels[resA.nmodel];
+	std::array<double,64> bModel = models.bModels[resB.nmodel];
+	std::array<double, 64> aGain = models.getGains((ModalModels)resA.nmodel);
+	std::array<double, 64> bGain = models.getGains((ModalModels)resB.nmodel);
+
+	if (resA.nmodel == ModalModels::Djembe) {
+		aModel = models.calcDjembe(freq, a_ratio);
+	}
+	if (resB.nmodel == ModalModels::Djembe) {
+		bModel = models.calcDjembe(freq, b_ratio);
+	}
+
+	if (aPitchFactor != 1.0) applyPitch(aModel, aPitchFactor);
+	if (bPitchFactor != 1.0) applyPitch(bModel, bPitchFactor);
 
 	// if coupling mode is serial apply frequency splitting
 	if (couple && resA.on && resB.on) {
-		auto [aShifts, bShifts] = calcFrequencyShifts();
+		auto [aShifts, bShifts] = calcFrequencyShifts(aModel, bModel);
 		aModel = aShifts;
 		bModel = bShifts;
 	}
-	else {
-		aModel = models.aModels[resA.nmodel];
-		bModel = models.bModels[resB.nmodel];
-		if (aPitchFactor != 1.0) applyPitch(aModel, aPitchFactor);
-		if (bPitchFactor != 1.0) applyPitch(bModel, bPitchFactor);
-	}
 
-	if (resA.on) resA.update(freq, vel, isRelease, pitchBend, aModel);
-	if (resB.on) resB.update(freq, vel, isRelease, pitchBend, bModel);
+	if (resA.on) resA.update(freq, vel, isRelease, pitchBend, aModel, aGain);
+	if (resB.on) resB.update(freq, vel, isRelease, pitchBend, bModel, bGain);
 }
