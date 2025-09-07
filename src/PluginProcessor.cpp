@@ -91,6 +91,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("gain", "Res Gain", -24.0f, 24.0f, 0.0f),
         std::make_unique<juce::AudioParameterInt>("bend_range", "PitchBend Range", 1, 24, 2),
         std::make_unique<juce::AudioParameterBool>("stereoizer", "Stereoizer", true),
+        std::make_unique<juce::AudioParameterBool>("reuse_voices", "Reuse Voices", false),
     }),
     mtsClientPtr{nullptr}
 #endif
@@ -379,12 +380,13 @@ bool RipplerXAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts)
 
 int RipplerXAudioProcessor::pickVoice(int note) {
     int pick = 0;
+    bool reuseVoices = (bool)params.getRawParameterValue("reuse_voices")->load();
 
     for (int i = 1; i < polyphony; ++i) {
         const auto& v1 = voices[i];
         const auto& v2 = voices[pick];
 
-        if (v1->note == note) {
+        if (v1->note == note && reuseVoices) {
             pick = i;
         }
         else if (!v1->isPressed && !v2->isPressed) {

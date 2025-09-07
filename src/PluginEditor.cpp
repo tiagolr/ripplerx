@@ -62,7 +62,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
             sunImage, 1.0f, juce::Colours::transparentBlack, 
             sunImage, 1.0f, juce::Colours::transparentBlack);
     }
-    sun.setBounds(col+138, row+3, 20, 20);
+    sun.setBounds(col+128, row+3, 20, 20);
     sun.onClick = [this] {
         audioProcessor.toggleTheme();
         loadTheme();
@@ -80,39 +80,14 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
             moonImage, 1.0f, juce::Colours::transparentBlack, 
             moonImage, 1.0f, juce::Colours::transparentBlack);
     }
-    moon.setBounds(col+138, row+3, 20, 20);
+    moon.setBounds(col+128, row+3, 20, 20);
     moon.onClick = [this] {
         audioProcessor.toggleTheme();
         loadTheme();
         repaint();
     };
 
-    col += 160;
-    addAndMakeVisible(sizeLabel);
-    sizeLabel.setColour(juce::Label::ColourIds::textColourId, Colour(globals::COLOR_NEUTRAL_LIGHT));
-    sizeLabel.setFont(FontOptions(16.0f));
-    sizeLabel.setText("UI", NotificationType::dontSendNotification);
-    sizeLabel.setBounds(col, row, 30, 25);
-
-    addAndMakeVisible(sizeMenu);
-    sizeMenu.addItem("100%", 1);
-    sizeMenu.addItem("125%", 2);
-    sizeMenu.addItem("150%", 3);
-    sizeMenu.addItem("175%", 4);
-    sizeMenu.addItem("200%", 5);
-    sizeMenu.setSelectedId(audioProcessor.scale == 1.0f ? 1 
-        : audioProcessor.scale == 1.25f ? 2
-        : audioProcessor.scale == 1.5f ? 3 
-        : audioProcessor.scale == 1.75f ? 4 
-        : 5);
-    sizeMenu.onChange = [this]()
-        {
-            const int value = sizeMenu.getSelectedId();
-            auto scale = value == 1 ? 1.0f : value == 2 ? 1.25f : value == 3 ? 1.5f : value == 4 ? 1.75f : 2.0f;
-            audioProcessor.setScale(scale);
-            setScaleFactor(audioProcessor.scale);
-        };
-    sizeMenu.setBounds(col+25,row,80,25);
+    col += 215;
 
     addAndMakeVisible(velButton);
     velButton.setTooltip("Toggle velocity mapping, can also be set by holding Shift+Drag on knobs");
@@ -127,13 +102,13 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
             repaintVelSliders();
         };
     velButton.setButtonText("Vel Map");
-    velButton.setBounds(col+115, row, 80, 25);
+    velButton.setBounds(col, row, 80, 25);
 
     addAndMakeVisible(polyLabel);
     polyLabel.setColour(juce::Label::ColourIds::textColourId, Colour(globals::COLOR_NEUTRAL_LIGHT));
     polyLabel.setFont(FontOptions(16.0f));
     polyLabel.setText("Voices", NotificationType::dontSendNotification);
-    polyLabel.setBounds(col+115+80+5, row, 50, 25);
+    polyLabel.setBounds(col+80+5, row, 50, 25);
 
     addAndMakeVisible(polyMenu);
     polyMenu.addItem("1", 1);
@@ -150,18 +125,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
                 audioProcessor.setPolyphony(poly);
             });
         };
-    polyMenu.setBounds(col+115+80+50+5,row,55,25);
-
-    addAndMakeVisible(stereoizerBtn);
-    stereoizerBtn.setBounds(Rectangle<int>(50, 25).withPosition(polyMenu.getBounds().getTopRight().translated(6, 0)));
-    stereoizerBtn.setAlpha(0.0f);
-    stereoizerBtn.setTooltip("Toggle stereoizer FX");
-    stereoizerBtn.onClick = [this]()
-        {
-            bool stereo = (bool)audioProcessor.params.getRawParameterValue("stereoizer")->load();
-            audioProcessor.params.getParameter("stereoizer")->setValueNotifyingHost(stereo ? 0.0f : 1.0f);
-            repaint();
-        };
+    polyMenu.setBounds(col+80+50+5,row,55,25);
 
     addAndMakeVisible(presetMenu);
     presetMenu.setText("Patch");
@@ -255,6 +219,11 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
             }
         };
     presetMenu.setBounds(getWidth() - 110, row, 100, 25);
+
+    addAndMakeVisible(settingsBtn);
+    settingsBtn.setBounds(Rectangle<int>(25, 25).withPosition(presetMenu.getBounds().getTopLeft().translated(-25 - 10+3, 0)));
+    settingsBtn.setAlpha(0.f);
+    settingsBtn.onClick = [this]() { showSettingsMenu(); };
 
     // NOISE SLIDERS
     col = 10; row += 35;
@@ -869,7 +838,6 @@ void RipplerXAudioProcessorEditor::loadTheme()
     malletLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL_LIGHT));
     malletSubLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL_LIGHT));
     envelopeLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL_LIGHT));
-    sizeLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL_LIGHT));
     pitchLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL));
     polyLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL_LIGHT));
     aLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL_LIGHT));
@@ -910,12 +878,31 @@ void RipplerXAudioProcessorEditor::paint (Graphics& g)
     path.lineTo((float)bounds.getRight() - 3.0f, (float)bounds.getCentreY() - 2.0f);
     g.strokePath(path, PathStrokeType(2.0f));
 
-    // draw stereoizer button
-    bounds = stereoizerBtn.getBounds();
-    bool stereo = audioProcessor.params.getRawParameterValue("stereoizer")->load();
-    g.setColour(Colour(stereo ? COLOR_ACTIVE : COLOR_NEUTRAL_LIGHT));
-    g.setFont(14.f);
-    g.drawText(stereo ? "Stereo" : "Mono", bounds, Justification::centred, false);
+    // draw settings button
+    drawGear(g, settingsBtn.getBounds(), 10, 6, Colour(COLOR_ACTIVE), Colour(COLOR_BACKGROUND));
+}
+
+void RipplerXAudioProcessorEditor::drawGear(Graphics& g, Rectangle<int> bounds, float radius, int segs, Colour color, Colour background)
+{
+    float x = bounds.toFloat().getCentreX();
+    float y = bounds.toFloat().getCentreY();
+    float oradius = radius;
+    float iradius = radius / 3.f;
+    float cradius = iradius / 1.5f;
+    float coffset = MathConstants<float>::twoPi;
+    float inc = MathConstants<float>::twoPi / segs;
+
+    g.setColour(color);
+    g.fillEllipse(x - oradius, y - oradius, oradius * 2.f, oradius * 2.f);
+
+    g.setColour(background);
+    for (int i = 0; i < segs; i++) {
+        float angle = coffset + i * inc;
+        float cx = x + std::cos(angle) * oradius;
+        float cy = y + std::sin(angle) * oradius;
+        g.fillEllipse(cx - cradius, cy - cradius, cradius * 2, cradius * 2);
+    }
+    g.fillEllipse(x - iradius, y - iradius, iradius * 2.f, iradius * 2.f);
 }
 
 void RipplerXAudioProcessorEditor::repaintVelSliders()
@@ -945,6 +932,51 @@ void RipplerXAudioProcessorEditor::repaintVelSliders()
 
 void RipplerXAudioProcessorEditor::resized()
 {
+}
+
+void RipplerXAudioProcessorEditor::showSettingsMenu()
+{
+    bool stereoizer = (bool)audioProcessor.params.getRawParameterValue("stereoizer")->load();
+    bool reuseVoices = (bool)audioProcessor.params.getRawParameterValue("reuse_voices")->load();
+
+    PopupMenu menu;
+    PopupMenu scaleMenu;
+    scaleMenu.addItem(1, "100%", true, audioProcessor.scale == 1.0f);
+    scaleMenu.addItem(2, "125%", true, audioProcessor.scale == 1.25f);
+    scaleMenu.addItem(3, "150%", true, audioProcessor.scale == 1.5f);
+    scaleMenu.addItem(4, "175%", true, audioProcessor.scale == 1.75f);
+    scaleMenu.addItem(5, "200%", true, audioProcessor.scale == 2.0f);
+
+    PopupMenu polyphonyMenu;
+    polyphonyMenu.addItem(10, "Reuse voices on repeated notes", true, reuseVoices);
+
+    menu.addSubMenu("UI Scale", scaleMenu);
+    menu.addSubMenu("Polyphony", polyphonyMenu);
+    menu.addItem(11, "Stereoizer", true, stereoizer);
+
+    auto menuPos = localPointToGlobal(settingsBtn.getBounds().getBottomRight());
+    menu.showMenuAsync(PopupMenu::Options()
+        .withTargetScreenArea({ menuPos.getX() - 125, menuPos.getY(), 1, 1 }),
+        [this, stereoizer, reuseVoices](int result) {
+            if (result == 0) return;
+            if (result == 1) audioProcessor.setScale(1.f);
+            if (result == 2) audioProcessor.setScale(1.25f);
+            if (result == 3) audioProcessor.setScale(1.5f);
+            if (result == 4) audioProcessor.setScale(1.75f);
+            if (result == 5) audioProcessor.setScale(2.f);
+            if (result >= 1 && result <= 5) {
+                setScaleFactor(audioProcessor.scale);
+            }
+
+            if (result == 10) {
+                auto param = audioProcessor.params.getParameter("reuse_voices");
+                param->setValueNotifyingHost(reuseVoices ? 0.f : 1.f);
+            }
+            if (result == 11) {
+                auto param = audioProcessor.params.getParameter("stereoizer");
+                param->setValueNotifyingHost(stereoizer ? 0.f : 1.f);
+            }
+        });
 }
 
 void RipplerXAudioProcessorEditor::showMalletMenu()

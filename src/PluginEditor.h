@@ -34,9 +34,11 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
     void repaintVelSliders ();
+    void showSettingsMenu();
     void showMalletMenu();
     void showModelMenu(bool AorB);
     void showPartialsMenu(bool AorB);
+    void drawGear(Graphics& g, Rectangle<int> bounds, float radius, int segs, Colour color, Colour background);
 
 private:
     RipplerXAudioProcessor& audioProcessor;
@@ -53,12 +55,11 @@ private:
     ImageButton logo;
     ImageButton sun;
     ImageButton moon;
-    Label sizeLabel;
-    ComboBox sizeMenu;
     Label polyLabel;
     ComboBox polyMenu;
     TextButton velButton;
     ComboBox presetMenu;
+    TextButton settingsBtn;
 #if defined(DEBUG)
     juce::TextButton presetExport;
 #endif
@@ -136,7 +137,6 @@ private:
     Label bendLabel;
     std::unique_ptr<Pitch>bendPitch;
     std::unique_ptr<Rotary> gain;
-    TextButton stereoizerBtn;
 
     TooltipWindow tooltipWindow;
     juce::MidiKeyboardComponent keyboardComponent;
