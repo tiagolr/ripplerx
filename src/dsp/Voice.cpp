@@ -146,7 +146,7 @@ double Voice::processOscillators(bool isA)
 		}
 	}
 
-	final *= isTube ? 0.25 : 0.004; // gain normalization set by hear
+	final *= isTube ? 0.125 : 0.004; // gain normalization set by hear
 
 	return final;
 }
