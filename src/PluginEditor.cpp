@@ -298,14 +298,14 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     envelopeLabel.setText("ADSR", NotificationType::dontSendNotification);
     envelopeLabel.setBounds(col+10, row, 60, 25);
 
-    addAndMakeVisible(noiseDC);
-    noiseDCAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.params, "noise_dc", noiseDC);
-    noiseDC.setComponentID("noise_dc");
-    noiseDC.setSliderStyle(Slider::LinearBar);
-    noiseDC.setTooltip("DC component excites the resonators without the grainy sound of noise.");
-    noiseDC.setBounds(col + 65, row+2, 80, 20);
-    noiseDC.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
-    noiseDC.setTextBoxStyle(Slider::NoTextBox, true, 10, 10);
+    addAndMakeVisible(noiseOSC);
+    noiseDCAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.params, "noise_osc", noiseOSC);
+    noiseOSC.setComponentID("noise_osc");
+    noiseOSC.setSliderStyle(Slider::LinearBar);
+    noiseOSC.setTooltip("Use oscillators to excite the resonators instead of noise");
+    noiseOSC.setBounds(col + 65, row+2, 80, 20);
+    noiseOSC.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
+    noiseOSC.setTextBoxStyle(Slider::NoTextBox, true, 10, 10);
 
     row += 25;
 

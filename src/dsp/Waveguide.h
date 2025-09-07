@@ -26,6 +26,8 @@ public:
 	double rel = 0.0;
 	double vel_decay = 0.0;
 
+	double f_k = 0.0;
+
 private:
 	double read_ptr_frac = 0.0;
 	int write_ptr = 0;

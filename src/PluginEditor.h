@@ -66,7 +66,7 @@ private:
     // Noise
     ComboBox noiseFilterMenu;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> noiseFilterAttachment;
-    Slider noiseDC;
+    Slider noiseOSC;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> noiseDCAttachment;
     std::unique_ptr<Rotary> noiseMix;
     std::unique_ptr<Rotary> noiseRes;

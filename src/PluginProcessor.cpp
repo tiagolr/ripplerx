@@ -49,7 +49,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("b_coarse", "B coarse pitch", juce::NormalisableRange<float>(-48.0f, 48.0f, 1.0f, 1.0f), 0.0f),
         std::make_unique<juce::AudioParameterFloat>("b_fine", "B fine pitch", juce::NormalisableRange<float>(-99.0f, 99.0f, 1.0f, 1.0f), 0.0f),
 
-        std::make_unique<juce::AudioParameterFloat>("noise_dc", "Noise DC", juce::NormalisableRange<float>(0.0f, 1.0f, 0.0001f, 0.3f), 0.0f),
+        std::make_unique<juce::AudioParameterFloat>("noise_osc", "Noise DC", juce::NormalisableRange<float>(0.0f, 1.0f, 0.0001f, 1.0f), 0.0f),
         std::make_unique<juce::AudioParameterFloat>("noise_mix", "Noise Mix", juce::NormalisableRange<float>(0.0f, 1.0f, 0.0001f, 0.3f), 0.0f),
         std::make_unique<juce::AudioParameterFloat>("noise_res", "Noise Resonance", juce::NormalisableRange<float>(0.0f, 1.0f, 0.0001f, 0.3f), 0.0f),
         std::make_unique<juce::AudioParameterChoice>("noise_filter_mode", "Noise Filter Mode", StringArray {"LP", "BP", "HP"}, 2),
@@ -377,11 +377,33 @@ bool RipplerXAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts)
 }
 #endif
 
+int RipplerXAudioProcessor::stealVoice() {
+    int pick = 0;
+
+    for (int i = 1; i < polyphony; ++i) {
+        const auto& v1 = voices[i];
+        const auto& v2 = voices[pick];
+
+        if (!v1->isPressed && !v2->isPressed) {
+            if (v1->release_ts < v2->release_ts) pick = i;
+        }
+        else if (v1->isPressed && v2->isPressed) {
+            if (v1->pressed_ts < v2->pressed_ts) pick = i;
+        }
+        else if (!v1->isPressed && v2->isPressed) {
+            pick = i;
+        }
+    }
+
+    return pick;
+}
+
 void RipplerXAudioProcessor::onNote(MIDIMsg msg)
 {
     auto srate = getSampleRate();
+
+    int nvoice = stealVoice();
     Voice& voice = *voices[nvoice];
-    nvoice = (nvoice + 1) % polyphony;
 
     auto mallet_type = (MalletType)params.getRawParameterValue("mallet_type")->load();
     auto mallet_stiff = (double)params.getRawParameterValue("mallet_stiff")->load();
@@ -395,7 +417,7 @@ void RipplerXAudioProcessor::offNote(MIDIMsg msg)
 {
     for (int i = 0; i < polyphony; ++i) {
         Voice& voice = *voices[i];
-        if (voice.note == msg.note) {
+        if (voice.note == msg.note && !voice.isRelease) {
             voice.release();
         }
     }
@@ -587,7 +609,7 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
     auto mallet_res = (double)params.getRawParameterValue("mallet_res")->load();
     auto vel_mallet_mix = (double)params.getRawParameterValue("vel_mallet_mix")->load();
     auto vel_mallet_res = (double)params.getRawParameterValue("vel_mallet_res")->load();
-    auto noise_dc = (double)params.getRawParameterValue("noise_dc")->load();
+    auto noise_osc = (double)params.getRawParameterValue("noise_osc")->load();
     auto noise_mix = params.getRawParameterValue("noise_mix")->load();
     auto noise_mix_range = params.getParameter("noise_mix")->getNormalisableRange();
     noise_mix = noise_mix_range.convertTo0to1(noise_mix);
@@ -731,19 +753,25 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
             // voice fade out used to declick on voice note repeat
             double voiceFadeOutEnv = voice.isFading ? voice.fadeOut() : 1.0;
 
-            auto msample = voice.mallet.process(); // process mallet
+            // process mallet
+            auto msample = voice.mallet.process(); 
             if (msample) {
                 dirOut += msample * fmax(0.0, fmin(1.0, mallet_mix + vel_mallet_mix * voice.vel)) * voiceFadeOutEnv;
                 resOut += msample * fmax(0.0, fmin(1.0, mallet_res + vel_mallet_res * voice.vel));
             }
 
+            // process audio in
             if (audioIn && voice.isPressed)
                 resOut += audioIn;
 
-            auto noise = voice.noise.process(); // process noise
+            // process noise
+            auto noise = voice.noise.process(); 
             if (voice.noise.env.state != 0) {
+                auto osc = noise_osc > 0.0 && (noise_res > 0.0 || vel_noise_res > 0.0)
+                    ? (voice.processOscillators(false) + voice.processOscillators(true)) * voice.noise.env.env * noise_osc
+                    : 0.0;
                 dirOut += noise * (double)noise_mix_range.convertFrom0to1(fmax(0.f, fmin(1.f, noise_mix + vel_noise_mix * (float)voice.vel))) * voiceFadeOutEnv;
-                resOut += voice.processOscillators() * voice.noise.env.env * (double)noise_res_range.convertFrom0to1(fmax(0.f, fmin(1.f, noise_res + vel_noise_res * (float)voice.vel)));
+                resOut += (noise * (1.0 - noise_osc) + osc) * (double)noise_res_range.convertFrom0to1(fmax(0.f, fmin(1.f, noise_res + vel_noise_res * (float)voice.vel)));
             }
 
             auto out_from_a = 0.0; // output from voice A into B in case of resonator serial coupling

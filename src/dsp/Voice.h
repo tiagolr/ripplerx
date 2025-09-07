@@ -6,6 +6,7 @@
 
 #pragma once
 #include <array>
+#include <chrono>
 #include "Mallet.h"
 #include "Noise.h"
 #include "Resonator.h"
@@ -14,6 +15,8 @@
 
 class Models;
 class Sampler;
+
+using namespace std::chrono;
 
 class Voice
 {
@@ -31,7 +34,7 @@ public:
 	void setRatio(double _a_ratio, double _b_ratio);
 	void applyPitch(std::array<double, 64>& model, double factor);
 	void applyPitchBend(double bend);
-	double processOscillators();
+	double processOscillators(bool isA);
 	double inline freqShift(double fa, double fb) const;
 	std::tuple<std::array<double, 64>, std::array<double, 64>> calcFrequencyShifts(
 		std::array<double, 64>& aModel,
@@ -50,6 +53,8 @@ public:
 	double srate = 44100.0;
 	double a_ratio = 1.0; // used to recalculate models
 	double b_ratio = 1.0; // used to recalculate models
+	int64_t pressed_ts = 0; // timestamp used to order notes
+	int64_t release_ts = 0; // timestamp used to order notes
 
 	// used to fade out on repeat notes
 	bool isFading = false;

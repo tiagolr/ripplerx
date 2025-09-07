@@ -27,7 +27,7 @@ void CustomLookAndFeel::drawLinearSlider(juce::Graphics& g,
     if (style == juce::Slider::LinearBar)
     {
         // Draw a filled bar
-        g.setColour(Colours::black.withAlpha(0.5f));
+        g.setColour(Colour(globals::COLOR_ACTIVE).withAlpha(0.5f));
         g.fillRoundedRectangle(x - 0.5f, y-0.5f, (float)width, (float)height, 3.f); // background
 
         g.setColour(Colour(globals::COLOR_ACTIVE));
@@ -35,14 +35,14 @@ void CustomLookAndFeel::drawLinearSlider(juce::Graphics& g,
 
         //g.drawRoundedRectangle(x - 0.5f, y - 0.5f, (float)width, (float)height, 3.f, 1.f);
 
-        if (slider.getComponentID() == "noise_dc") {
+        if (slider.getComponentID() == "noise_osc") {
             String text;
             if (slider.isMouseButtonDown())       // mouse is pressed
                 text = String(std::round(slider.getValue() * 1000) / 10.f) + " %";
             else
-                text = "DC";
+                text = "OSC";
 
-            g.setColour(Colours::white);
+            g.setColour(isDark ? Colour(globals::COLOR_BACKGROUND).darker(0.7f) : Colours::white);
             g.setFont(15.0f);
             g.drawFittedText(text, x, y, width, height , juce::Justification::centred, 1);
         }

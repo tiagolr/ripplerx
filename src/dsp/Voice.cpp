@@ -53,6 +53,7 @@ void Voice::triggerStart()
 	resB.clear();
 	isRelease = false;
 	isPressed = true;
+	pressed_ts = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 	note = newNote;
 	vel = newVel;
 	freq = newFreq;
@@ -68,6 +69,7 @@ void Voice::release()
 {
 	isRelease = true;
 	isPressed = false;
+	release_ts = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 	noise.release();
 	updateResonators();
 }
@@ -116,29 +118,35 @@ void Voice::applyPitchBend(double bend)
 // processes an array of sinewave oscillators
 // one for each partial
 // used to excite resonators without the grainy sound of noise
-double Voice::processOscillators()
+double Voice::processOscillators(bool isA)
 {
+	auto& res = isA ? resA : resB;
+	auto& phases = isA ? aPhases : bPhases;
+
 	double final = 0.0;
-	if (resA.on) {
-		for (int i = 0; i < resA.npartials; i++) {
-			auto& partial = resA.partials[i];
+	if (!res.on) return final;
+
+	bool isTube = res.nmodel == OpenTube || res.nmodel == ClosedTube;
+
+	if (isTube) {
+		phases[0] += res.waveguide.f_k / srate;
+		if (phases[0] > 1.0) phases[0] -= 1.0;
+		final += res.nmodel == OpenTube 
+			? phases[0] * -2 + 1 // saw wave produces the same harmonics as open tube
+			: phases[0] < 0.5 ? -1 : 1; // square wave produces sames harmonitcs as closed tube
+	}
+	else {
+		for (int i = 0; i < res.npartials; i++) {
+			auto& partial = res.partials[i];
 			if (!partial.out_of_range) {
-				aPhases[i] += partial.f_k / srate;
-				if (aPhases[i] > 1.0) aPhases[i] -= 1.0;
-				final += Partial::sinLUT(aPhases[i]);
+				phases[i] += partial.f_k / srate;
+				if (phases[i] > 1.0) phases[i] -= 1.0;
+				final += Partial::sinLUT(phases[i]);
 			}
 		}
 	}
-	if (resB.on) {
-		for (int i = 0; i < resB.npartials; i++) {
-			auto& partial = resB.partials[i];
-			if (!partial.out_of_range) {
-				bPhases[i] += partial.f_k / srate;
-				if (bPhases[i] > 1.0) bPhases[i] -= 1.0;
-				final += Partial::sinLUT(bPhases[i]);
-			}
-		}
-	}
+
+	final *= isTube ? 0.25 : 0.004; // gain normalization set by hear
 
 	return final;
 }

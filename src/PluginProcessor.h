@@ -79,7 +79,7 @@ public:
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
    #endif
 
-    float normalizeVolSlider(float val);
+    int stealVoice ();
     void onNote (MIDIMsg msg);
     void offNote (MIDIMsg msg);
     void onSlider ();
@@ -130,7 +130,6 @@ private:
     std::vector<std::unique_ptr<Voice>> voices;
     std::unique_ptr<Models> models;
     std::unique_ptr<Sampler> malletSampler;
-    int nvoice = 0; // next voice to use
     Comb comb{};
     Limiter limiter{};
     

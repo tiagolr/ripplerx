@@ -5,7 +5,7 @@
 void Waveguide::update(double f_0, double vel, double pitch_bend, bool isRelease)
 {
 	base_freq = f_0;
-	auto f_k = base_freq * pitch_bend;
+	f_k = base_freq * pitch_bend;
 	auto tlen = srate / f_k;
 	if (is_closed) tlen *= 0.5; // fix closed tube one octave lower
 	read_ptr_frac = write_ptr - tlen;
@@ -20,7 +20,7 @@ void Waveguide::update(double f_0, double vel, double pitch_bend, bool isRelease
 
 void Waveguide::applyPitchBend(double pitch_bend)
 {
-	auto f_k = base_freq * pitch_bend;
+	f_k = base_freq * pitch_bend;
 	auto tlen = srate / f_k;
 	if (is_closed) tlen *= 0.5; // fix closed tube one octave lower
 
