@@ -14,7 +14,7 @@ void Partial::initA1LUT(double sampleRate)
 {
     static double a1LUTSrate = 0.0;
     if (a1LUTSrate != sampleRate) {
-        constexpr double fMin = 20.0;
+        constexpr double fMin = 1.0;
         constexpr double fMax = 20000.0;
         constexpr size_t LUT_SIZE = 4096;
 
@@ -50,7 +50,7 @@ void Partial::update(double f_0, double ratio, double ratio_max, double vel, dou
 	if (isRelease)
 		decay_k *= rel;
 
-	if (f_k >= 20000.0 || f_k < 20.0 || decay_k == 0.0) {
+	if (f_k >= 20000.0 || f_k < 1.0 || decay_k == 0.0) {
 		//b0 = b2 = a1 = a2 = 0.0;
 		//a0 = 1.0;
 		//return;
@@ -106,7 +106,7 @@ void Partial::applyPitchBend(double pitch_bend)
 {
 	out_of_range = false;
 	f_k = base_f_k * pitch_bend;
-	if (f_k < 20.0 || f_k > 20000.0) {
+	if (f_k < 1.0 || f_k > 20000.0) {
 		out_of_range = true;
 		return;
 	}
