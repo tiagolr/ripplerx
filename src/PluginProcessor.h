@@ -79,7 +79,7 @@ public:
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
    #endif
 
-    int stealVoice (int note);
+    int pickVoice (int note);
     void onNote (MIDIMsg msg);
     void offNote (MIDIMsg msg);
     void onSlider ();

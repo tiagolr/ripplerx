@@ -377,7 +377,7 @@ bool RipplerXAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts)
 }
 #endif
 
-int RipplerXAudioProcessor::stealVoice(int note) {
+int RipplerXAudioProcessor::pickVoice(int note) {
     int pick = 0;
 
     for (int i = 1; i < polyphony; ++i) {
@@ -405,7 +405,7 @@ void RipplerXAudioProcessor::onNote(MIDIMsg msg)
 {
     auto srate = getSampleRate();
 
-    int nvoice = stealVoice(msg.note);
+    int nvoice = pickVoice(msg.note);
     Voice& voice = *voices[nvoice];
 
     auto mallet_type = (MalletType)params.getRawParameterValue("mallet_type")->load();
