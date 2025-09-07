@@ -50,6 +50,15 @@ void Filter::clear(double input)
 	y0 = y1 = input / (1.0 + a1 + a2) * (b0 + b1 + b2);
 }
 
+void Filter::copy(Filter& src) 
+{
+	a1 = src.a1;
+	a2 = src.a2;
+	b0 = src.b0;
+	b1 = src.b1;
+	b2 = src.b2;
+}
+
 double Filter::df1(double sample)
 {
 	auto x2 = x1;

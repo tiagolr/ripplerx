@@ -13,6 +13,7 @@ public:
 	void hp(double srate, double freq, double q);
 	void clear(double input);
 	double df1(double sample);
+	void copy(Filter& f);
 
 private:
 	double a1 = 0.0;

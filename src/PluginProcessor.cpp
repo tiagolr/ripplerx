@@ -377,14 +377,17 @@ bool RipplerXAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts)
 }
 #endif
 
-int RipplerXAudioProcessor::stealVoice() {
+int RipplerXAudioProcessor::stealVoice(int note) {
     int pick = 0;
 
     for (int i = 1; i < polyphony; ++i) {
         const auto& v1 = voices[i];
         const auto& v2 = voices[pick];
 
-        if (!v1->isPressed && !v2->isPressed) {
+        if (v1->note == note) {
+            pick = i;
+        }
+        else if (!v1->isPressed && !v2->isPressed) {
             if (v1->release_ts < v2->release_ts) pick = i;
         }
         else if (v1->isPressed && v2->isPressed) {
@@ -402,7 +405,7 @@ void RipplerXAudioProcessor::onNote(MIDIMsg msg)
 {
     auto srate = getSampleRate();
 
-    int nvoice = stealVoice();
+    int nvoice = stealVoice(msg.note);
     Voice& voice = *voices[nvoice];
 
     auto mallet_type = (MalletType)params.getRawParameterValue("mallet_type")->load();
@@ -768,7 +771,7 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
             auto noise = voice.noise.process(); 
             if (voice.noise.env.state != 0) {
                 auto osc = noise_osc > 0.0 && (noise_res > 0.0 || vel_noise_res > 0.0)
-                    ? (voice.processOscillators(false) + voice.processOscillators(true)) * voice.noise.env.env * noise_osc
+                    ? voice.noise.processOSC(voice.processOscillators(false) + voice.processOscillators(true)) * noise_osc
                     : 0.0;
                 dirOut += noise * (double)noise_mix_range.convertFrom0to1(fmax(0.f, fmin(1.f, noise_mix + vel_noise_mix * (float)voice.vel))) * voiceFadeOutEnv;
                 resOut += (noise * (1.0 - noise_osc) + osc) * (double)noise_res_range.convertFrom0to1(fmax(0.f, fmin(1.f, noise_res + vel_noise_res * (float)voice.vel)));

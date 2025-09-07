@@ -20,6 +20,7 @@ public:
 	void initEnvelope();
 	void release();
 	void clear();
+	double processOSC(double input);
 
 	double att = 0.0;
 	double dec = 0.0;
@@ -44,6 +45,7 @@ public:
 
 private:
 	Filter filter{};
+	Filter osc_filter{}; // filter duplicate used on oscillator exciters signal
 	int fmode = 0;
 	double freq = 0.0;
 };

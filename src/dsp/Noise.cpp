@@ -52,6 +52,8 @@ void Noise::initFilter()
 	else if (fmode == 1) filter.bp(srate, f, res);
 	else if (fmode == 2) filter.hp(srate, f, res);
 	else throw "Unknown filter mode";
+
+	osc_filter.copy(filter);
 }
 
 static double susToDb(double val) {
@@ -81,6 +83,7 @@ void Noise::clear()
 {
 	env.reset();
 	filter.clear(0.0);
+	osc_filter.clear(0.0);
 }
 
 double Noise::process()
@@ -95,5 +98,12 @@ double Noise::process()
 		filter.clear(0.0); // envelope has finished, clear filter to avoid pops
 
 	return sample * env.env;
+}
+
+// runs the input through the same filter and envelope as this noise instance
+double Noise::processOSC(double input)
+{
+	if (!env.state) return 0.0;
+	return (filter_active ? osc_filter.df1(input) : input) * env.env;
 }
 
