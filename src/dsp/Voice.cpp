@@ -113,6 +113,36 @@ void Voice::applyPitchBend(double bend)
 	}
 }
 
+// processes an array of sinewave oscillators
+// one for each partial
+// used to excite resonators without the grainy sound of noise
+double Voice::processOscillators()
+{
+	double final = 0.0;
+	if (resA.on) {
+		for (int i = 0; i < resA.npartials; i++) {
+			auto& partial = resA.partials[i];
+			if (!partial.out_of_range) {
+				aPhases[i] += partial.f_k / srate;
+				if (aPhases[i] > 1.0) aPhases[i] -= 1.0;
+				final += Partial::sinLUT(aPhases[i]);
+			}
+		}
+	}
+	if (resB.on) {
+		for (int i = 0; i < resB.npartials; i++) {
+			auto& partial = resB.partials[i];
+			if (!partial.out_of_range) {
+				bPhases[i] += partial.f_k / srate;
+				if (bPhases[i] > 1.0) bPhases[i] -= 1.0;
+				final += Partial::sinLUT(bPhases[i]);
+			}
+		}
+	}
+
+	return final;
+}
+
 double inline Voice::freqShift(double fa, double fb) const
 {
 	auto avg = (fa + fb) / 2.0;

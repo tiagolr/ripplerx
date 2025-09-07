@@ -12,6 +12,7 @@ public:
 	~Partial() {};
 
 	static LookupTable a1LUT;
+	static LookupTable sinLUT;
 	static void initA1LUT(double sampleRate);
 
 	void update(double freq, double ratio, double ratio_max, double vel, double pitch_bend, bool isRelease);
@@ -35,9 +36,11 @@ public:
 	double vel_damp = 0.0;
 	double vel_tone = 0.0;
 
+	double f_k = 1000.0;
+	bool out_of_range = false;
+
 private:
 	double base_f_k = 1000.0;
-	bool out_of_range = false;
 	double b0 = 0.0;
 	double b2 = 0.0;
 	double a0 = 1.0;

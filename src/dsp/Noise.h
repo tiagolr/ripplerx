@@ -39,9 +39,11 @@ public:
 	double vel = 0.0;
 	double q = 0.707;
 	bool filter_active = false;
+
+	Envelope env{};
+
 private:
 	Filter filter{};
-	Envelope env{};
 	int fmode = 0;
 	double freq = 0.0;
 };

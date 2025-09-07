@@ -9,6 +9,7 @@
  * used for re-tuning of the partial during pitch bends
  */
 LookupTable Partial::a1LUT;
+LookupTable Partial::sinLUT;
 void Partial::initA1LUT(double sampleRate)
 {
     static double a1LUTSrate = 0.0;
@@ -19,11 +20,18 @@ void Partial::initA1LUT(double sampleRate)
 
         a1LUT.init(
             [sampleRate](double f) {
-                double omega = 2.0 * juce::MathConstants<double>::pi * f / sampleRate;
+                double omega = juce::MathConstants<double>::twoPi * f / sampleRate;
                 return -2.0 * std::cos(omega);
             },
             fMin, fMax, LUT_SIZE
         );
+
+		sinLUT.init(
+			[sampleRate](double norm) {
+				return std::sin(juce::MathConstants<double>::twoPi * norm);
+			},
+			0.0, 1.0, LUT_SIZE
+		);
 
         a1LUTSrate = sampleRate;
     }
@@ -34,7 +42,7 @@ void Partial::update(double f_0, double ratio, double ratio_max, double vel, dou
 	out_of_range = false;
 	auto inharm_k = fmax(0.0, fmin(1.0, exp(log(inharm) + vel * vel_inharm * -log(0.0001)) - 0.0001)); // normalize velocity contribution on a logarithmic scale
 	inharm_k = sqrt(1 + inharm_k * (ratio - 1) * (ratio - 1));
-	auto f_k = f_0 * ratio * inharm_k;
+	f_k = f_0 * ratio * inharm_k;
 	base_f_k = f_k;
 	f_k *= pitch_bend;
 
@@ -97,7 +105,7 @@ void Partial::applyGain(double gain)
 void Partial::applyPitchBend(double pitch_bend)
 {
 	out_of_range = false;
-	auto f_k = base_f_k * pitch_bend;
+	f_k = base_f_k * pitch_bend;
 	if (f_k < 20.0 || f_k > 20000.0) {
 		out_of_range = true;
 		return;

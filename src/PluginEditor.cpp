@@ -297,6 +297,16 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     addAndMakeVisible(envelopeLabel);
     envelopeLabel.setText("ADSR", NotificationType::dontSendNotification);
     envelopeLabel.setBounds(col+10, row, 60, 25);
+
+    addAndMakeVisible(noiseDC);
+    noiseDCAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.params, "noise_dc", noiseDC);
+    noiseDC.setComponentID("noise_dc");
+    noiseDC.setSliderStyle(Slider::LinearBar);
+    noiseDC.setTooltip("DC component excites the resonators without the grainy sound of noise.");
+    noiseDC.setBounds(col + 65, row+2, 80, 20);
+    noiseDC.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
+    noiseDC.setTextBoxStyle(Slider::NoTextBox, true, 10, 10);
+
     row += 25;
 
     noiseA = std::make_unique<Rotary>(p, "noise_att", "Attack", LabelFormat::millis, "vel_noise_att");

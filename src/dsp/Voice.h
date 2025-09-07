@@ -31,6 +31,7 @@ public:
 	void setRatio(double _a_ratio, double _b_ratio);
 	void applyPitch(std::array<double, 64>& model, double factor);
 	void applyPitchBend(double bend);
+	double processOscillators();
 	double inline freqShift(double fa, double fb) const;
 	std::tuple<std::array<double, 64>, std::array<double, 64>> calcFrequencyShifts(
 		std::array<double, 64>& aModel,
@@ -71,4 +72,6 @@ public:
 
 private:
 	Models& models;
+	std::array<double, 64> aPhases = {};
+	std::array<double, 64> bPhases = {};
 };

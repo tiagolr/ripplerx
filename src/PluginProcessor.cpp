@@ -49,6 +49,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("b_coarse", "B coarse pitch", juce::NormalisableRange<float>(-48.0f, 48.0f, 1.0f, 1.0f), 0.0f),
         std::make_unique<juce::AudioParameterFloat>("b_fine", "B fine pitch", juce::NormalisableRange<float>(-99.0f, 99.0f, 1.0f, 1.0f), 0.0f),
 
+        std::make_unique<juce::AudioParameterFloat>("noise_dc", "Noise DC", juce::NormalisableRange<float>(0.0f, 1.0f, 0.0001f, 0.3f), 0.0f),
         std::make_unique<juce::AudioParameterFloat>("noise_mix", "Noise Mix", juce::NormalisableRange<float>(0.0f, 1.0f, 0.0001f, 0.3f), 0.0f),
         std::make_unique<juce::AudioParameterFloat>("noise_res", "Noise Resonance", juce::NormalisableRange<float>(0.0f, 1.0f, 0.0001f, 0.3f), 0.0f),
         std::make_unique<juce::AudioParameterChoice>("noise_filter_mode", "Noise Filter Mode", StringArray {"LP", "BP", "HP"}, 2),
@@ -586,6 +587,7 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
     auto mallet_res = (double)params.getRawParameterValue("mallet_res")->load();
     auto vel_mallet_mix = (double)params.getRawParameterValue("vel_mallet_mix")->load();
     auto vel_mallet_res = (double)params.getRawParameterValue("vel_mallet_res")->load();
+    auto noise_dc = (double)params.getRawParameterValue("noise_dc")->load();
     auto noise_mix = params.getRawParameterValue("noise_mix")->load();
     auto noise_mix_range = params.getParameter("noise_mix")->getNormalisableRange();
     noise_mix = noise_mix_range.convertTo0to1(noise_mix);
@@ -738,10 +740,10 @@ void RipplerXAudioProcessor::processBlockByType (AudioBuffer<FloatType>& buffer,
             if (audioIn && voice.isPressed)
                 resOut += audioIn;
 
-            auto nsample = voice.noise.process(); // process noise
-            if (nsample) {
-                dirOut += nsample * (double)noise_mix_range.convertFrom0to1(fmax(0.f, fmin(1.f, noise_mix + vel_noise_mix * (float)voice.vel))) * voiceFadeOutEnv;
-                resOut += nsample * (double)noise_res_range.convertFrom0to1(fmax(0.f, fmin(1.f, noise_res + vel_noise_res * (float)voice.vel)));
+            auto noise = voice.noise.process(); // process noise
+            if (voice.noise.env.state != 0) {
+                dirOut += noise * (double)noise_mix_range.convertFrom0to1(fmax(0.f, fmin(1.f, noise_mix + vel_noise_mix * (float)voice.vel))) * voiceFadeOutEnv;
+                resOut += voice.processOscillators() * voice.noise.env.env * (double)noise_res_range.convertFrom0to1(fmax(0.f, fmin(1.f, noise_res + vel_noise_res * (float)voice.vel)));
             }
 
             auto out_from_a = 0.0; // output from voice A into B in case of resonator serial coupling
