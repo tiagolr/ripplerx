@@ -25,7 +25,7 @@ public:
 	~Voice() {}
 
 	double note2freq(int _note, MTSClient *mts);
-	void trigger(double srate, int _note, double vel, MalletType malletType, double malletFreq, bool malletKTrack, MTSClient *mts);
+	void trigger(double srate, int _note, double vel, MalletType malletType, double malletFreq, double malletKTrack, MTSClient *mts);
 	void triggerStart();
 	double fadeOut();
 	void release();
@@ -49,7 +49,7 @@ public:
 	bool isRelease = false;
 	bool isPressed = false; // used for audioIn
 	bool couple = false;
-	bool malletKtrack = false;
+	double malletKtrack = 0.0;
 	double split = 0.0;
 	double srate = 44100.0;
 	double a_ratio = 1.0; // used to recalculate models

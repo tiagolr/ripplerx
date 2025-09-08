@@ -15,7 +15,7 @@ double Voice::note2freq(int _note, MTSClient *mts)
 }
 
 // Triggers mallet and noise generator
-void Voice::trigger(double _srate, int _note, double _vel, MalletType _malletType, double _malletFreq, bool _mallet_ktrack, MTSClient* mts)
+void Voice::trigger(double _srate, int _note, double _vel, MalletType _malletType, double _malletFreq, double _mallet_ktrack, MTSClient* mts)
 {
 	srate = _srate;
 	malletType = _malletType;

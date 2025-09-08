@@ -338,17 +338,24 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     addAndMakeVisible(*malletStiff);
     malletStiff->setBounds(col,row+75+75,70,75);
 
-    addAndMakeVisible(ktrackBtn);
-    ktrackBtn.setBounds(col, row + 75 + 75 + 15, 70, 25);
-    ktrackBtn.setButtonText("KTrack");
-    ktrackBtn.setComponentID("button");
-    ktrackBtn.onClick = [this]()
-        {
-            auto param = audioProcessor.params.getParameter("mallet_ktrack");
-            param->setValueNotifyingHost(param->getValue() == 0.0f ? 1.0f : 0.0f);
-            toggleUIComponents();
-        };
+    //addAndMakeVisible(ktrackBtn);
+    //ktrackBtn.setBounds(col, row + 75 + 75 + 15, 70, 25);
+    //ktrackBtn.setButtonText("KTrack");
+    //ktrackBtn.setComponentID("button");
+    //ktrackBtn.onClick = [this]()
+    //    {
+    //        auto param = audioProcessor.params.getParameter("mallet_ktrack");
+    //        param->setValueNotifyingHost(param->getValue() == 0.0f ? 1.0f : 0.0f);
+    //        toggleUIComponents();
+    //    };
 
+    addAndMakeVisible(ktrackSlider);
+    ktrackAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.params, "mallet_ktrack", ktrackSlider);
+    ktrackSlider.setComponentID("ktrack");
+    ktrackSlider.setSliderStyle(Slider::LinearBar);
+    ktrackSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
+    ktrackSlider.setTextBoxStyle(Slider::NoTextBox, true, 10, 10);
+    ktrackSlider.setBounds(col, row + 75 + 75 + 15, 70, 25);
 
     malletPitch = std::make_unique<Rotary>(p, "mallet_pitch", "Pitch", LabelFormat::PitchSemis, "", true);
     addAndMakeVisible(*malletPitch);
@@ -727,7 +734,6 @@ void RipplerXAudioProcessorEditor::toggleUIComponents()
     auto b_model = (int)audioProcessor.params.getRawParameterValue("b_model")->load();
     auto is_serial = (bool)audioProcessor.params.getRawParameterValue("couple")->load();
     auto mallet_type = (MalletType)audioProcessor.params.getRawParameterValue("mallet_type")->load();
-    auto mallet_ktrack = (bool)audioProcessor.params.getRawParameterValue("mallet_ktrack")->load();
 
     auto alpha = a_on ? 1.0f : 0.5f;
     aModel.setAlpha(alpha);
@@ -827,8 +833,7 @@ void RipplerXAudioProcessorEditor::toggleUIComponents()
     malletStiff->setVisible(mallet_type == MalletType::kImpulse);
     malletPitch->setVisible(isSampleMallet);
     malletFilter->setVisible(isSampleMallet);
-    ktrackBtn.setVisible(isSampleMallet);
-    ktrackBtn.setToggleState(mallet_ktrack, dontSendNotification);
+    ktrackSlider.setVisible(isSampleMallet);
 }
 
 void RipplerXAudioProcessorEditor::loadTheme()

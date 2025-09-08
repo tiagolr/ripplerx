@@ -2,7 +2,7 @@
 #include "Sampler.h"
 #include <cmath>
 
-void Mallet::trigger(MalletType _type, double _srate, double freq, int note, bool _ktrack)
+void Mallet::trigger(MalletType _type, double _srate, double freq, int note, double _ktrack)
 {
 	type = _type;
 	srate = _srate;
@@ -15,7 +15,7 @@ void Mallet::trigger(MalletType _type, double _srate, double freq, int note, boo
 		env = exp(-100.0 / srate);
 	}
 	else {
-		keytrack_factor = ktrack ? std::pow(2.0, ((note - 60) / 12.0)) : 1.0;
+		keytrack_factor = std::pow(2.0, ((note - 60) / 12.0) * ktrack);
 		playback_speed = sampler.wavesrate / srate;
 		playback = 0.0;
 	}

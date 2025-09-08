@@ -67,6 +67,18 @@ void CustomLookAndFeel::drawLinearSlider(juce::Graphics& g,
             g.setFont(15.0f);
             g.drawFittedText(text, x, y, width, height , juce::Justification::centred, 1);
         }
+
+        if (slider.getComponentID() == "ktrack") {
+            String text;
+            if (slider.isMouseButtonDown())       // mouse is pressed
+                text = String(std::round(slider.getValue() * 100)) + " %";
+            else
+                text = "KTrack";
+
+            g.setColour(isDark ? Colour(globals::COLOR_BACKGROUND).darker(0.7f) : Colours::white);
+            g.setFont(15.0f);
+            g.drawFittedText(text, x, y, width, height, juce::Justification::centred, 1);
+        }
     }
     else
     {

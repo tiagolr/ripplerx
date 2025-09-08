@@ -45,7 +45,7 @@ public:
 	Mallet(Sampler& sampler) : sampler(sampler) {};
 	~Mallet() {};
 
-	void trigger(MalletType type, double srate, double freq, int note, bool ktrack);
+	void trigger(MalletType type, double srate, double freq, int note, double ktrack);
 	void clear();
 	double process();
 
@@ -60,7 +60,7 @@ public:
 	Filter impulse_filter{};
 
 	// sample mallet fields
-	bool ktrack = false; // key tracking
+	double ktrack = 0.0; // key tracking
 	double keytrack_factor = 1.0;
 	double playback = INFINITY;
 	double playback_speed = 1.0;
