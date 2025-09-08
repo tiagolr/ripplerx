@@ -6,10 +6,10 @@
 
 RipplerXAudioProcessor::RipplerXAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
-         .withInput("Sidechain", juce::AudioChannelSet::stereo(), true)
-         .withOutput("Output", juce::AudioChannelSet::stereo(), true)
-     )
+    : AudioProcessor(BusesProperties()
+        .withInput("Sidechain", juce::AudioChannelSet::stereo(), true)
+        .withOutput("Output", juce::AudioChannelSet::stereo(), true)
+    )
     , settings{}
     , params(*this, &undoManager, "PARAMETERS", {
         std::make_unique<juce::AudioParameterChoice>("mallet_type", "Mallet Type", StringArray { "Impulse","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","User File","Click 1","Click 2","Click 3","Click 4","Click 5","Click 6" }, 0),
@@ -18,6 +18,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterFloat>("mallet_mix", "Mallet Mix", 0.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("mallet_res", "Mallet Resonance", 0.0f, 1.0f, 0.8f),
         std::make_unique<juce::AudioParameterFloat>("mallet_stiff", "Mallet Stifness",juce::NormalisableRange<float>(100.0f, 5000.0f, 1.0f, 0.3f) , 600.0f),
+        std::make_unique<juce::AudioParameterBool>("mallet_ktrack", "Mallet Keytrack", false),
 
         std::make_unique<juce::AudioParameterBool>("a_on", "A ON", true),
         std::make_unique<juce::AudioParameterChoice>("a_model", "A Model", StringArray { "String", "Beam", "Squared", "Membrane", "Plate", "Drumhead", "Marimba", "Open Tube", "Closed Tube", "Marimba2", "Bell", "Djembe" }, 0),
@@ -412,10 +413,11 @@ void RipplerXAudioProcessor::onNote(MIDIMsg msg)
 
     auto mallet_type = (MalletType)params.getRawParameterValue("mallet_type")->load();
     auto mallet_stiff = (double)params.getRawParameterValue("mallet_stiff")->load();
+    bool mallet_ktrack = (bool)params.getRawParameterValue("mallet_ktrack")->load();
     auto vel_mallet_stiff = (double)params.getRawParameterValue("vel_mallet_stiff")->load();
     auto malletFreq = fmax(100.0, fmin(5000.0, exp(log(mallet_stiff) + msg.vel / 127.0 * vel_mallet_stiff * 2.0 * (log(5000.0) - log(100.0)))));
 
-    voice.trigger(srate, msg.note, msg.vel / 127.0, mallet_type, malletFreq, mtsClientPtr);
+    voice.trigger(srate, msg.note, msg.vel / 127.0, mallet_type, malletFreq, mallet_ktrack, mtsClientPtr);
 }
 
 void RipplerXAudioProcessor::offNote(MIDIMsg msg)

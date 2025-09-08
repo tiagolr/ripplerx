@@ -87,6 +87,7 @@ private:
     std::unique_ptr<Rotary> malletStiff;
     std::unique_ptr<Rotary> malletPitch;
     std::unique_ptr<Rotary> malletFilter;
+    TextButton ktrackBtn;
 
     // Res A
     Label aLabel;

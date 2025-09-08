@@ -63,14 +63,24 @@ void Sampler::loadSampleFromBinary(std::unique_ptr<juce::InputStream> stream)
 
 		for (int i = 0; i < numSamples; ++i) {
 			double sample = 0.0;
-
 			// convert the waveform to mono
 			for (int ch = 0; ch < numChannels; ++ch)
 				sample += (double)buf.getSample(ch, i);
-
 			sample /= numChannels;
 
 			waveform.push_back(sample);
+		}
+
+		// normalize waveform
+		double maxVal = 0.0;
+		for (double x : waveform) {
+			maxVal = std::max(maxVal, std::fabs(x));
+		}
+		if (maxVal > 0.0) {
+			double scale = 1.0 / maxVal;
+			for (double& x : waveform) {
+				x *= scale;
+			}
 		}
 	}
 	catch (...) {

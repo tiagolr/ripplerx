@@ -15,7 +15,7 @@ double Voice::note2freq(int _note, MTSClient *mts)
 }
 
 // Triggers mallet and noise generator
-void Voice::trigger(double _srate, int _note, double _vel, MalletType _malletType, double _malletFreq, MTSClient* mts)
+void Voice::trigger(double _srate, int _note, double _vel, MalletType _malletType, double _malletFreq, bool _mallet_ktrack, MTSClient* mts)
 {
 	srate = _srate;
 	malletType = _malletType;
@@ -24,6 +24,7 @@ void Voice::trigger(double _srate, int _note, double _vel, MalletType _malletTyp
 	newVel = _vel;
 	newNote = _note;
 	newFreq = note2freq(newNote, mts);
+	malletKtrack = _mallet_ktrack;
 
 	// fade out active voice before re-triggering
 	if ((resA.on && resA.active) || (resB.on && resB.active)) {
@@ -58,7 +59,7 @@ void Voice::triggerStart()
 	vel = newVel;
 	freq = newFreq;
 
-	mallet.trigger(malletType, srate, malletFreq);
+	mallet.trigger(malletType, srate, malletFreq, note, malletKtrack);
 	noise.attack(vel);
 	if (resA.on) resA.activate();
 	if (resB.on) resB.activate();

@@ -10,10 +10,32 @@ CustomLookAndFeel::CustomLookAndFeel(bool _isDark)
   setColour(TooltipWindow::backgroundColourId, Colour(globals::COLOR_ACTIVE_L).darker(0.4f));
   setColour(PopupMenu::backgroundColourId, Colour(globals::COLOR_ACTIVE_L).darker(0.4f).withAlpha(0.99f));
   setColour(PopupMenu::highlightedBackgroundColourId, Colour(globals::COLOR_ACTIVE_L).darker(0.8f));
+  setColour(TextButton::buttonColourId, Colour(globals::COLOR_ACTIVE));
+  setColour(TextButton::buttonOnColourId, Colour(globals::COLOR_ACTIVE));
+  setColour(TextButton::textColourOnId, Colour(globals::COLOR_BACKGROUND));
+  setColour(TextButton::textColourOffId, Colour(globals::COLOR_ACTIVE));
 
   typeface = juce::Typeface::createSystemTypefaceFor(BinaryData::UbuntuMedium_ttf, BinaryData::UbuntuMedium_ttfSize);
   setDefaultSansSerifTypeface(typeface);
   this->setDefaultLookAndFeel(this);
+}
+
+void CustomLookAndFeel::drawButtonBackground(Graphics& g, Button& button, const Colour& backgroundColour, bool isMouseOverButton, bool isButtonDown)
+{
+    auto tag = button.getComponentID();
+    auto bounds = button.getLocalBounds().toFloat();
+    auto cornerSize = 3.0f;
+
+    if (tag == "button") {
+        g.setColour(backgroundColour);
+        if (button.getToggleState())
+            g.fillRoundedRectangle(bounds, cornerSize);
+        else
+            g.drawRoundedRectangle(bounds.reduced(0.5f, 0.5f), cornerSize, 1.0f);
+        return;
+    }
+
+    LookAndFeel_V4::drawButtonBackground(g, button, backgroundColour, isMouseOverButton, isButtonDown);
 }
 
 void CustomLookAndFeel::drawLinearSlider(juce::Graphics& g,
@@ -26,14 +48,13 @@ void CustomLookAndFeel::drawLinearSlider(juce::Graphics& g,
 {
     if (style == juce::Slider::LinearBar)
     {
+        auto bounds = Rectangle<int>(x, y, width, height).toFloat();
         // Draw a filled bar
         g.setColour(Colour(globals::COLOR_ACTIVE).withAlpha(0.5f));
-        g.fillRoundedRectangle(x - 0.5f, y-0.5f, (float)width, (float)height, 3.f); // background
+        g.fillRoundedRectangle(bounds.reduced(0.5f), 3.f); // background
 
         g.setColour(Colour(globals::COLOR_ACTIVE));
-        g.fillRoundedRectangle(x-0.5f, y-0.5f, static_cast<float>(sliderPos - x), (float)height, 3.f); // filled portion
-
-        //g.drawRoundedRectangle(x - 0.5f, y - 0.5f, (float)width, (float)height, 3.f, 1.f);
+        g.fillRoundedRectangle(bounds.reduced(0.5).withWidth(static_cast<float>(sliderPos - x) - 0.5f), 3.f); // filled portion
 
         if (slider.getComponentID() == "noise_osc") {
             String text;
