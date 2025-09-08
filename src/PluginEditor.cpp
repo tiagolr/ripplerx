@@ -180,7 +180,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
                     [this](const juce::FileChooser& fc)
                     {
                         const auto u = fc.getURLResult();
-                        auto file = u.getLocalFile();
+                        auto file = !u.isEmpty() ? u.getLocalFile() : File();
 
                         if (!file.existsAsFile())
                             return;
@@ -205,10 +205,13 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
                         if (file == juce::File{})
                             return;
 
-                        auto state = audioProcessor.params.copyState();
-                        std::unique_ptr<juce::XmlElement>xml(state.createXml());
-                        juce::String xmlString = xml->toString();
-                        file.replaceWithText(xmlString.toStdString());
+                        juce::MemoryBlock mb;
+                        processor.getStateInformation(mb);
+
+                        if (auto xml = audioProcessor.getXmlFromBinary(mb.getData(), (int)mb.getSize())) {
+                            juce::String xmlString = xml->toString();
+                            file.replaceWithText(xmlString.toStdString());
+                        }
                     });
                 resetPresetMenu();
             }
@@ -678,9 +681,9 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
 #endif
 
     // METER
-    // meter = std::make_unique<Meter>(p);
-    // addAndMakeVisible(*meter);
-    // meter->setBounds(bounds.getRight() - 85, 235, 60, 95);
+    meter = std::make_unique<Meter>(p);
+    addAndMakeVisible(*meter);
+    meter->setBounds(bounds.getRight() - 85, 235 + 40, 60, 95 - 40);
 
     // ABOUT
     about = std::make_unique<About>();
@@ -1012,6 +1015,8 @@ void RipplerXAudioProcessorEditor::showMalletMenu()
     mallets.addItem(26, "Perc 2", true, malletType == 26);
     mallets.addItem(19, "Blip", true, malletType == 19);
     mallets.addItem(20, "Blop", true, malletType == 20);
+    mallets.addSeparator();
+    mallets.addItem(1000, "Load File", true, malletType == 12);
 
     auto menuPos = localPointToGlobal(malletLabel.getBounds().getBottomLeft());
     mallets.showMenuAsync(PopupMenu::Options()
@@ -1019,7 +1024,30 @@ void RipplerXAudioProcessorEditor::showMalletMenu()
         [this](int result) {
             if (result == 0) return;
             auto param = audioProcessor.params.getParameter("mallet_type");
-            param->setValueNotifyingHost(param->convertTo0to1(float(result - 1)));
+
+            if (result == 1000) {
+                mFileChooser.reset(new juce::FileChooser(importAudioTitle, juce::File(), audioExtension));
+                mFileChooser->launchAsync(juce::FileBrowserComponent::openMode |
+                    juce::FileBrowserComponent::canSelectFiles,
+                    [this, param](const juce::FileChooser& fc)
+                    {
+                        const auto url = fc.getURLResult();
+                        File file = !url.isEmpty() ? url.getLocalFile() : File();
+
+                        if (!file.existsAsFile())
+                            return;
+
+                        auto path = file.getFullPathName();
+                        MessageManager::callAsync([this, path, param]() {
+                            audioProcessor.malletSampler->loadSample(path);
+                            param->setValueNotifyingHost(param->convertTo0to1(float(kUserFile)));
+                        });
+                    });
+            }
+            else {
+                param->setValueNotifyingHost(param->convertTo0to1(float(result - 1)));
+            }
+
         });
 }
 

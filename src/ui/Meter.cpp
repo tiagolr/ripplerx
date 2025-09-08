@@ -41,7 +41,7 @@ void Meter::resized()
 	bulbs.clear();
 	for (auto i = 0; i < totalBulbs; i++) {
 		auto bulb = std::make_unique<Bulb>();
-		bulb->colour = gradient.getColourAtPosition(static_cast<double>(i) / totalBulbs);
+		bulb->colour = gradient.getColourAtPosition(static_cast<double>(i) / (totalBulbs - 1));
 		addAndMakeVisible(bulb.get());
 		bulb->setBounds(bulbBounds.removeFromBottom(bulbHeight));
 		bulbs.push_back(std::move(bulb));

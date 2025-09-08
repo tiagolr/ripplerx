@@ -28,6 +28,6 @@ public:
 
 private:
     std::vector<std::unique_ptr<Bulb>> bulbs;
-    const int totalBulbs = 6;
+    const int totalBulbs = 4;
     RipplerXAudioProcessor& audioProcessor;
 };

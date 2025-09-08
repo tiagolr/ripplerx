@@ -849,8 +849,18 @@ juce::AudioProcessorEditor* RipplerXAudioProcessor::createEditor()
 //==============================================================================
 void RipplerXAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
+    auto mallet_type = (int)params.getRawParameterValue("mallet_type")->load();
     auto state = params.copyState();
     state.setProperty("currentProgram", currentProgram, nullptr);
+
+    if (mallet_type == kUserFile && malletSampler->isUserFile) {
+        juce::MemoryOutputStream mo;
+        for (auto s : malletSampler->waveform)
+            mo.writeDouble(s);
+
+        state.setProperty("userSample", mo.getMemoryBlock().toBase64Encoding(), nullptr);
+    }
+
     std::unique_ptr<juce::XmlElement>xml(state.createXml());
     copyXmlToBinary(*xml, destData);
 }
@@ -861,6 +871,13 @@ void RipplerXAudioProcessor::setStateInformation (const void* data, int sizeInBy
     if (xmlState.get() != nullptr) {
         if (xmlState->hasTagName(params.state.getType())) {
             auto state = juce::ValueTree::fromXml (*xmlState);
+
+            if (state.hasProperty("userSample")) {
+                auto encoded = state.getProperty("userSample").toString();
+                malletSampler->loadEncoded(encoded);
+                state.removeProperty("userSample", nullptr);
+            }
+
             if (state.hasProperty("currentProgram")) {
                 currentProgram = static_cast<int>(state.getProperty("currentProgram"));
             }

@@ -138,13 +138,16 @@ private:
     Label bendLabel;
     std::unique_ptr<Pitch>bendPitch;
     std::unique_ptr<Rotary> gain;
+    std::unique_ptr<Meter> meter;
 
     TooltipWindow tooltipWindow;
     juce::MidiKeyboardComponent keyboardComponent;
 
     static constexpr const char* patchExtension = "*.ripx";
+    static constexpr const char* audioExtension = "*.wav;*.aiff;*.aif;*.flac;*.ogg;*.mp3";
     static constexpr const char* exportWindowTitle = "Export patch";
     static constexpr const char* importWindowTitle = "Import patch";
+    static constexpr const char* importAudioTitle = "Import audio file";
     std::unique_ptr<juce::FileChooser> mFileChooser;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RipplerXAudioProcessorEditor)

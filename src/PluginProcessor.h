@@ -122,6 +122,7 @@ public:
     juce::AudioProcessorValueTreeState params;
     juce::UndoManager undoManager;
 
+    std::unique_ptr<Sampler> malletSampler;
 private:
     bool paramChanged = false; // flag that triggers on any param change
     juce::ApplicationProperties settings;
@@ -129,7 +130,6 @@ private:
     std::vector<MIDIMsg> sustainPedalNotes;
     std::vector<std::unique_ptr<Voice>> voices;
     std::unique_ptr<Models> models;
-    std::unique_ptr<Sampler> malletSampler;
     Comb comb{};
     Limiter limiter{};
     

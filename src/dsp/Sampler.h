@@ -19,6 +19,7 @@ public:
 	Sampler() {};
 	~Sampler() {};
 
+	void loadEncoded(juce::String encoded);
 	void loadSample(juce::String filepath);
 	void loadInternalSample(MalletType type);
 	void loadSampleFromBinary(std::unique_ptr<juce::InputStream> stream);

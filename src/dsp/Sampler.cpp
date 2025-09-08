@@ -24,6 +24,17 @@ void Sampler::setPitch(double semis)
 	pitchfactor = std::pow(2.0, (semis / 12.0));
 }
 
+void Sampler::loadEncoded(String encoded)
+{
+	waveform.clear();
+	juce::MemoryBlock block;
+	block.fromBase64Encoding(encoded);
+
+	juce::MemoryInputStream mi(block, false);
+	while (mi.getNumBytesRemaining() >= sizeof(double))
+		waveform.push_back(mi.readDouble());
+}
+
 void Sampler::loadSample(String path)
 {
 	File audioFile(path);
@@ -68,7 +79,7 @@ void Sampler::loadSampleFromBinary(std::unique_ptr<juce::InputStream> stream)
 		waveform.clear();
 		waveform.reserve(buf.getNumSamples());
 		int numChannels = buf.getNumChannels();
-		int numSamples = buf.getNumSamples();
+		int numSamples = std::min(3 * (int)wavesrate, buf.getNumSamples());
 
 		for (int i = 0; i < numSamples; ++i) {
 			double sample = 0.0;
