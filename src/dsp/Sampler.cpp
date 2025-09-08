@@ -33,6 +33,8 @@ void Sampler::loadEncoded(String encoded)
 	juce::MemoryInputStream mi(block, false);
 	while (mi.getNumBytesRemaining() >= sizeof(double))
 		waveform.push_back(mi.readDouble());
+
+	isUserFile = true;
 }
 
 void Sampler::loadSample(String path)

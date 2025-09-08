@@ -680,6 +680,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     keyboardComponent.setMidiChannel(1);
     keyboardComponent.setBounds(bounds.withTop(bounds.getHeight() - 60).withLeft(10).withWidth(bounds.getWidth()-20));
     keyboardComponent.setAvailableRange(24, 100);
+    keyboardComponent.setOctaveForMiddleC(4);
     keyboardComponent.setScrollButtonsVisible(false);
     keyboardComponent.setColour(juce::MidiKeyboardComponent::keyDownOverlayColourId, Colour(globals::COLOR_ACTIVE));
     keyboardComponent.setColour(juce::MidiKeyboardComponent::mouseOverKeyOverlayColourId, Colour(globals::COLOR_ACTIVE).withAlpha(0.5f));
