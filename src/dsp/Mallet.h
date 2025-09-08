@@ -1,5 +1,7 @@
 // Copyright 2025 tilr
-// Mallet generator, a simple unit impulse ran through a bandpass filter
+// Mallet generator using different modes
+// impulse - a simple unit impulse ran through a bandpass filter
+// sample - a sample based mallet
 #pragma once
 #include "Filter.h"
 #include "vector"
@@ -25,6 +27,14 @@ enum MalletType
 	kSample4,
 	kSample5,
 	kSample6,
+	kSample7,
+	kSample8,
+	kSample9,
+	kSample10,
+	kSample11,
+	kSample12,
+	kSample13,
+	kSample14,
 };
 
 class Sampler;

@@ -12,7 +12,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
     )
     , settings{}
     , params(*this, &undoManager, "PARAMETERS", {
-        std::make_unique<juce::AudioParameterChoice>("mallet_type", "Mallet Type", StringArray { "Impulse","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","User File","Click 1","Click 2","Click 3","Click 4","Click 5","Click 6" }, 0),
+        std::make_unique<juce::AudioParameterChoice>("mallet_type", "Mallet Type", StringArray { "Impulse","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","Reserved","User File","Click 1","Click 2","Click 3","Click 4","Click 5","Click 6","Blip","Blop","Metal 1","Metal 2","Wood","Strike","Perc 1","Perc 2"}, 0),
         std::make_unique<juce::AudioParameterFloat>("mallet_pitch", "Mallet Pitch", -24.0f, 24.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("mallet_filter", "Mallet Filter", -1.0f, 1.0f, 0.0f),
         std::make_unique<juce::AudioParameterFloat>("mallet_mix", "Mallet Mix", 0.0f, 1.0f, 0.0f),

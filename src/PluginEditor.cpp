@@ -1001,12 +1001,17 @@ void RipplerXAudioProcessorEditor::showMalletMenu()
     PopupMenu mallets;
     mallets.addItem(1, "Impulse", true, malletType == 1);
     mallets.addSeparator();
-    mallets.addItem(13, "Click1", true, malletType == 13);
-    mallets.addItem(14, "Click2", true, malletType == 14);
-    mallets.addItem(15, "Click3", true, malletType == 15);
-    mallets.addItem(16, "Click4", true, malletType == 16);
-    mallets.addItem(17, "Click5", true, malletType == 17);
-    mallets.addItem(18, "Click6", true, malletType == 18);
+    mallets.addItem(13, "Click 1", true, malletType == 13);
+    mallets.addItem(14, "Click 2", true, malletType == 14);
+    mallets.addItem(18, "Click 3", true, malletType == 18);
+    mallets.addItem(24, "Strike", true, malletType == 24);
+    mallets.addItem(23, "Wood", true, malletType == 23);
+    mallets.addItem(21, "Metal 1", true, malletType == 21);
+    mallets.addItem(22, "Metal 2", true, malletType == 22);
+    mallets.addItem(25, "Perc 1", true, malletType == 25);
+    mallets.addItem(26, "Perc 2", true, malletType == 26);
+    mallets.addItem(19, "Blip", true, malletType == 19);
+    mallets.addItem(20, "Blop", true, malletType == 20);
 
     auto menuPos = localPointToGlobal(malletLabel.getBounds().getBottomLeft());
     mallets.showMenuAsync(PopupMenu::Options()

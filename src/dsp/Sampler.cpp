@@ -1,6 +1,7 @@
 #include "Sampler.h"
 #include <cmath>
 
+//"Click 1", "Click 2", "Click 3", "Blip", "Blop", "Metal 1", "Metal 2", "Wood", "Perc 1", "Perc 2"
 static const InternalSample samples[] = {
 	{ MalletType::kSample1, BinaryData::click1_wav, BinaryData::click1_wavSize },
 	{ MalletType::kSample2, BinaryData::click2_wav, BinaryData::click2_wavSize },
@@ -8,6 +9,14 @@ static const InternalSample samples[] = {
 	{ MalletType::kSample4, BinaryData::click4_wav, BinaryData::click4_wavSize },
 	{ MalletType::kSample5, BinaryData::click5_wav, BinaryData::click5_wavSize },
 	{ MalletType::kSample6, BinaryData::click6_wav, BinaryData::click6_wavSize },
+	{ MalletType::kSample7, BinaryData::blip_wav, BinaryData::blip_wavSize },
+	{ MalletType::kSample8, BinaryData::blop_wav, BinaryData::blop_wavSize },
+	{ MalletType::kSample9, BinaryData::metal1_wav, BinaryData::metal1_wavSize },
+	{ MalletType::kSample10, BinaryData::metal2_wav, BinaryData::metal2_wavSize },
+	{ MalletType::kSample11, BinaryData::wood_wav, BinaryData::wood_wavSize },
+	{ MalletType::kSample12, BinaryData::strike_wav, BinaryData::strike_wavSize },
+	{ MalletType::kSample13, BinaryData::perc1_wav, BinaryData::perc1_wavSize },
+	{ MalletType::kSample14, BinaryData::perc2_wav, BinaryData::perc2_wavSize}
 };
 
 void Sampler::setPitch(double semis)
