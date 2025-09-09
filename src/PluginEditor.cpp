@@ -20,6 +20,7 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     MessageManager::callAsync([this] {
         setScaleFactor(audioProcessor.scale);
     });
+    setScaleFactor(audioProcessor.scale);
     auto col = 10;
     auto row = 10; 
 
