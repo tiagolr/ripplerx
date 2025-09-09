@@ -17,7 +17,9 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     audioProcessor.params.addParameterListener("mallet_type", this);
 
     setSize (650, 485);
-    setScaleFactor(audioProcessor.scale);
+    MessageManager::callAsync([this] {
+        setScaleFactor(audioProcessor.scale);
+    });
     auto col = 10;
     auto row = 10; 
 
@@ -863,6 +865,7 @@ void RipplerXAudioProcessorEditor::loadTheme()
     malletSubLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL_LIGHT));
     envelopeLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL_LIGHT));
     pitchLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL));
+    bendLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL));
     polyLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL_LIGHT));
     aLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL_LIGHT));
     bLabel.setColour(juce::Label::ColourIds::textColourId, Colour(COLOR_NEUTRAL_LIGHT));
