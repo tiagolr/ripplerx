@@ -18,9 +18,9 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
 
     setSize (650, 485);
     MessageManager::callAsync([this] {
-        setScaleFactor(audioProcessor.scale);
+        setScaleFactor(audioProcessor.scale); // FIX - Reaper
     });
-    setScaleFactor(audioProcessor.scale);
+    setScaleFactor(audioProcessor.scale); // FIX - Logic
     auto col = 10;
     auto row = 10; 
 
