@@ -15,7 +15,7 @@ double Voice::note2freq(int _note, MTSClient *mts)
 }
 
 // Triggers mallet and noise generator
-void Voice::trigger(double _srate, int _note, double _vel, MalletType _malletType, double _malletFreq, double _mallet_ktrack, bool skipFadeOut, MTSClient* mts)
+void Voice::trigger(double _srate, int _note, double _vel, MalletType _malletType, double _malletFreq, double _mallet_ktrack, MTSClient* mts)
 {
 	srate = _srate;
 	malletType = _malletType;
@@ -27,17 +27,14 @@ void Voice::trigger(double _srate, int _note, double _vel, MalletType _malletTyp
 	malletKtrack = _mallet_ktrack;
 
 	// fade out active voice before re-triggering
-	if (skipFadeOut) {
-		triggerStart(true);
-	}
-	else if (((resA.on && resA.active) || (resB.on && resB.active))) {
+	if (((resA.on && resA.active) || (resB.on && resB.active))) {
 		isFading = true;
 		fadeTotalSamples = (int)(globals::REPEAT_NOTE_FADE_MS * 0.001 * srate);
 		fadeSamples = fadeTotalSamples;
 		updateResonators();
 	}
 	else {
-		triggerStart(false);
+		triggerStart();
 	}
 }
 
@@ -46,17 +43,15 @@ double Voice::fadeOut()
 	fadeSamples--;
 	if (fadeSamples <= 0) {
 		isFading = false;
-		triggerStart(false);
+		triggerStart();
 	}
 	return isFading ? (double)fadeSamples / (double)fadeTotalSamples : 1.0;
 }
 
-void Voice::triggerStart(bool skipReset = false)
+void Voice::triggerStart()
 {
-	if (skipReset == false) {
-		resA.clear();
-		resB.clear();
-	}
+	resA.clear();
+	resB.clear();
 	isRelease = false;
 	isPressed = true;
 	pressed_ts = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();

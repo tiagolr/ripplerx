@@ -394,14 +394,20 @@ int RipplerXAudioProcessor::pickVoice(int note) {
             pick = i;
             break;
         }
+        // Priority 2: Released voices come before pressed ones
+        else if (!v1->isPressed && v2->isPressed) {
+            pick = i;
+        }
+        else if (v1->isPressed && !v2->isPressed) {
+            // keep current pick (v2 is released, which has priority)
+        }
+        // Priority 3: Among released voices, pick oldest release
         else if (!v1->isPressed && !v2->isPressed) {
             if (v1->release_ts < v2->release_ts) pick = i;
         }
+        // Priority 4: Among pressed voices, pick oldest press
         else if (v1->isPressed && v2->isPressed) {
             if (v1->pressed_ts < v2->pressed_ts) pick = i;
-        }
-        else if (!v1->isPressed && v2->isPressed) {
-            pick = i;
         }
     }
 
@@ -413,16 +419,16 @@ void RipplerXAudioProcessor::onNote(MIDIMsg msg)
     auto srate = getSampleRate();
 
     int nvoice = pickVoice(msg.note);
+    DBG("" << nvoice);
     Voice& voice = *voices[nvoice];
 
     auto mallet_type = (MalletType)params.getRawParameterValue("mallet_type")->load();
     auto mallet_stiff = (double)params.getRawParameterValue("mallet_stiff")->load();
     auto mallet_ktrack = (double)params.getRawParameterValue("mallet_ktrack")->load();
     auto vel_mallet_stiff = (double)params.getRawParameterValue("vel_mallet_stiff")->load();
-    bool reuseVoices = (bool)params.getRawParameterValue("reuse_voices")->load();
     auto malletFreq = fmax(100.0, fmin(5000.0, exp(log(mallet_stiff) + msg.vel / 127.0 * vel_mallet_stiff * 2.0 * (log(5000.0) - log(100.0)))));
 
-    voice.trigger(srate, msg.note, msg.vel / 127.0, mallet_type, malletFreq, mallet_ktrack, reuseVoices && voice.note == msg.note, mtsClientPtr);
+    voice.trigger(srate, msg.note, msg.vel / 127.0, mallet_type, malletFreq, mallet_ktrack, mtsClientPtr);
 }
 
 void RipplerXAudioProcessor::offNote(MIDIMsg msg)
