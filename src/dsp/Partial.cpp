@@ -10,6 +10,7 @@
  */
 LookupTable Partial::a1LUT;
 LookupTable Partial::sinLUT;
+
 void Partial::initA1LUT(double sampleRate)
 {
     static double a1LUTSrate = 0.0;
