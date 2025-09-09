@@ -379,6 +379,9 @@ bool RipplerXAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts)
 }
 #endif
 
+// O(N) version of
+// Sort the array by release time if the note is not pressed, otherwise sort by press time.
+// The release time sort should take priority over press time sort.
 int RipplerXAudioProcessor::pickVoice(int note) {
     int pick = 0;
     bool reuseVoices = (bool)params.getRawParameterValue("reuse_voices")->load();
@@ -389,6 +392,7 @@ int RipplerXAudioProcessor::pickVoice(int note) {
 
         if (v1->note == note && reuseVoices) {
             pick = i;
+            break;
         }
         else if (!v1->isPressed && !v2->isPressed) {
             if (v1->release_ts < v2->release_ts) pick = i;
