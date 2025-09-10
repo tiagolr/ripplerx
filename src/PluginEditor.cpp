@@ -966,6 +966,7 @@ void RipplerXAudioProcessorEditor::showSettingsMenu()
 {
     bool stereoizer = (bool)audioProcessor.params.getRawParameterValue("stereoizer")->load();
     bool reuseVoices = (bool)audioProcessor.params.getRawParameterValue("reuse_voices")->load();
+    bool fadeoutRepeats = (bool)audioProcessor.params.getRawParameterValue("fadeout_repeats")->load();
 
     PopupMenu menu;
     PopupMenu scaleMenu;
@@ -977,6 +978,7 @@ void RipplerXAudioProcessorEditor::showSettingsMenu()
 
     PopupMenu polyphonyMenu;
     polyphonyMenu.addItem(10, "Reuse voices on repeated notes", true, reuseVoices);
+    polyphonyMenu.addItem(12, "Fadeout repeated notes", reuseVoices, fadeoutRepeats);
 
     menu.addSubMenu("UI Scale", scaleMenu);
     menu.addSubMenu("Polyphony", polyphonyMenu);
@@ -985,7 +987,7 @@ void RipplerXAudioProcessorEditor::showSettingsMenu()
     auto menuPos = localPointToGlobal(settingsBtn.getBounds().getBottomRight());
     menu.showMenuAsync(PopupMenu::Options()
         .withTargetScreenArea({ menuPos.getX() - 125, menuPos.getY(), 1, 1 }),
-        [this, stereoizer, reuseVoices](int result) {
+        [this, stereoizer, reuseVoices, fadeoutRepeats](int result) {
             if (result == 0) return;
             if (result == 1) audioProcessor.setScale(1.f);
             if (result == 2) audioProcessor.setScale(1.25f);
@@ -1003,6 +1005,10 @@ void RipplerXAudioProcessorEditor::showSettingsMenu()
             if (result == 11) {
                 auto param = audioProcessor.params.getParameter("stereoizer");
                 param->setValueNotifyingHost(stereoizer ? 0.f : 1.f);
+            }
+            if (result == 12) {
+                auto param = audioProcessor.params.getParameter("fadeout_repeats");
+                param->setValueNotifyingHost(fadeoutRepeats ? 0.f : 1.f);
             }
         });
 }

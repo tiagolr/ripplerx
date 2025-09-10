@@ -93,6 +93,7 @@ RipplerXAudioProcessor::RipplerXAudioProcessor()
         std::make_unique<juce::AudioParameterInt>("bend_range", "PitchBend Range", 1, 24, 2),
         std::make_unique<juce::AudioParameterBool>("stereoizer", "Stereoizer", true),
         std::make_unique<juce::AudioParameterBool>("reuse_voices", "Reuse Voices", false),
+        std::make_unique<juce::AudioParameterBool>("fadeout_repeats", "Fadeout Repeated Notes", false),
     }),
     mtsClientPtr{nullptr}
 #endif
@@ -383,19 +384,24 @@ bool RipplerXAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts)
 // Sort the array by release time if the note is not pressed, otherwise sort by press time.
 // The release time sort should take priority over press time sort.
 int RipplerXAudioProcessor::pickVoice(int note) {
-    int pick = 0;
     bool reuseVoices = (bool)params.getRawParameterValue("reuse_voices")->load();
 
+    // Priority 1: note already playing in a voice
+    if (reuseVoices) {
+        for (int i = 0; i < polyphony; ++i) {
+            if (voices[i]->note == note) {
+                return i;
+            }
+        }
+    }
+
+    int pick = 0;
     for (int i = 1; i < polyphony; ++i) {
         const auto& v1 = voices[i];
         const auto& v2 = voices[pick];
 
-        if (v1->note == note && reuseVoices) {
-            pick = i;
-            break;
-        }
         // Priority 2: Released voices come before pressed ones
-        else if (!v1->isPressed && v2->isPressed) {
+        if (!v1->isPressed && v2->isPressed) {
             pick = i;
         }
         else if (v1->isPressed && !v2->isPressed) {
@@ -419,8 +425,11 @@ void RipplerXAudioProcessor::onNote(MIDIMsg msg)
     auto srate = getSampleRate();
 
     int nvoice = pickVoice(msg.note);
-    DBG("" << nvoice);
     Voice& voice = *voices[nvoice];
+
+    bool reuse_voices = (bool)params.getRawParameterValue("reuse_voices")->load();
+    bool fadeout_repeats = (bool)params.getRawParameterValue("fadeout_repeats")->load();
+    bool skip_fadeout = reuse_voices && !fadeout_repeats && voice.note == msg.note;
 
     auto mallet_type = (MalletType)params.getRawParameterValue("mallet_type")->load();
     auto mallet_stiff = (double)params.getRawParameterValue("mallet_stiff")->load();
@@ -428,7 +437,7 @@ void RipplerXAudioProcessor::onNote(MIDIMsg msg)
     auto vel_mallet_stiff = (double)params.getRawParameterValue("vel_mallet_stiff")->load();
     auto malletFreq = fmax(100.0, fmin(5000.0, exp(log(mallet_stiff) + msg.vel / 127.0 * vel_mallet_stiff * 2.0 * (log(5000.0) - log(100.0)))));
 
-    voice.trigger(srate, msg.note, msg.vel / 127.0, mallet_type, malletFreq, mallet_ktrack, mtsClientPtr);
+    voice.trigger(srate, msg.note, msg.vel / 127.0, mallet_type, malletFreq, mallet_ktrack, skip_fadeout, mtsClientPtr);
 }
 
 void RipplerXAudioProcessor::offNote(MIDIMsg msg)
