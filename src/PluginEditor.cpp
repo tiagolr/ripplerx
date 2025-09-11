@@ -4,9 +4,9 @@
 #include "PluginEditor.h"
 #include "Globals.h"
 
-RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcessor& p)
-    : AudioProcessorEditor (&p)
-    , audioProcessor (p)
+RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor(RipplerXAudioProcessor& p)
+    : AudioProcessorEditor(&p)
+    , audioProcessor(p)
     , keyboardComponent(audioProcessor.keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard)
 {
     audioProcessor.params.addParameterListener("couple", this);
@@ -16,11 +16,15 @@ RipplerXAudioProcessorEditor::RipplerXAudioProcessorEditor (RipplerXAudioProcess
     audioProcessor.params.addParameterListener("b_model", this);
     audioProcessor.params.addParameterListener("mallet_type", this);
 
-    setSize (650, 485);
-    MessageManager::callAsync([this] {
-        setScaleFactor(audioProcessor.scale); // FIX - Reaper
-    });
+    setSize(650, 485);
     setScaleFactor(audioProcessor.scale); // FIX - Logic
+
+    juce::Component::SafePointer<RipplerXAudioProcessorEditor> safeThis(this); // FIX Renoise DAW crashing on plugin instantiated
+    MessageManager::callAsync([safeThis] {
+        if (safeThis != nullptr)
+            safeThis->setScaleFactor(safeThis->audioProcessor.scale); // FIX - Reaper
+    });
+    
     auto col = 10;
     auto row = 10; 
 
