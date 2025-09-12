@@ -437,7 +437,7 @@ void RipplerXAudioProcessor::onNote(MIDIMsg msg)
     auto vel_mallet_stiff = (double)params.getRawParameterValue("vel_mallet_stiff")->load();
     auto malletFreq = fmax(100.0, fmin(5000.0, exp(log(mallet_stiff) + msg.vel / 127.0 * vel_mallet_stiff * 2.0 * (log(5000.0) - log(100.0)))));
 
-    voice.trigger(srate, msg.note, msg.vel / 127.0, mallet_type, malletFreq, mallet_ktrack, skip_fadeout, mtsClientPtr);
+    voice.trigger(++note_press_count, srate, msg.note, msg.vel / 127.0, mallet_type, malletFreq, mallet_ktrack, skip_fadeout, mtsClientPtr);
 }
 
 void RipplerXAudioProcessor::offNote(MIDIMsg msg)
@@ -445,7 +445,7 @@ void RipplerXAudioProcessor::offNote(MIDIMsg msg)
     for (int i = 0; i < polyphony; ++i) {
         Voice& voice = *voices[i];
         if (voice.note == msg.note && !voice.isRelease) {
-            voice.release();
+            voice.release(++note_release_count);
         }
     }
 }

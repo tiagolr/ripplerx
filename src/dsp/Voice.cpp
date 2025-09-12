@@ -15,7 +15,7 @@ double Voice::note2freq(int _note, MTSClient *mts)
 }
 
 // Triggers mallet and noise generator
-void Voice::trigger(double _srate, int _note, double _vel, MalletType _malletType, double _malletFreq, double _mallet_ktrack, bool skip_fadeout, MTSClient* mts)
+void Voice::trigger(uint64_t timestamp, double _srate, int _note, double _vel, MalletType _malletType, double _malletFreq, double _mallet_ktrack, bool skip_fadeout, MTSClient* mts)
 {
 	srate = _srate;
 	malletType = _malletType;
@@ -25,6 +25,10 @@ void Voice::trigger(double _srate, int _note, double _vel, MalletType _malletTyp
 	newNote = _note;
 	newFreq = note2freq(newNote, mts);
 	malletKtrack = _mallet_ktrack;
+
+	isRelease = false;
+	isPressed = true;
+	pressed_ts = timestamp;
 
 	// fade out active voice before re-triggering
 	if (skip_fadeout) {
@@ -57,9 +61,6 @@ void Voice::triggerStart(bool reset)
 		resA.clear();
 		resB.clear();
 	}
-	isRelease = false;
-	isPressed = true;
-	pressed_ts = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 	note = newNote;
 	vel = newVel;
 	freq = newFreq;
@@ -71,11 +72,11 @@ void Voice::triggerStart(bool reset)
 	updateResonators();
 }
 
-void Voice::release()
+void Voice::release(uint64_t timestamp)
 {
 	isRelease = true;
 	isPressed = false;
-	release_ts = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+	release_ts = timestamp;
 	noise.release();
 	updateResonators();
 }

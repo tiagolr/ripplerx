@@ -6,7 +6,6 @@
 
 #pragma once
 #include <array>
-#include <chrono>
 #include "Mallet.h"
 #include "Noise.h"
 #include "Resonator.h"
@@ -25,10 +24,10 @@ public:
 	~Voice() {}
 
 	double note2freq(int _note, MTSClient *mts);
-	void trigger(double srate, int _note, double vel, MalletType malletType, double malletFreq, double malletKTrack, bool skip_fade, MTSClient *mts);
+	void trigger(uint64_t timestamp, double srate, int _note, double vel, MalletType malletType, double malletFreq, double malletKTrack, bool skip_fade, MTSClient *mts);
 	void triggerStart(bool reset);
 	double fadeOut();
-	void release();
+	void release(uint64_t timestamp);
 	void clear();
 	void setPitch(double a_coarse, double b_coarse, double a_fine, double b_fine, double pitch_bend);
 	void setRatio(double _a_ratio, double _b_ratio);
@@ -54,8 +53,8 @@ public:
 	double srate = 44100.0;
 	double a_ratio = 1.0; // used to recalculate models
 	double b_ratio = 1.0; // used to recalculate models
-	int64_t pressed_ts = 0; // timestamp used to order notes
-	int64_t release_ts = 0; // timestamp used to order notes
+	uint64_t pressed_ts = 0; // timestamp used to order notes
+	uint64_t release_ts = 0; // timestamp used to order notes
 
 	// used to fade out on repeat notes
 	bool isFading = false;

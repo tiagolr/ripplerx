@@ -56,6 +56,8 @@ public:
     MTSClient *mtsClientPtr;
     MalletType l_mallet_type = MalletType::kImpulse; // used to detect mallet type changes
     bool sustainPedal = false;
+    uint64_t note_press_count = 0;
+    uint64_t note_release_count = 0;
     // pitch bend
     double bendStep = 0.1;
     double startBend = 1.0;
