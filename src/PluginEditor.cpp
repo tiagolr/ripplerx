@@ -1091,6 +1091,7 @@ void RipplerXAudioProcessorEditor::showModelMenu(bool AorB)
 
     auto menuPos = localPointToGlobal((AorB ? aModel : bModel).getBounds().getBottomLeft());
     mallets.showMenuAsync(PopupMenu::Options()
+        .withTargetComponent(*this)
         .withTargetScreenArea({ menuPos.getX(), menuPos.getY(), 1, 1 }),
         [this, AorB](int result) {
             if (result == 0) return;
@@ -1114,6 +1115,7 @@ void RipplerXAudioProcessorEditor::showPartialsMenu(bool AorB)
 
     auto menuPos = localPointToGlobal((AorB ? aPartials : bPartials).getBounds().getBottomLeft());
     mallets.showMenuAsync(PopupMenu::Options()
+        .withTargetComponent(*this)
         .withTargetScreenArea({ menuPos.getX(), menuPos.getY(), 1, 1 }),
         [this, AorB](int result) {
             if (result == 0) return;
