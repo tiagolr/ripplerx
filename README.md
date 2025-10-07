@@ -58,7 +58,7 @@ Chromaphone is a more complete synth with more features; it has a more sophistic
 If you like this synth, you should definitely check it out.
 
 The value of RipplerX is as an open source alternative to AAS plugins.
-It also provides an entry point for developers or researchers into physical modelling.
+It also provides an entry point for developers or researchers into modal synthesis.
 
 **Acknowledgments**
 
