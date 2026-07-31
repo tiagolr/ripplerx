@@ -38,6 +38,12 @@ RipplerX is a physically modeled synth, capable of sounds similar to AAS Chromap
   * Up to **64 partials** per resonator.
   * Built with **JUCE**.
 
+## Rippler (Commercial)
+
+If you like this synth, consider its bigger brother, [Rippler](https://refx.com/rippler/), published by reFX. It's a full-featured synth built on the same core models, with additional features such as a drag-and-drop modulation system, bi-directional resonator coupling, a dual-layer architecture, 400+ presets, and more.
+
+Thanks for your support!
+
 ## Download
 
 * [Download latest release](https://github.com/tiagolr/ripplerx/releases)
