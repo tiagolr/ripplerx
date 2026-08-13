@@ -50,6 +50,10 @@ Thanks for your support!
 * Current builds include VST3 and LV2 for Windows, Linux, and macOS, plus AU for macOS.
 * Clap is planned when there is official [JUCE support](https://juce.com/blog/juce-roadmap-update-q3-2024/).
 
+## Manual
+
+Checkout the [wiki pages](https://github.com/tiagolr/ripplerx/wiki).
+
 ## About
 
 RipplerX is a port of [Rippler2](https://github.com/tiagolr/tilr_jsfx?tab=readme-ov-file#rippler-2)
